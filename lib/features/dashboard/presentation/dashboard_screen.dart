@@ -1,0 +1,417 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/constants/assets.dart';
+import '../../../core/router/routes.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../data/mock_api/mock_data.dart';
+import '../../../data/repositories/repositories.dart';
+import '../../../shared/widgets/transfa_logo.dart';
+import '../../../shared/widgets/wallpaper_scaffold.dart';
+import '../../../features/pop-ups/viewBalance_popup.dart';
+import '../../../features/pop-ups/transfaAccountShare_popup.dart';
+import '../../../features/pop-ups/cashDrop_popup.dart';
+
+/// iOS-style home: bell top-right, "🏠 Home" title, frosted balance widget
+/// with profile + balance + Add Money pill, then a grid of app icons.
+class DashboardScreen extends ConsumerWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final wallet = ref.watch(walletProvider);
+    final user = ref.watch(currentUserProvider) ?? MockData.currentUser;
+
+    return WallpaperScaffold(
+      darken: 0.35,
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Bell with red dot
+            Align(
+              alignment: Alignment.centerRight,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    onPressed: () => context.push(Routes.notifications),
+                    icon: const Icon(
+                      Icons.notifications_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF9F0A),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            // "🏠 Home" title — long-press opens the Dev menu so every
+            // screen in the app is reachable during development.
+            GestureDetector(
+              onLongPress: () => context.push(Routes.devMenu),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                children: [
+                  SvgPicture.asset(Assets.home, fit: BoxFit.contain),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Home',
+                    style: AppTypography.displayLarge.copyWith(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
+            _BalanceWidget(
+              user: user,
+              balance: wallet.maybeWhen(
+                data: (w) => w.ngnBalance,
+                orElse: () => 0,
+              ),
+              onAddMoney: () => _showViewBalancePopup(
+                context,
+                user,
+                wallet.maybeWhen(data: (w) => w.ngnBalance, orElse: () => 0),
+              ),
+              onTap: () => context.push(Routes.wallet),
+            ),
+            const SizedBox(height: 32),
+            // App icon grid
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _HomeAppIcon(
+                  label: 'Settings',
+                  support: false,
+                  background: const Color(0xFF1A1A1A),
+                  onTap: () => context.push(Routes.settings),
+                  child: SvgPicture.asset(Assets.settings, fit: BoxFit.contain),
+                ),
+                _HomeAppIcon(
+                  label: 'Support',
+                  support: true,
+                  background: const Color(0xFF1976FF),
+                  onTap: () => context.push(Routes.memoChat),
+                  child: Image.asset(Assets.appIconSupport, fit: BoxFit.cover),
+                ),
+                _HomeAppIcon(
+                  label: 'Transfa',
+                  support: false,
+                  background: const Color(0xFF1A1A1A),
+                  onTap: () => context.push(Routes.amount),
+                  child: const TransfaMark(size: 32, white: true),
+                ),
+                _HomeAppIcon(
+                  label: 'CashDrop',
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF00C2FF), Color(0xFF006EFF)],
+                  ),
+                  svgAsset: Assets.cashDrop,
+                  onTap: () => _showCashDropPopup(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _HomeAppIcon(
+                  label: 'Wallet',
+                  background: const Color(0xFF1A1A1A),
+                  iconScale: 0.7,
+                  onTap: () => context.push(Routes.walletWidget),
+                  child: SvgPicture.asset(
+                    Assets.transfaWallet,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Center(
+              child: GestureDetector(
+                onTap: () => context.push(Routes.devMenu),
+                child: Text(
+                  'Tap to open Dev menu • long-press Home title for same',
+                  style: AppTypography.caption.copyWith(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showViewBalancePopup(
+    BuildContext context,
+    dynamic user,
+    double balance,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      builder: (context) => ViewBalancePopup(
+        user: user,
+        balance: balance,
+        onShareTap: () {
+          Navigator.of(context).pop();
+          _showTransfaAccountFoundPopup(context);
+        },
+        onCashDropTap: () {
+          Navigator.of(context).pop();
+          _showCashDropPopup(context);
+        },
+      ),
+    );
+  }
+
+  void _showTransfaAccountFoundPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      builder: (context) => const TransfaAccountSharePopup(),
+    );
+  }
+
+  void _showCashDropPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
+      builder: (context) => const CashDropPopup(),
+    );
+  }
+}
+
+class _BalanceWidget extends StatelessWidget {
+  final dynamic user;
+  final double balance;
+  final VoidCallback? onAddMoney;
+  final VoidCallback? onTap;
+
+  const _BalanceWidget({
+    required this.user,
+    required this.balance,
+    this.onAddMoney,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: const AssetImage(Assets.magic),
+                  backgroundColor: Colors.grey,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '₦${balance.truncate().toString()}',
+                              style: AppTypography.displayLarge.copyWith(
+                                color: Colors.white,
+                                fontSize: 30,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                            WidgetSpan(
+                              alignment: PlaceholderAlignment.baseline,
+                              baseline: TextBaseline.alphabetic,
+                              child: Transform.translate(
+                                offset: const Offset(0, -12),
+                                child: Text(
+                                  '.${AppFormat.ngn(balance).split('.').last}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: onAddMoney,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.20),
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.40),
+                          ),
+                        ),
+                        child: Text(
+                          'Add Money',
+                          style: AppTypography.bodyStrong.copyWith(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeAppIcon extends StatelessWidget {
+  final String label;
+  final Widget? child;
+  final String? svgAsset;
+  final Color? background;
+  final Gradient? gradient;
+  final double iconScale;
+  final VoidCallback? onTap;
+  final bool? support;
+
+  const _HomeAppIcon({
+    required this.label,
+    this.support,
+    this.child,
+    this.svgAsset,
+    this.background,
+    this.gradient,
+    this.iconScale = 0.55,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          support == true
+              ? Container(
+                  width: 66,
+                  height: 66,
+                  decoration: BoxDecoration(
+                    color: background,
+                    gradient: gradient,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                      width: 66,
+                      height: 66,
+                      child:
+                          child ??
+                          (svgAsset != null
+                              ? SvgPicture.asset(svgAsset!, fit: BoxFit.contain)
+                              : const SizedBox.shrink()),
+                    ),
+                  ),
+                )
+              : Container(
+                  width: 66,
+                  height: 66,
+                  decoration: BoxDecoration(
+                    color: background,
+                    gradient: gradient,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                      width: 66 * iconScale,
+                      height: 66 * iconScale,
+                      child:
+                          child ??
+                          (svgAsset != null
+                              ? SvgPicture.asset(svgAsset!, fit: BoxFit.contain)
+                              : const SizedBox.shrink()),
+                    ),
+                  ),
+                ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: AppTypography.body.copyWith(
+              color: Colors.white,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

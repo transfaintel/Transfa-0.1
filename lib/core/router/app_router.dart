@@ -1,0 +1,202 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../features/auth/presentation/create_pin_screen.dart';
+import '../../features/auth/presentation/identity_verification_screen.dart';
+import '../../features/auth/presentation/location_screen.dart';
+import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/onboarding_screen.dart';
+import '../../features/auth/presentation/photo_id_guide_screen.dart';
+import '../../features/auth/presentation/photo_id_screen.dart';
+import '../../features/auth/presentation/privacy_info_screen.dart';
+import '../../features/auth/presentation/splash_screen.dart';
+import '../../features/auth/presentation/unsupported_id_screen.dart';
+import '../../features/auth/presentation/id_collect_screen.dart';
+import '../../features/auth/presentation/verify_bvn_screen.dart';
+import '../../features/auth/presentation/verify_nin_screen.dart';
+import '../../features/auth/presentation/verify_startkey_screen.dart';
+import '../../features/auth/presentation/welcome_intro_screen.dart';
+import '../../features/auth/presentation/welcome_screen.dart';
+import '../../features/dashboard/presentation/add_money_screen.dart';
+import '../../features/dashboard/presentation/dashboard_screen.dart';
+import '../../features/dashboard/presentation/dev_menu_screen.dart';
+import '../../features/dashboard/presentation/share_account_screen.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/settings/presentation/change_password_screen.dart';
+import '../../features/settings/presentation/legal_screen.dart';
+import '../../features/settings/presentation/limits_screen.dart';
+import '../../features/settings/presentation/privacy_policy_screen.dart';
+import '../../features/settings/presentation/privacy_screen.dart';
+import '../../features/settings/presentation/profile_screen.dart';
+import '../../features/settings/presentation/security_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/auth/presentation/register_phone_screen.dart';
+import '../../features/auth/presentation/unlock_screens.dart';
+import '../../features/support/presentation/memo_chat_screen.dart';
+import '../../features/support/presentation/support_chat_screen.dart';
+import '../../features/support/presentation/support_screen.dart';
+import '../../features/wallet/presentation/wallet_widget_screen.dart';
+import '../../features/transactions/presentation/transaction_details_screen.dart';
+import '../../features/transactions/presentation/transaction_history_screen.dart';
+import '../../features/transfers/presentation/amount_keypad_screen.dart';
+import '../../features/transfers/presentation/amount_currency_sheet.dart';
+import '../../features/transfers/presentation/cashdrop_receive_screen.dart';
+import '../../features/transfers/presentation/info_modals.dart';
+import '../../features/transfers/presentation/status_screens.dart';
+import '../../features/transfers/presentation/cashdrop_scan_screen.dart';
+import '../../features/pop-ups/cashdrop_popup.dart';
+import '../../features/transfers/presentation/choose_bank_screen.dart';
+import '../../features/transfers/presentation/receipt_screens.dart';
+import '../../features/transfers/presentation/recipient_picker_screen.dart';
+import '../../features/transfers/presentation/recipient_screens.dart';
+import '../../features/transfers/presentation/send_form_screen.dart';
+import '../../features/transfers/presentation/transfa_ai_screen.dart';
+import '../../features/transfers/presentation/transfer_confirm_screen.dart';
+import '../../features/transfers/presentation/transfer_details_screen.dart';
+import '../../features/transfers/presentation/transfer_screen.dart';
+import '../../features/wallet/presentation/wallet_screen.dart';
+import '../../features/transfers/presentation/choose_country_screen.dart';
+import 'routes.dart';
+
+// Custom slide-up transition builder
+CustomTransitionPage buildPageWithTransition(Widget child) {
+  return CustomTransitionPage(
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(0, 1); // Start from bottom
+      const end = Offset.zero;
+      const curve = Curves.easeOutCubic;
+      
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+      var offsetAnimation = animation.drive(tween);
+      
+      return SlideTransition(
+        position: offsetAnimation,
+        child: child,
+      );
+    },
+    transitionDuration: const Duration(milliseconds: 800),
+  );
+}
+
+// Helper function to create routes with transition
+GoRoute slideRoute(String path, Widget page) {
+  return GoRoute(
+    path: path,
+    pageBuilder: (context, state) => buildPageWithTransition(page),
+  );
+}
+
+final goRouterProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    initialLocation: Routes.splash,
+    routes: [
+      // Boot / pre-auth
+      slideRoute(Routes.splash, const SplashScreen()),
+      slideRoute(Routes.devMenu, const DevMenuScreen()),
+      slideRoute(Routes.welcomeIntro, const WelcomeIntroScreen()),
+      slideRoute(Routes.onboarding, const OnboardingScreen()),
+
+      // Identity / KYC
+      slideRoute(Routes.identityVerification, const IdentityVerificationScreen()),
+      slideRoute(Routes.identityPrivacy, const PrivacyIdScreen()),
+      slideRoute(Routes.identityBankPrivacy, const PrivacyBankScreen()),
+      slideRoute(Routes.photoId, const PhotoIdScreen()),
+      slideRoute(Routes.photoIdGuide, const PhotoIdGuideScreen()),
+      slideRoute(Routes.verifyNin, const VerifyNinScreen()),
+      slideRoute(Routes.addBvn, const AddBvnScreen()),
+      slideRoute(Routes.verifyBvn, const VerifyBvnScreen()),
+      slideRoute(Routes.unsupportedId, const UnsupportedIdScreen()),
+      slideRoute(Routes.location, const LocationScreen()),
+
+      // Auth
+      slideRoute(Routes.register, const RegisterPhoneScreen()),
+      slideRoute(Routes.login, const LoginScreen()),
+      slideRoute(Routes.verifyStartkey, const VerifyStartkeyScreen()),
+      slideRoute(Routes.createPin, const CreatePinScreen()),
+      slideRoute(Routes.welcome, const WelcomeScreen()),
+
+      //pop-ups
+      slideRoute(Routes.cashDrop, const CashDropScreen()),
+
+      // Main
+      slideRoute(Routes.dashboard, const DashboardScreen()),
+      slideRoute(Routes.notifications, const NotificationsScreen()),
+      slideRoute(Routes.wallet, const WalletScreen()),
+      slideRoute(Routes.addMoney, const AddMoneyScreen()),
+      slideRoute(Routes.shareAccount, const ShareAccountScreen()),
+      slideRoute(Routes.cashDropReceive, const CashDropReceiveScreen()),
+      slideRoute(Routes.cashDropScan, const CashDropScanScreen()),
+      slideRoute(Routes.support, const SupportScreen()),
+      slideRoute(Routes.supportChat, const SupportChatScreen()),
+      slideRoute(Routes.walletWidget, const WalletWidgetScreen()),
+      slideRoute(Routes.transactions, const TransactionHistoryScreen()),
+      
+      GoRoute(
+        path: Routes.transactionDetails,
+        pageBuilder: (context, state) => buildPageWithTransition(
+          TransactionDetailsScreen(id: state.pathParameters['id']!),
+        ),
+      ),
+      
+      slideRoute(Routes.transfer, const TransferScreen()),
+      slideRoute(Routes.transferDetails, const TransferDetailsScreen()),
+      slideRoute(Routes.transferConfirm, const TransferConfirmScreen()),
+
+      // New transfer flow (Transfa AI)
+      slideRoute(Routes.transfaAi, const TransfaAiScreen()),
+      slideRoute(Routes.amount, const AmountKeypadScreen()),
+      slideRoute(Routes.sendForm, const SendFormScreen()),
+      slideRoute(Routes.recipientPick, const RecipientPickerScreen()),
+      slideRoute(Routes.recipientProfile, const RecipientProfileScreen()),
+      slideRoute(Routes.recipientMultiBank, const RecipientMultiBankScreen()),
+      slideRoute(Routes.recipientAmountPreview, const RecipientAmountPreviewScreen()),
+      slideRoute(Routes.chooseBank, const ChooseBankScreen()),
+      slideRoute(Routes.receiptUniversal, const ReceiptUniversalScreen()),
+      slideRoute(Routes.receiptStatus, const ReceiptStatusScreen()),
+      slideRoute(Routes.receiptUnable, const ReceiptUnableScreen()),
+      slideRoute(Routes.receiptReceived, const ReceiptReceivedScreen()),
+      slideRoute(Routes.receiptInReview, const ReceiptInReviewScreen()),
+      slideRoute(Routes.receiptReceivedCompany, const ReceiptReceivedCompanyScreen()),
+      slideRoute(Routes.receiptUniversalReceived, const ReceiptUniversalReceivedScreen()),
+      slideRoute(Routes.receiptUniversalProcessing, const ReceiptUniversalProcessingScreen()),
+      slideRoute(Routes.chooseCountry, const SendMoneyWherePage()),
+
+      // Unlock + recovery
+      slideRoute(Routes.faceShotUnlock, const FaceShotUnlockScreen()),
+      slideRoute(Routes.welcomeHomePhone, const WelcomeHomePhoneScreen()),
+      slideRoute(Routes.unlockPasscode, const UnlockPasscodeScreen()),
+      slideRoute(Routes.payPasscode, const PayPasscodeScreen()),
+      slideRoute(Routes.securityLockout, const SecurityLockoutScreen()),
+      slideRoute(Routes.forgotPasscode, const ForgotPasscodeScreen()),
+      slideRoute(Routes.recoveryStartkey, const RecoveryStartkeyScreen()),
+
+      // Memo support chat
+      slideRoute(Routes.memoChat, const MemoChatScreen()),
+
+      // Info / status / currency modals
+      slideRoute(Routes.bankUnavailable, const BankUnavailableScreen()),
+      slideRoute(Routes.noInternet, const NoInternetScreen()),
+      slideRoute(Routes.insufficientMoney, const InsufficientMoneyScreen()),
+      slideRoute(Routes.stampDuty, const StampDutyScreen()),
+      slideRoute(Routes.faceNotRecognized, const FaceNotRecognizedScreen()),
+      slideRoute(Routes.getPower, const GetPowerScreen()),
+      slideRoute(Routes.statusUnable, const StatusUnableScreen()),
+      slideRoute(Routes.statusProcessing, const StatusProcessingScreen()),
+      slideRoute(Routes.statusSent, const StatusSentScreen()),
+      slideRoute(Routes.amountCurrency, const AmountCurrencyScreen()),
+
+      // Settings
+      slideRoute(Routes.settings, const SettingsScreen()),
+      slideRoute(Routes.profile, const ProfileScreen()),
+      slideRoute(Routes.privacy, const PrivacyScreen()),
+      slideRoute(Routes.security, const SecurityScreen()),
+      slideRoute(Routes.limits, const LimitsScreen()),
+      slideRoute(Routes.privacyPolicy, const PrivacyPolicyScreen()),
+      slideRoute(Routes.legal, const LegalScreen()),
+      slideRoute(Routes.changePassword, const ChangePasswordScreen()),
+    ],
+    errorBuilder: (_, state) => Scaffold(body: Center(child: Text('No route: ${state.uri}'))),
+  );
+});

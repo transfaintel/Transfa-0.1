@@ -1,0 +1,477 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/routes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../data/repositories/repositories.dart';
+import '../../../shared/widgets/glass_card.dart';
+import '../../../shared/widgets/transfa_logo.dart';
+
+/// "Verify Your Startkey" — three glass cards: brand header, code entry
+/// with 6 underscore slots, and countdown/action cards.
+class VerifyStartkeyScreen extends ConsumerStatefulWidget {
+  const VerifyStartkeyScreen({super.key});
+
+  @override
+  ConsumerState<VerifyStartkeyScreen> createState() => _VerifyStartkeyScreenState();
+}
+
+class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
+  String _code = '';
+  Timer? _countdownTimer;
+  int _remainingSeconds = 60;
+  bool _showCountdownCard = true;
+  late final FocusNode _focusNode;
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _controller = TextEditingController();
+    _startCountdown();
+    
+    _controller.addListener(_onTextChanged);
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    _controller.removeListener(_onTextChanged);
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onTextChanged() {
+    final value = _controller.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (value.length <= 6) {
+      setState(() {
+        _code = value;
+      });
+      if (value.length == 6) {
+        _verify();
+      }
+    }
+    if (_controller.text != value) {
+      _controller.value = TextEditingValue(
+        text: value,
+        selection: TextSelection.collapsed(offset: value.length),
+      );
+    }
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    setState(() {
+      _remainingSeconds = 60;
+      _showCountdownCard = true;
+    });
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds <= 1) {
+        timer.cancel();
+        setState(() {
+          _showCountdownCard = false;
+        });
+      } else {
+        setState(() {
+          _remainingSeconds--;
+        });
+      }
+    });
+  }
+
+  Future<void> _verify() async {
+    await ref.read(authRepositoryProvider).verifyOtp(_code);
+    if (!mounted) return;
+    context.push(Routes.createPin);
+  }
+
+  void _resendCode() {
+    _startCountdown();
+    setState(() {
+      _code = '';
+      _controller.clear();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final phone = ref.watch(currentUserProvider)?.phone ?? '0703 208 4888';
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F4F4),
+      resizeToAvoidBottomInset: true, // This is key - resizes when keyboard appears
+      body: GestureDetector(
+        onTap: () {
+          _focusNode.requestFocus();
+        },
+        behavior: HitTestBehavior.translucent,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 50, 20, 12),
+                  child: Column(
+                    children: [
+                      GlassCard(
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1A1A1A),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.15),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              alignment: Alignment.center,
+                              child: const TransfaMark(size: 30, white: true),
+                            ),
+                            const SizedBox(height: 18),
+                            Text(
+                              'Verify Your Startkey',
+                              style: AppTypography.displayMedium.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 32,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Transfa sent your Startkey to your\nphone: $phone.',
+                              style: AppTypography.body.copyWith(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      GestureDetector(
+                        onTap: () {
+                          _focusNode.requestFocus();
+                        },
+                        child: GlassCard(
+                          padding: const EdgeInsets.fromLTRB(24, 22, 24, 30),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Enter the Startkey here',
+                                    style: AppTypography.subheading.copyWith(fontSize: 19),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const _GreenDot(),
+                                ],
+                              ),
+                              const SizedBox(height: 36),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: List.generate(6, (i) {
+                                  final char = i < _code.length ? _code[i] : null;
+                                  return _KeySlot(char: char);
+                                }),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      if (_showCountdownCard)
+                        GlassCard(
+                          padding: EdgeInsets.zero,
+                          child: Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      'Code Delayed?',
+                                      style: TextStyle(
+                                        fontFamily: 'Roboto',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16,
+                                        letterSpacing: 0.02,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+                                        ),
+                                        borderRadius: BorderRadius.circular(35),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    const Expanded(
+                                      child: Text(
+                                        'Code Sent',
+                                        style: TextStyle(
+                                          fontFamily: 'Roboto',
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 17,
+                                          letterSpacing: 0.02,
+                                          color: Color(0xFF8A8A8C),
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      _formatTime(_remainingSeconds),
+                                      style: const TextStyle(
+                                        fontFamily: 'Roboto',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 17,
+                                        letterSpacing: 0.02,
+                                        color: Color(0xFF8A8A8C),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () => context.pop(),
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+                                          ),
+                                          borderRadius: BorderRadius.circular(35),
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 12,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      const Expanded(
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 17,
+                                            letterSpacing: 0.02,
+                                            color: Color(0xFFF41E42),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (!_showCountdownCard)
+                        GlassCard(
+                          padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Missing the Key?',
+                                style: AppTypography.subheading.copyWith(fontSize: 19),
+                              ),
+                              const SizedBox(height: 12),
+                              _ActionRow(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+                                ),
+                                icon: Icons.refresh_rounded,
+                                label: 'Send New Startkey',
+                                onTap: _resendCode,
+                              ),
+                              const SizedBox(height: 10),
+                              _ActionRow(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+                                ),
+                                icon: Icons.close_rounded,
+                                label: 'Cancel',
+                                onTap: () => context.pop(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 20), // Extra bottom padding
+                    ],
+                  ),
+                ),
+              ),
+              // Hidden TextField
+              Container(
+                height: 1,
+                width: 1,
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  obscureText: false,
+                  showCursor: false,
+                  autofocus: true,
+                  style: const TextStyle(fontSize: 1),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    counterText: '',
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  onEditingComplete: () {
+                    if (_code.length == 6) {
+                      _verify();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+}
+
+class _GreenDot extends StatelessWidget {
+  const _GreenDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.success,
+      ),
+    );
+  }
+}
+
+class _KeySlot extends StatelessWidget {
+  final String? char;
+  const _KeySlot({this.char});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 40,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 36,
+            child: Center(
+              child: Text(
+                char ?? '',
+                style: AppTypography.heading.copyWith(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            height: 3,
+            color: Colors.black,
+            margin: const EdgeInsets.only(top: 2),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionRow extends StatelessWidget {
+  final Gradient gradient;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _ActionRow({
+    required this.gradient,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: gradient,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: AppTypography.bodyStrong.copyWith(
+                fontSize: 19,
+                fontWeight: FontWeight.w700,
+                foreground: Paint()
+                  ..shader = gradient.createShader(
+                    const Rect.fromLTWH(0, 0, 200, 50),
+                  ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
