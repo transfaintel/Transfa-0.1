@@ -27,7 +27,7 @@ class _InsufficientMoneyPopupState extends State<InsufficientMoneyPopup>
     super.initState();
     _slideController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 800),
     );
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:transfa/features/pop-ups/transfaAccountFound_popup.dart';
 import '../../../core/constants/assets.dart';
 
 class CashDropPopup extends StatefulWidget {
@@ -96,7 +97,19 @@ class CashDropPopupState extends State<CashDropPopup>
                               ),
                               const SizedBox(height: 30),
                               Expanded(
-                                child: Column(
+                                child: GestureDetector(
+            onTap: () => {
+              Navigator.of(context).pop(),
+              showDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      barrierColor: Colors.black.withOpacity(0.5),
+                      builder: (context) => TransfaAccountFoundPopup(
+                        userName: 'Magic Paygma',
+                        userImageUrl:  Assets.magic,
+                      )),
+            },
+            child: Column(
                                   children: [
                                     SizedBox(
                                       width: 250,
@@ -209,7 +222,7 @@ class CashDropPopupState extends State<CashDropPopup>
                                       ),
                                     ),
                                   ],
-                                ),
+                                )),
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(

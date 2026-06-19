@@ -12,6 +12,7 @@ class TransfaStatusProgressPopup extends StatefulWidget {
   final String accountName;
   final String accountNumber;
   final double amount;
+  final String? image;
   final String description;
   final String bankName;
   final double progressPercentage; // 0.0 to 1.0
@@ -22,6 +23,7 @@ class TransfaStatusProgressPopup extends StatefulWidget {
     required this.accountName,
     required this.accountNumber,
     required this.amount,
+    this.image = '',
     required this.description,
     required this.bankName,
     this.progressPercentage = 0.7, // Default 70% progress
@@ -34,7 +36,6 @@ class TransfaStatusProgressPopup extends StatefulWidget {
 
 class _TransfaStatusProgressPopupState extends State<TransfaStatusProgressPopup>
     with TickerProviderStateMixin {
-  // Changed from SingleTickerProviderStateMixin
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
@@ -187,8 +188,8 @@ class _TransfaStatusProgressPopupState extends State<TransfaStatusProgressPopup>
                                 ),
                                 child: Column(
                                   children: [
-                                    // Avatar with GENIUS gradient
-                                    const _ProgressBusinessAvatar(),
+                                    // Avatar with image from widget
+                                    _ProgressBusinessAvatar(image: widget.image!),
                                     const SizedBox(height: 10),
                                     // Business Name
                                     Text(
@@ -422,29 +423,42 @@ class _StatusTransfaIcon extends StatelessWidget {
     );
   }
 }
-
 class _ProgressBusinessAvatar extends StatelessWidget {
-  const _ProgressBusinessAvatar();
+  final String image;
+  
+  const _ProgressBusinessAvatar({required this.image});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 120,
       height: 120,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFFF6777), Color(0xFFF74155)],
-        ),
-        shape: BoxShape.circle,
-      ),
       child: Center(
         child: Container(
           width: 110,
           height: 110,
-
-          child: SvgPicture.asset(Assets.contacts),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFFF6777), Color(0xFFF74155)],
+            ),
+            shape: BoxShape.circle,
+          ),
+          clipBehavior: Clip.hardEdge,
+          child: image.isEmpty
+              ? SvgPicture.asset(
+                  Assets.contacts,
+                  width: 110,
+                  height: 110,
+                  fit: BoxFit.contain,
+                )
+              : Image.asset(
+                  image,
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
         ),
       ),
     );

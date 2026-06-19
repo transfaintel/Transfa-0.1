@@ -25,6 +25,20 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
   _PickerMode _mode = _PickerMode.recents;
   final _search = TextEditingController();
 
+  // Mock account numbers for contacts - replace with actual data
+  static final Map<String, String> _accountNumbers = {
+    'Amadioha Obi': '123 456 7890',
+    'Dalia Wetzel': '234 567 8901',
+    'Magic Payma': '207 922 3313',
+    'Hugo Menendez': '345 678 9012',
+    'Saraphina Gonzalez': '456 789 0123',
+    'Sarah Bon': '567 890 1234',
+    'Janelle Hickleson': '678 901 2345',
+    'John Caled': '789 012 3456',
+    'Tobias Walsh': '890 123 4567',
+    'Maya Carter': '901 234 5678',
+  };
+
   static final _contacts = [
     _Contact('Amadioha Obi', null, color: Color(0xFFFF375F), red: true),
     _Contact('Dalia Wetzel', Assets.avatarGrace),
@@ -58,9 +72,18 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
   ];
 
   void _pick(_Contact c) {
+    // Create a map with the selected recipient data
+    final result = {
+      'name': c.name,
+      'accountNumber': _accountNumbers[c.name] ?? '000 000 0000',
+      'image': c.asset ?? Assets.magic,
+    };
+    
+    // Update the transfer draft
     ref.read(transferDraftProvider.notifier).state =
         ref.read(transferDraftProvider).copyWith(recipientName: c.name);
-    if (mounted) context.pop();
+    
+    if (mounted) context.pop(result);
   }
 
   @override
@@ -244,7 +267,6 @@ class _ListCard extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
-            // offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -334,7 +356,6 @@ class _RecentsCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Recents.svg is the full app-icon tile (rounded square + clock glyph).
     return Container(
       width: 56,
       height: 56,
@@ -361,12 +382,9 @@ class _ContactsCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Contacts.svg is just the white person glyph — pair it with the
-    // brand-green rounded tile background.
     return Container(
       width: 56,
       height: 56,
-      
       alignment: Alignment.center,
       child: SvgPicture.asset(Assets.contactHeader, width: 56, height: 56),
     );

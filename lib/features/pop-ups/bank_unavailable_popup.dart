@@ -24,6 +24,7 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
   late final Animation<Offset> _slideAnimation;
+  late final Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -32,6 +33,7 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
+    
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
@@ -39,6 +41,15 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
       parent: _animationController,
       curve: Curves.easeOutCubic,
     ));
+    
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    
     _animationController.forward();
   }
 
@@ -49,9 +60,16 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
   }
 
   Future<void> closeWithAnimation() async {
+    if (_animationController.isAnimating) return;
+    
+    // Reverse the animation
     await _animationController.reverse();
+    
     if (mounted) {
+      // Call onClose callback if provided
       widget.onClose?.call();
+      // Navigate back
+      Navigator.of(context).pop();
     }
   }
 
@@ -68,16 +86,25 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
         color: Colors.transparent,
         child: Center(
           child: GestureDetector(
-            onTap: () {},
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: _BankUnavailableContent(
-                bankName: widget.bankName,
-                onContinue: () {
-                  widget.onContinueWithTransfa?.call();
-                  closeWithAnimation();
-                },
-                onClose: closeWithAnimation,
+            onTap: () {
+              // Close on tapping outside
+              closeWithAnimation();
+            },
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: GestureDetector(
+                  onTap: () {}, // Prevent closing when tapping inside
+                  child: _BankUnavailableContent(
+                    bankName: widget.bankName,
+                    onContinue: () {
+                      widget.onContinueWithTransfa?.call();
+                      closeWithAnimation();
+                    },
+                    onClose: closeWithAnimation,
+                  ),
+                ),
               ),
             ),
           ),
@@ -121,14 +148,14 @@ class _BankUnavailableContent extends StatelessWidget {
             child: Column(
               children: [
                 // Network Unavailable Icon
-                // Network Unavailable Icon
                 Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                  width: 60,
-                  height: 60,
-                  child: SvgPicture.asset(Assets.networkUnavailable),
-                )),
+                    width: 60,
+                    height: 60,
+                    child: SvgPicture.asset(Assets.networkUnavailable),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 // Storyline Text
                 Column(
@@ -195,7 +222,7 @@ class _BankUnavailableContent extends StatelessWidget {
                       borderRadius: BorderRadius.circular(35),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10,),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Row(
                         children: [
                           // Transfa small icon
@@ -303,7 +330,10 @@ Future<void> showBankUnavailablePopup(
     builder: (dialogContext) => BankUnavailablePopup(
       bankName: bankName,
       onContinueWithTransfa: onContinueWithTransfa,
-      onClose: () => Navigator.of(dialogContext).pop(),
+      onClose: () {
+        // This is called when the animation completes
+        // The pop is handled in closeWithAnimation
+      },
     ),
   );
 }

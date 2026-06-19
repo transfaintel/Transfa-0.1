@@ -41,10 +41,8 @@ import '../../features/transactions/presentation/transaction_details_screen.dart
 import '../../features/transactions/presentation/transaction_history_screen.dart';
 import '../../features/transfers/presentation/amount_keypad_screen.dart';
 import '../../features/transfers/presentation/amount_currency_sheet.dart';
-import '../../features/transfers/presentation/cashdrop_receive_screen.dart';
 import '../../features/transfers/presentation/info_modals.dart';
 import '../../features/transfers/presentation/status_screens.dart';
-import '../../features/transfers/presentation/cashdrop_scan_screen.dart';
 import '../../features/pop-ups/cashdrop_popup.dart';
 import '../../features/transfers/presentation/choose_bank_screen.dart';
 import '../../features/transfers/presentation/receipt_screens.dart';
@@ -126,8 +124,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       slideRoute(Routes.wallet, const WalletScreen()),
       slideRoute(Routes.addMoney, const AddMoneyScreen()),
       slideRoute(Routes.shareAccount, const ShareAccountScreen()),
-      slideRoute(Routes.cashDropReceive, const CashDropReceiveScreen()),
-      slideRoute(Routes.cashDropScan, const CashDropScanScreen()),
       slideRoute(Routes.support, const SupportScreen()),
       slideRoute(Routes.supportChat, const SupportChatScreen()),
       slideRoute(Routes.walletWidget, const WalletWidgetScreen()),

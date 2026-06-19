@@ -20,7 +20,7 @@ import '../../../features/pop-ups/transfaStatusProgress_popup.dart';
 import '../../../features/pop-ups/transfaStatusUnavailable_popup.dart';
 import '../../../features/pop-ups/transfaBankPrivacy_popup.dart';
 import '../../../features/pop-ups/transfaIdPrivacy_popup copy.dart';
-import '../../../features/pop-ups/transfaAccountFound_popup.dart';
+// import '../../../features/pop-ups/transfaAccountFound_popup.dart';
 import '../../../features/pop-ups/transfaDone_popup.dart';
 import '../../../features/pop-ups/checkYourNumber_popup.dart';
 import '../../../features/pop-ups/enterCorrectCode_popup.dart';
@@ -28,7 +28,6 @@ import '../../../core/constants/assets.dart';
 import '../../../features/pop-ups/currency_popup.dart';
 import '../../../features/pop-ups/bank_unavailable_popup.dart';
 import '../../../features/pop-ups/no_internet_popup.dart';
-import '../../../features/pop-ups/single_bank_popup.dart';
 import '../../../features/pop-ups/cashdrop_popup.dart';
 
 // BOTTOM SHEET IMPORTS FOR DEV TESTING
@@ -380,15 +379,15 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   _sendDollarsSheetMemo = value;
                 });
               },
-              onSendDollarsSheetRoutingInfo: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Routing info tapped')),
-                );
+              onSendDollarsSheetRoutingInfo: (value) {
+                setState(() {
+                  _sendDollarsSheetRoutingNumber = value;
+                });
               },
-              onSendDollarsSheetSwiftInfo: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('SWIFT info tapped')),
-                );
+              onSendDollarsSheetSwiftInfo: (value) {
+                setState(() {
+                  _sendDollarsSheetSwiftCode = value;
+                });
               },
               summaryNotesAmount: _summaryNotesAmount,
               summaryNotesFromCurrency: _summaryNotesFromCurrency,
@@ -542,8 +541,8 @@ class _BottomSheetTestSection extends StatelessWidget {
   final double sendDollarsSheetUserBalance;
   final double sendDollarsSheetTransactionFee;
   final Function(String) onSendDollarsSheetMemoChanged;
-  final VoidCallback onSendDollarsSheetRoutingInfo;
-  final VoidCallback onSendDollarsSheetSwiftInfo;
+  final Function(String) onSendDollarsSheetRoutingInfo;
+  final Function(String) onSendDollarsSheetSwiftInfo;
 
   final String summaryNotesAmount;
   final AmountCurrency summaryNotesFromCurrency;
@@ -759,44 +758,7 @@ class _BottomSheetTestSection extends StatelessWidget {
                   );
                 },
               ),
-              const Divider(
-                height: 1,
-                indent: 16,
-                endIndent: 16,
-                color: Color(0xFFEEEEEE),
-              ),
-              // Multiple Accounts Sheet Item
-              _BottomSheetRow(
-                label: 'Multiple Accounts Sheet (USD)',
-                description: 'Shown when recipient has multiple bank accounts',
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(45),
-                        topRight: Radius.circular(45),
-                      ),
-                    ),
-                    builder: (context) => MultipleAccountsSheet(
-                      amount: multipleAccountsAmount,
-                      currency: multipleAccountsCurrency,
-                      memo: multipleAccountsMemo,
-                      recipientName: multipleAccountsRecipientName,
-                      banks: multipleAccountsBanks,
-                      onMemoChanged: (newMemo) {
-                        onMultipleAccountsMemoChanged(newMemo);
-                      },
-                      onBankSelected: (bank) {
-                        debugPrint('Selected bank: ${bank.name}');
-                        Navigator.pop(context);
-                      },
-                    ),
-                  );
-                },
-              ),
+              
               const Divider(
                 height: 1,
                 indent: 16,
@@ -1028,15 +990,14 @@ class _PopupTestSection extends StatelessWidget {
       _PopupItem('Currency Popup', CurrencyPopup()),
       _PopupItem('NO Internet Popup', NoInternetPopup()),
       _PopupItem('Multiple Banks Popup', MultipleBanksPopup()),
-      _PopupItem('Single Bank Popup', SingleAccountFoundPopup()),
       _PopupItem('Bank Unavailable', BankUnavailablePopup(bankName: "Wema")),
-      _PopupItem(
-        'Transfa Account Found Popup',
-        TransfaAccountFoundPopup(
-          userName: "Magic Paygma",
-          userImageUrl: Assets.magic,
-        ),
-      ),
+      // _PopupItem(
+      //   'Transfa Account Found Popup',
+      //   TransfaAccountFoundPopup(
+      //     userName: "Magic Paygma",
+      //     userImageUrl: Assets.magic,
+      //   ),
+      // ),
       _PopupItem(
         'Transfa Done Popup',
         TransfaDonePopup(userName: "Magic Paygma", userImageUrl: Assets.magic),

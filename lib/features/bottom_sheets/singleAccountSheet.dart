@@ -2,64 +2,63 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import 'package:transfa/features/pop-ups/chooseBank_popup.dart';
 import '../../../core/constants/assets.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/transfa_logo.dart';
-import '../../../data/mock_api/currency.dart';
-import '../../features/bottom_sheets/singleAccountSheet.dart';
-import '../../features/pop-ups/bank_unavailable_popup.dart';
+import '../../../core/router/routes.dart';
+import '../../features/pop-ups/transfaDone_popup.dart';
 
 // ============================================================
-// MULTIPLE ACCOUNTS BOTTOM SHEET
+// SINGLE ACCOUNT BOTTOM SHEET
 // ============================================================
 
-class BankAccount {
-  final String name;
-  final String logoAsset;
-  final Color? gradientColor1;
-  final Color? gradientColor2;
-
-  const BankAccount({
-    required this.name,
-    required this.logoAsset,
-    this.gradientColor1,
-    this.gradientColor2,
-  });
-}
-
-class MultipleAccountsSheet extends StatefulWidget {
+class SingleAccountSheet extends StatefulWidget {
   final String amount;
-  final AmountCurrency currency;
+  final String currencySymbol;
   final String memo;
   final String recipientName;
   final String? recipientImageUrl;
   final String accountNumber;
-  final List<BankAccount> banks;
+  final String bankName;
+  final String? bankLogoAsset;
+  final Color? bankGradientColor1;
+  final Color? bankGradientColor2;
   final Function(String) onMemoChanged;
 
-  const MultipleAccountsSheet({
+  const SingleAccountSheet({
     super.key,
     required this.amount,
-    required this.currency,
+    required this.currencySymbol,
     required this.memo,
     required this.recipientName,
     this.recipientImageUrl,
     required this.accountNumber,
-    required this.banks,
+    required this.bankName,
+    this.bankLogoAsset,
+    this.bankGradientColor1,
+    this.bankGradientColor2,
     required this.onMemoChanged,
   });
 
   @override
-  State<MultipleAccountsSheet> createState() => _MultipleAccountsSheetState();
+  State<SingleAccountSheet> createState() => _SingleAccountSheetState();
 }
 
-class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
+class _SingleAccountSheetState extends State<SingleAccountSheet> {
   final TextEditingController _memoController = TextEditingController();
 
   // Mock user balance
   final double _userBalance = 25000000.00;
-  final double _transactionFee = 2500.00;
+  final double _transactionFee = 1000.00;
   final double _disputeProtection = 25000.00;
+
+  // Bank selection state
+  String _selectedBankName = '';
+  String? _selectedBankLogoAsset;
+  Color? _selectedBankGradientColor1;
+  Color? _selectedBankGradientColor2;
 
   double get _totalAmount {
     final amount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
@@ -91,6 +90,11 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
   void initState() {
     super.initState();
     _memoController.text = widget.memo;
+    // Initialize with the passed bank info
+    _selectedBankName = widget.bankName;
+    _selectedBankLogoAsset = widget.bankLogoAsset;
+    _selectedBankGradientColor1 = widget.bankGradientColor1;
+    _selectedBankGradientColor2 = widget.bankGradientColor2;
   }
 
   @override
@@ -103,55 +107,79 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
     widget.onMemoChanged(value);
   }
 
-  void _showNotAvailable(){
+  void _showChooseBankPopup() {
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      useSafeArea: true,
-      builder: (context) => BankUnavailablePopup(bankName: "Wema",),
+      barrierColor: Colors.black.withOpacity(0.6),
+      builder: (context) => ChooseBankPopup(
+        onTransfaSelected: () => _updateBankSelection(
+          bankName: 'Transfa',
+          logoAsset: Assets.logoSmallWhite,
+          gradientColor1: const Color.fromARGB(255, 0, 0, 0),
+          gradientColor2: const Color.fromARGB(255, 0, 0, 16),
+        ),
+        onChaseSelected: () => _updateBankSelection(
+          bankName: 'Chase',
+          logoAsset: Assets.bankchase,
+          gradientColor1: const Color(0xFFFFFFFF),
+          gradientColor2: const Color(0xFFFFFFFF),
+        ),
+        onOPaySelected: () => _updateBankSelection(
+          bankName: 'OPay',
+          logoAsset: Assets.bankOpay,
+          gradientColor1: const Color(0xFFFFFFFF),
+          gradientColor2: const Color(0xFFFFFFFF),
+        ),
+      ),
     );
   }
 
-  void _onBankSelected(BankAccount bank) {
-    // Close the multiple accounts sheet
-    Navigator.pop(context);
+  void _showDonePopup() {
+    // Get the recipient name from widget
+    final String recipientName = widget.recipientName;
+    final String recipientImageUrl = widget.recipientImageUrl!;
     
-    // Show the single account sheet with the selected bank
-    showModalBottomSheet(
+    // Close the current bottom sheet first
+    Navigator.of(context).pop();
+    
+    // Then show the done popup
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(45),
-          topRight: Radius.circular(45),
-        ),
-      ),
-      builder: (context) => SingleAccountSheet(
-        recipientName: widget.recipientName,
-        currencySymbol: widget.currency.symbol,
-        amount: widget.amount,
-        memo: widget.memo,
-        accountNumber: widget.accountNumber,
-        bankName: bank.name,
-        recipientImageUrl: widget.recipientImageUrl,
-        bankLogoAsset: bank.logoAsset,
-        bankGradientColor1: bank.gradientColor1,
-        bankGradientColor2: bank.gradientColor2,
-        onMemoChanged: (newMemo) {
-          widget.onMemoChanged(newMemo);
-          _memoController.text = newMemo;
-        },
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.6),
+      builder: (context) => TransfaDonePopup(
+        userName: recipientName,
+        userImageUrl: recipientImageUrl,
       ),
     );
+  }
+
+  void _updateBankSelection({
+    required String bankName,
+    required String logoAsset,
+    required Color gradientColor1,
+    required Color gradientColor2,
+  }) {
+    setState(() {
+      _selectedBankName = bankName;
+      _selectedBankLogoAsset = logoAsset;
+      _selectedBankGradientColor1 = gradientColor1;
+      _selectedBankGradientColor2 = gradientColor2;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final String symbol = widget.currency.symbol;
+    final String symbol = widget.currencySymbol;
     final double parsedAmount =
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
+
+    // Determine which logo to show
+    final String logoToShow = _selectedBankLogoAsset ?? widget.bankLogoAsset ?? '';
+    final String bankNameToShow = _selectedBankName.isNotEmpty ? _selectedBankName : widget.bankName;
+    final Color? gradient1 = _selectedBankGradientColor1 ?? widget.bankGradientColor1;
+    final Color? gradient2 = _selectedBankGradientColor2 ?? widget.bankGradientColor2;
 
     return Container(
       height: 620,
@@ -298,59 +326,99 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Choose a Bank Section
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Column(
-                            children: [
-                              // Navigation Note
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        '${widget.recipientName} has multiple bank accounts, choose a bank to pay.',
-                                        style: const TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          letterSpacing: 0.02,
-                                          color: Colors.black,
+                        // Transfa Account Info - Updated with selected bank
+                        GestureDetector(
+                          onTap: _showChooseBankPopup,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFCFCFB),
+                              borderRadius: BorderRadius.circular(35),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    gradient: gradient1 != null && gradient2 != null
+                                        ? LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [gradient1, gradient2],
+                                          )
+                                        : const LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Color(0xFF00BCF6),
+                                              Color(0xFF006EFF),
+                                            ],
+                                          ),
+                                    borderRadius: BorderRadius.circular(35),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 7,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: logoToShow.isNotEmpty
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(35),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(10),
+                                            child: logoToShow.contains('.svg')
+                                                ? SvgPicture.asset(
+                                                    logoToShow,
+                                                    width: 30,
+                                                    height: 30,
+                                                  )
+                                                : Image.asset(
+                                                    logoToShow,
+                                                    width: 30,
+                                                    height: 30,
+                                                  ),
+                                          ),
+                                        )
+                                      : const Center(
+                                          child: Icon(
+                                            Icons.account_balance,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
                                 ),
-                              ),
-                              // Bank List
-                              ...widget.banks.asMap().entries.map((entry) {
-                                final index = entry.key;
-                                final bank = entry.value;
-                                return Column(
-                                  children: [
-                                    _BankRow(
-                                      bank: bank,
-                                      onTap: () => _onBankSelected(bank),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    bankNameToShow,
+                                    style: const TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 17,
+                                      letterSpacing: 0.02,
+                                      color: Colors.black,
                                     ),
-                                    if (index < widget.banks.length - 1)
-                                      const Divider(
-                                        height: 1,
-                                        indent: 16,
-                                        endIndent: 16,
-                                        color: Color(0x08000000),
-                                      ),
-                                  ],
-                                );
-                              }),
-                            ],
+                                  ),
+                                ),
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  alignment: Alignment.center,
+                                  child: SvgPicture.asset(
+                                    Assets.context,
+                                    width: 12,
+                                    height: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
+                        
                         const SizedBox(height: 20),
 
                         // Send Amount Field
@@ -442,7 +510,7 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                     color: Colors.black,
                                   ),
                                   decoration: const InputDecoration(
-                                    hintText: 'Tactical Technology Grant',
+                                    hintText: '10 Acres',
                                     hintStyle: TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -577,16 +645,6 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          const TextSpan(
-                                            text: ' Fee',
-                                            style: TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 17,
-                                              letterSpacing: 0.02,
-                                              color: Colors.black,
-                                            ),
-                                          ),
                                         ],
                                       ),
                                     ),
@@ -688,9 +746,9 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Pay Bubble - Touch to Confirm (Disabled State)
+                        // Pay Bubble - Touch to Confirm
                         GestureDetector(
-                          onTap: _showNotAvailable,
+                          onTap: _showDonePopup,
                           child: Container(
                             width: double.infinity,
                             height: 150,
@@ -727,7 +785,7 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                     fontWeight: FontWeight.w400,
                                     fontSize: 17,
                                     letterSpacing: 0.02,
-                                    color: Color(0x4D000000),
+                                    color: Colors.black,
                                   ),
                                 ),
                               ],
@@ -742,110 +800,6 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BankRow extends StatelessWidget {
-  final BankAccount bank;
-  final VoidCallback onTap;
-
-  const _BankRow({required this.bank, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(25),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          children: [
-            // Bank Logo
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient:
-                    bank.gradientColor1 != null && bank.gradientColor2 != null
-                    ? LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [bank.gradientColor1!, bank.gradientColor2!],
-                      )
-                    : const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFF07B826), Color(0xFF4EE659)],
-                      ),
-                borderRadius: BorderRadius.circular(35),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: bank.logoAsset.isNotEmpty
-                  ? (bank.name != "OPay"
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(35),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              child: SvgPicture.asset(
-                                bank.logoAsset,
-                                width: 50,
-                                height: 50,
-                              ),
-                            ),
-                          )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(35),
-                            child: Image.asset(
-                              bank.logoAsset,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            ),
-                          ))
-                  : const Center(
-                      child: Icon(
-                        Icons.account_balance,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                bank.name,
-                style: const TextStyle(
-                  fontFamily: 'Roboto',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 17,
-                  letterSpacing: 0.02,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            // Forward arrow
-            Transform.rotate(
-              angle: -3.14159 / 2, // -90 degrees
-              child: SvgPicture.asset(
-                Assets.forward,
-                width: 10,
-                height: 6,
-                colorFilter: const ColorFilter.mode(
-                  Color(0xFFB3B3B7),
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

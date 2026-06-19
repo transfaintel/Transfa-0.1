@@ -8,6 +8,7 @@ import '../../../core/router/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/glass_card.dart';
+import '../../../features/pop-ups/transfaBankPrivacy_popup.dart';
 
 class IdCollectScreen extends StatefulWidget {
   final WidgetBuilder iconBuilder;
@@ -38,6 +39,15 @@ class _IdCollectScreenState extends State<IdCollectScreen> {
   void dispose() {
     _ctrl.dispose();
     super.dispose();
+  }
+
+  void _showPrivacy() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => TransfaBankPrivacyPopup(),
+    );
   }
 
   @override
@@ -97,7 +107,7 @@ class _IdCollectScreenState extends State<IdCollectScreen> {
                             child: _FooterPill(
                               icon: Icons.front_hand_rounded,
                               label: 'Privacy',
-                              onTap: () => context.push(Routes.identityPrivacy),
+                              onTap: _showPrivacy,
                             ),
                           ),
                           const SizedBox(width: 12),

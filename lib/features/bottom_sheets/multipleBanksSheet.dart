@@ -3,57 +3,51 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/assets.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/transfa_logo.dart';
-import '../../../data/mock_api/currency.dart';
-import '../../features/bottom_sheets/singleAccountSheet.dart';
-import '../../features/pop-ups/bank_unavailable_popup.dart';
 
 // ============================================================
-// MULTIPLE ACCOUNTS BOTTOM SHEET
+// MULTIPLE BANKS BOTTOM SHEET
 // ============================================================
 
-class BankAccount {
+class BankOption {
   final String name;
-  final String logoAsset;
-  final Color? gradientColor1;
-  final Color? gradientColor2;
+  final Widget logo;
+  final VoidCallback onTap;
 
-  const BankAccount({
+  const BankOption({
     required this.name,
-    required this.logoAsset,
-    this.gradientColor1,
-    this.gradientColor2,
+    required this.logo,
+    required this.onTap,
   });
 }
 
-class MultipleAccountsSheet extends StatefulWidget {
-  final String amount;
-  final AmountCurrency currency;
-  final String memo;
+class MultipleBanksSheet extends StatefulWidget {
   final String recipientName;
   final String? recipientImageUrl;
-  final String accountNumber;
-  final List<BankAccount> banks;
+  final String? accountNumber;
+  final String amount;
+  final String currencySymbol;
+  final String memo;
   final Function(String) onMemoChanged;
+  final List<BankOption> banks;
 
-  const MultipleAccountsSheet({
+  const MultipleBanksSheet({
     super.key,
-    required this.amount,
-    required this.currency,
-    required this.memo,
     required this.recipientName,
     this.recipientImageUrl,
-    required this.accountNumber,
-    required this.banks,
+    this.accountNumber,
+    required this.amount,
+    required this.currencySymbol,
+    required this.memo,
     required this.onMemoChanged,
+    required this.banks,
   });
 
   @override
-  State<MultipleAccountsSheet> createState() => _MultipleAccountsSheetState();
+  State<MultipleBanksSheet> createState() => _MultipleBanksSheetState();
 }
 
-class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
+class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
   final TextEditingController _memoController = TextEditingController();
 
   // Mock user balance
@@ -103,53 +97,9 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
     widget.onMemoChanged(value);
   }
 
-  void _showNotAvailable(){
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      useSafeArea: true,
-      builder: (context) => BankUnavailablePopup(bankName: "Wema",),
-    );
-  }
-
-  void _onBankSelected(BankAccount bank) {
-    // Close the multiple accounts sheet
-    Navigator.pop(context);
-    
-    // Show the single account sheet with the selected bank
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(45),
-          topRight: Radius.circular(45),
-        ),
-      ),
-      builder: (context) => SingleAccountSheet(
-        recipientName: widget.recipientName,
-        currencySymbol: widget.currency.symbol,
-        amount: widget.amount,
-        memo: widget.memo,
-        accountNumber: widget.accountNumber,
-        bankName: bank.name,
-        recipientImageUrl: widget.recipientImageUrl,
-        bankLogoAsset: bank.logoAsset,
-        bankGradientColor1: bank.gradientColor1,
-        bankGradientColor2: bank.gradientColor2,
-        onMemoChanged: (newMemo) {
-          widget.onMemoChanged(newMemo);
-          _memoController.text = newMemo;
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final String symbol = widget.currency.symbol;
+    final String symbol = widget.currencySymbol;
     final double parsedAmount =
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
 
@@ -280,19 +230,20 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 5),
-                              // Account Number
-                              Text(
-                                widget.accountNumber,
-                                style: const TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 17,
-                                  letterSpacing: 0.02,
-                                  color: Colors.black54,
+                              if (widget.accountNumber != null) ...[
+                                const SizedBox(height: 5),
+                                Text(
+                                  widget.accountNumber!,
+                                  style: const TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 17,
+                                    letterSpacing: 0.02,
+                                    color: Colors.black54,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
+                              ],
                             ],
                           ),
                         ),
@@ -315,7 +266,9 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        '${widget.recipientName} has multiple bank accounts, choose a bank to pay.',
+                                        widget.accountNumber != null
+                                            ? 'This account number is connected to multiple banks, choose a bank to pay.'
+                                            : '${widget.recipientName} has multiple bank accounts, choose a bank to pay.',
                                         style: const TextStyle(
                                           fontFamily: 'Roboto',
                                           fontWeight: FontWeight.w400,
@@ -335,8 +288,9 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                 return Column(
                                   children: [
                                     _BankRow(
-                                      bank: bank,
-                                      onTap: () => _onBankSelected(bank),
+                                      logo: bank.logo,
+                                      name: bank.name,
+                                      onTap: bank.onTap,
                                     ),
                                     if (index < widget.banks.length - 1)
                                       const Divider(
@@ -383,7 +337,7 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                           '$symbol${_getMainAmount(parsedAmount)}',
                                       style: const TextStyle(
                                         fontFamily: 'Arial Rounded MT Bold',
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w400,
                                         fontSize: 30,
                                         letterSpacing: 0.02,
                                         color: Colors.black,
@@ -398,7 +352,7 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                           _getDecimalPart(parsedAmount),
                                           style: const TextStyle(
                                             fontFamily: 'Arial Rounded MT Bold',
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w400,
                                             fontSize: 16,
                                             letterSpacing: 0.02,
                                             color: Color(0xFF8A8A8C),
@@ -442,7 +396,7 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                     color: Colors.black,
                                   ),
                                   decoration: const InputDecoration(
-                                    hintText: 'Tactical Technology Grant',
+                                    hintText: 'What\'s the money for?',
                                     hintStyle: TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -577,16 +531,6 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          const TextSpan(
-                                            text: ' Fee',
-                                            style: TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 17,
-                                              letterSpacing: 0.02,
-                                              color: Colors.black,
-                                            ),
-                                          ),
                                         ],
                                       ),
                                     ),
@@ -690,7 +634,7 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
 
                         // Pay Bubble - Touch to Confirm (Disabled State)
                         GestureDetector(
-                          onTap: _showNotAvailable,
+                          onTap: () {},
                           child: Container(
                             width: double.infinity,
                             height: 150,
@@ -749,10 +693,15 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
 }
 
 class _BankRow extends StatelessWidget {
-  final BankAccount bank;
+  final Widget logo;
+  final String name;
   final VoidCallback onTap;
 
-  const _BankRow({required this.bank, required this.onTap});
+  const _BankRow({
+    required this.logo,
+    required this.name,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -767,62 +716,12 @@ class _BankRow extends StatelessWidget {
             Container(
               width: 50,
               height: 50,
-              decoration: BoxDecoration(
-                gradient:
-                    bank.gradientColor1 != null && bank.gradientColor2 != null
-                    ? LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [bank.gradientColor1!, bank.gradientColor2!],
-                      )
-                    : const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFF07B826), Color(0xFF4EE659)],
-                      ),
-                borderRadius: BorderRadius.circular(35),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: bank.logoAsset.isNotEmpty
-                  ? (bank.name != "OPay"
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(35),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              child: SvgPicture.asset(
-                                bank.logoAsset,
-                                width: 50,
-                                height: 50,
-                              ),
-                            ),
-                          )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(35),
-                            child: Image.asset(
-                              bank.logoAsset,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                            ),
-                          ))
-                  : const Center(
-                      child: Icon(
-                        Icons.account_balance,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
+              child: logo,
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                bank.name,
+                name,
                 style: const TextStyle(
                   fontFamily: 'Roboto',
                   fontWeight: FontWeight.w400,

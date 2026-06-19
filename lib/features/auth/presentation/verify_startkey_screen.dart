@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:transfa/core/constants/assets.dart';
+import 'package:transfa/shared/widgets/animated_dotted_loader.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_colors.dart';
@@ -9,6 +12,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/transfa_logo.dart';
+import '../../pop-ups/enterCorrectCode_popup.dart';
 
 /// "Verify Your Startkey" — three glass cards: brand header, code entry
 /// with 6 underscore slots, and countdown/action cards.
@@ -16,7 +20,8 @@ class VerifyStartkeyScreen extends ConsumerStatefulWidget {
   const VerifyStartkeyScreen({super.key});
 
   @override
-  ConsumerState<VerifyStartkeyScreen> createState() => _VerifyStartkeyScreenState();
+  ConsumerState<VerifyStartkeyScreen> createState() =>
+      _VerifyStartkeyScreenState();
 }
 
 class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
@@ -33,9 +38,9 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
     _focusNode = FocusNode();
     _controller = TextEditingController();
     _startCountdown();
-    
+
     _controller.addListener(_onTextChanged);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
@@ -89,9 +94,26 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
   }
 
   Future<void> _verify() async {
+    // Check if code is not equal to "000000"
+    if (_code != '000000') {
+      // Show the popup
+      _showEnterCorrectCodePopup();
+      return;
+    }
+
+    // If code is "000000", proceed with verification
     await ref.read(authRepositoryProvider).verifyOtp(_code);
     if (!mounted) return;
     context.push(Routes.createPin);
+  }
+
+  void _showEnterCorrectCodePopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => const EnterCorrectCodePopup(),
+    );
   }
 
   void _resendCode() {
@@ -107,7 +129,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
     final phone = ref.watch(currentUserProvider)?.phone ?? '0703 208 4888';
     return Scaffold(
       backgroundColor: const Color(0xFFF4F4F4),
-      resizeToAvoidBottomInset: true, // This is key - resizes when keyboard appears
+      resizeToAvoidBottomInset: true,
       body: GestureDetector(
         onTap: () {
           _focusNode.requestFocus();
@@ -117,180 +139,236 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
           child: Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 50, 20, 12),
-                  child: Column(
-                    children: [
-                      GlassCard(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 70, 20, 12),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              width: 64,
-                              height: 64,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1A1A1A),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.15),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              alignment: Alignment.center,
-                              child: const TransfaMark(size: 30, white: true),
-                            ),
-                            const SizedBox(height: 18),
-                            Text(
-                              'Verify Your Startkey',
-                              style: AppTypography.displayMedium.copyWith(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 32,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Transfa sent your Startkey to your\nphone: $phone.',
-                              style: AppTypography.body.copyWith(fontSize: 18),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () {
-                          _focusNode.requestFocus();
-                        },
-                        child: GlassCard(
-                          padding: const EdgeInsets.fromLTRB(24, 22, 24, 30),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Enter the Startkey here',
-                                    style: AppTypography.subheading.copyWith(fontSize: 19),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const _GreenDot(),
-                                ],
-                              ),
-                              const SizedBox(height: 36),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: List.generate(6, (i) {
-                                  final char = i < _code.length ? _code[i] : null;
-                                  return _KeySlot(char: char);
-                                }),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      if (_showCountdownCard)
-                        GlassCard(
-                          padding: EdgeInsets.zero,
-                          child: Column(
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                child: Row(
-                                  children: [
-                                    const Text(
-                                      'Code Delayed?',
-                                      style: TextStyle(
-                                        fontFamily: 'Roboto',
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 16,
-                                        letterSpacing: 0.02,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 20,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
-                                        ),
-                                        borderRadius: BorderRadius.circular(35),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 14),
-                                    const Expanded(
-                                      child: Text(
-                                        'Code Sent',
-                                        style: TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 17,
-                                          letterSpacing: 0.02,
-                                          color: Color(0xFF8A8A8C),
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      _formatTime(_remainingSeconds),
-                                      style: const TextStyle(
-                                        fontFamily: 'Roboto',
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 17,
-                                        letterSpacing: 0.02,
-                                        color: Color(0xFF8A8A8C),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () => context.pop(),
-                                child: Container(
+                            // Top section - Brand and Enter key cards
+                            Column(
+                              children: [
+                                GlassCard(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                  child: Row(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    24,
+                                    24,
+                                    24,
+                                    28,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width: 20,
-                                        height: 20,
+                                        width: 64,
+                                        height: 64,
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+                                          borderRadius: BorderRadius.circular(
+                                            16,
                                           ),
-                                          borderRadius: BorderRadius.circular(35),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.05,
+                                              ),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
                                         ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.close,
-                                            color: Colors.white,
-                                            size: 12,
-                                          ),
+                                        alignment: Alignment.center,
+                                        child: SvgPicture.asset(
+                                          Assets.transfaStartkey,
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
-                                      const SizedBox(width: 14),
-                                      const Expanded(
-                                        child: Text(
-                                          'Cancel',
-                                          style: TextStyle(
-                                            fontFamily: 'Roboto',
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 17,
-                                            letterSpacing: 0.02,
-                                            color: Color(0xFFF41E42),
+                                      const SizedBox(height: 18),
+                                      Text(
+                                        'Startkey',
+                                        style: AppTypography.displayMedium
+                                            .copyWith(
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 32,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Transfa sent your Startkey to your\nphone: $phone.',
+                                        style: AppTypography.body.copyWith(
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                GestureDetector(
+                                  onTap: () {
+                                    _focusNode.requestFocus();
+                                  },
+                                  child: GlassCard(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      24,
+                                      22,
+                                      24,
+                                      30,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Enter the Startkey here',
+                                              style: AppTypography.subheading
+                                                  .copyWith(fontSize: 19),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            const AnimatedDottedLoader(),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 36),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: List.generate(6, (i) {
+                                            final char = i < _code.length
+                                                ? _code[i]
+                                                : null;
+                                            return _KeySlot(char: char);
+                                          }),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                            // Bottom section - Missing key card
+                            if (_showCountdownCard)
+                              Padding(
+                                padding: EdgeInsetsGeometry.all(20),
+                                child: GlassCard(
+                                  padding: EdgeInsets.all(15),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 14,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              'Code Delayed?',
+                                              style: TextStyle(
+                                                fontFamily: 'Roboto',
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 16,
+                                                letterSpacing: 0.02,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 14,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 20,
+                                              height: 20,
+                                              child: SvgPicture.asset(
+                                                Assets.memoReady,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 14),
+                                            const Expanded(
+                                              child: Text(
+                                                'Code Sent',
+                                                style: TextStyle(
+                                                  fontFamily: 'Roboto',
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 17,
+                                                  letterSpacing: 0.02,
+                                                  color: Color(0xFF8A8A8C),
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              _formatTime(_remainingSeconds),
+                                              style: const TextStyle(
+                                                fontFamily: 'Roboto',
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 17,
+                                                letterSpacing: 0.02,
+                                                color: Color(0xFF8A8A8C),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () => context.pop(),
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 14,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                width: 20,
+                                                height: 20,
+                                                decoration: BoxDecoration(
+                                                  gradient:
+                                                      const LinearGradient(
+                                                        colors: [
+                                                          Color(0xFFFF7088),
+                                                          Color(0xFFF41E42),
+                                                        ],
+                                                      ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(35),
+                                                ),
+                                                child: const Center(
+                                                  child: Icon(
+                                                    Icons.close,
+                                                    color: Colors.white,
+                                                    size: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 14),
+                                              const Expanded(
+                                                child: Text(
+                                                  'Cancel',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 17,
+                                                    letterSpacing: 0.02,
+                                                    color: Color(0xFFF41E42),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -298,43 +376,59 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      if (!_showCountdownCard)
-                        GlassCard(
-                          padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Missing the Key?',
-                                style: AppTypography.subheading.copyWith(fontSize: 19),
-                              ),
-                              const SizedBox(height: 12),
-                              _ActionRow(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+                            if (!_showCountdownCard)
+                              Padding(
+                                padding: EdgeInsetsGeometry.all(20),
+                                child: GlassCard(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    22,
+                                    22,
+                                    22,
+                                    22,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Missing the Key?',
+                                        style: AppTypography.subheading
+                                            .copyWith(fontSize: 19),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      _ActionRow(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFFFF7088),
+                                            Color(0xFFF41E42),
+                                          ],
+                                        ),
+                                        icon: Icons.refresh_rounded,
+                                        label: 'Send New Startkey',
+                                        onTap: _resendCode,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      _ActionRow(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFFFF7088),
+                                            Color(0xFFF41E42),
+                                          ],
+                                        ),
+                                        icon: Icons.close_rounded,
+                                        label: 'Cancel',
+                                        onTap: () => context.pop(),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                icon: Icons.refresh_rounded,
-                                label: 'Send New Startkey',
-                                onTap: _resendCode,
                               ),
-                              const SizedBox(height: 10),
-                              _ActionRow(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
-                                ),
-                                icon: Icons.close_rounded,
-                                label: 'Cancel',
-                                onTap: () => context.pop(),
-                              ),
-                            ],
-                          ),
+                            const SizedBox(height: 20),
+                          ],
                         ),
-                      const SizedBox(height: 20), // Extra bottom padding
-                    ],
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
               // Hidden TextField

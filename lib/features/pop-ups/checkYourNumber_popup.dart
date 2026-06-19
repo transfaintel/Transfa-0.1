@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/constants/assets.dart';
 
 // ============================================================
-// CHECK YOUR NUMBER POPUP (slides from top)
+// CHECK YOUR NUMBER POPUP (fade in/out)
 // ============================================================
 class CheckYourNumberPopup extends StatefulWidget {
   final VoidCallback? onClose;
@@ -17,39 +17,44 @@ class CheckYourNumberPopup extends StatefulWidget {
 
 class _CheckYourNumberPopupState extends State<CheckYourNumberPopup>
     with TickerProviderStateMixin {
-  late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
+  late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _slideController = AnimationController(
+    _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 500),
     );
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
-        );
+    
+    // Fade in animation
     _fadeAnimation = Tween<double>(
       begin: 0,
       end: 1,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
-    _slideController.forward();
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    ));
+    
+    _fadeController.forward();
 
-    // Auto close after 3 seconds
+    // Auto close after 3 seconds with fade out
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.of(context).pop();
-        widget.onClose?.call();
+        _fadeController.reverse().then((_) {
+          if (mounted) {
+            Navigator.of(context).pop();
+            widget.onClose?.call();
+          }
+        });
       }
     });
   }
 
   @override
   void dispose() {
-    _slideController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -57,21 +62,24 @@ class _CheckYourNumberPopupState extends State<CheckYourNumberPopup>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pop();
-        widget.onClose?.call();
+        _fadeController.reverse().then((_) {
+          if (mounted) {
+            Navigator.of(context).pop();
+            widget.onClose?.call();
+          }
+        });
       },
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 30, 110),
           child: Align(
-            alignment: Alignment.topRight,
+            alignment: Alignment.centerRight,
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {}, // Prevent tap from closing when clicking on popup
               child: Container(
                 width: 172,
                 height: 82,
-                
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: SvgPicture.asset(Assets.checkYourNumber),

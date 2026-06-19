@@ -11,6 +11,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/transfa_modal_header.dart';
 import 'transfer_state.dart';
 import '../../../features/bottom_sheets/pay_bottomsheet.dart';
+import '../../../features/bottom_sheets/sendDollarsSheet.dart';
 import '../../../data/mock_api/currency.dart';
 
 enum TransfaAiView { today, keypad }
@@ -27,6 +28,9 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
   String _digits = '2000000';
   AmountCurrency _currency = AmountCurrency.ngn;
   String _memo = '';
+  String _routingInfo = 'Routing...';
+  String _swiftInfo = 'Routing...';
+  String _swiftCode = '009234590';
 
   void _toggle(TransfaAiView v) {
     if (_view != v) setState(() => _view = v);
@@ -74,7 +78,7 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
     if (next != null && mounted) setState(() => _currency = next);
   }
 
-  void _send() {
+  void _sendNGN() {
     final value = double.tryParse(_digits) ?? 0;
     if (value <= 0) return;
     ref.read(transferDraftProvider.notifier).state = ref
@@ -97,6 +101,53 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
         onMemoChanged: (newMemo) => setState(() => _memo = newMemo),
       ),
     );
+  }
+
+  void _sendUSD() {
+    final value = double.tryParse(_digits) ?? 0;
+    if (value <= 0) return;
+    ref.read(transferDraftProvider.notifier).state = ref
+        .read(transferDraftProvider)
+        .copyWith(amount: value);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(45),
+          topRight: Radius.circular(45),
+        ),
+      ),
+
+      builder: (context) => SendDollarsSheet(
+        amount: _formatted,
+        currency: AmountCurrency.usd,
+        memo: _memo,
+        accountNumber: "4578901234",
+        routingNumber: "25674",
+        accountName: "Bright Wilbour",
+        bankName: 'Bank of America',
+        swiftCode: _swiftCode,
+        bankAddress: 'Washington DC',
+        country: 'United States',
+        userBalance: 50000000.00,
+        transactionFee: 1500.00,
+        onMemoChanged: (newMemo) => setState(() => _memo = newMemo),
+        onRoutingInfo: (newRoutingInfo) =>
+            setState(() => _routingInfo = newRoutingInfo),
+        onSwiftInfo: (newSwiftInfo) =>
+            setState(() => _swiftInfo = newSwiftInfo),
+      ),
+    );
+  }
+
+  void _handleSend() {
+    if (_currency == AmountCurrency.ngn) {
+      _sendNGN();
+    } else {
+      _sendUSD();
+    }
   }
 
   @override
@@ -135,7 +186,7 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
                     currency: _currency,
                     onTap: _tap,
                     onBack: _back,
-                    onSend: _send,
+                    onSend: _handleSend,
                     onPickCurrency: _pickCurrency,
                   ),
           ),
@@ -719,7 +770,7 @@ class _KeypadView extends StatelessWidget {
   final AmountCurrency currency;
   final void Function(String) onTap;
   final VoidCallback onBack;
-  final VoidCallback onSend;
+  final GestureTapCallback onSend;
   final VoidCallback onPickCurrency;
   const _KeypadView({
     super.key,

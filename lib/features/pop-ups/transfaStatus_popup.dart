@@ -10,6 +10,7 @@ class TransfaStatusPopup extends StatefulWidget {
   final VoidCallback? onClose;
   final String businessName;
   final String accountNumber;
+  final String? image;
   final double amount;
   final String description;
   final String bankName;
@@ -17,6 +18,7 @@ class TransfaStatusPopup extends StatefulWidget {
   const TransfaStatusPopup({
     super.key,
     this.onClose,
+    this.image = '',
     required this.businessName,
     required this.accountNumber,
     required this.amount,
@@ -162,7 +164,7 @@ class _TransfaStatusPopupState extends State<TransfaStatusPopup>
                                 child: Column(
                                   children: [
                                     // Business Avatar
-                                    const _StatusBusinessAvatar(),
+                                    _StatusBusinessAvatar(image: widget.image!),
                                     const SizedBox(height: 10),
                                     // Business Name
                                     Text(
@@ -319,23 +321,38 @@ class _StatusTransfaIcon extends StatelessWidget {
 }
 
 class _StatusBusinessAvatar extends StatelessWidget {
-  const _StatusBusinessAvatar();
+  final String image;
+
+  const _StatusBusinessAvatar({required this.image});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 120,
-      height: 120,
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
+
+  return Container(
+      width: 110,
+      height: 110,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [Color(0xFF00E9F8), Color(0xFF0D7BE1)],
         ),
         shape: BoxShape.circle,
       ),
-      child: SvgPicture.asset(Assets.contact),
+      clipBehavior: Clip.hardEdge,
+      child: image.isEmpty
+          ? SvgPicture.asset(
+              Assets.contacts,
+              width: 110,
+              height: 110,
+              fit: BoxFit.contain,
+            )
+          : Image.asset(
+              image,
+              width: 110,
+              height: 110,
+              fit: BoxFit.cover,
+            ),
     );
   }
 }

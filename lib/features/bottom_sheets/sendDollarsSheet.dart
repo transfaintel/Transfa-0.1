@@ -7,6 +7,7 @@ import '../../../core/constants/assets.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/transfa_logo.dart';
 import '../../../data/mock_api/currency.dart';
+import '../../features/pop-ups/swiftCode_popup.dart';
 
 // ============================================================
 // SEND DOLLARS BOTTOM SHEET
@@ -26,8 +27,8 @@ class SendDollarsSheet extends StatefulWidget {
   final double userBalance;
   final double transactionFee;
   final Function(String) onMemoChanged;
-  final VoidCallback onRoutingInfo;
-  final VoidCallback onSwiftInfo;
+  final Function(String) onRoutingInfo;
+  final Function(String) onSwiftInfo;
 
   const SendDollarsSheet({
     super.key,
@@ -54,6 +55,8 @@ class SendDollarsSheet extends StatefulWidget {
 
 class _SendDollarsSheetState extends State<SendDollarsSheet> {
   final TextEditingController _memoController = TextEditingController();
+  final TextEditingController _routingController = TextEditingController();
+  final TextEditingController _swiftController = TextEditingController();
 
   double get _totalAmount {
     final amount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
@@ -85,16 +88,37 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
   void initState() {
     super.initState();
     _memoController.text = widget.memo;
+    _routingController.text = widget.routingNumber;
+    _swiftController.text = widget.swiftCode;
   }
 
   @override
   void dispose() {
     _memoController.dispose();
+    _routingController.dispose();
+    _swiftController.dispose();
     super.dispose();
   }
 
   void _onMemoChanged(String value) {
     widget.onMemoChanged(value);
+  }
+
+  void _onRoutingInfoChanged(String value) {
+    widget.onRoutingInfo(value);
+  }
+
+  void _onSwiftInfoChanged(String value) {
+    widget.onSwiftInfo(value);
+  }
+
+  void _showSwiftPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => SwiftCodeInfoPopup(),
+    );
   }
 
   @override
@@ -114,7 +138,6 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
         ),
       ),
       child: ClipRRect(
-        
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: Material(
@@ -229,54 +252,70 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                 endIndent: 16,
                                 color: Color(0x08000000),
                               ),
-                              // Routing Number Row
-                              GestureDetector(
-                                onTap: widget.onRoutingInfo,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 30,
-                                        height: 30,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFF9F1F1),
-                                          borderRadius: BorderRadius.circular(
-                                            35,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: SvgPicture.asset(
-                                            Assets.Routing,
-                                            width: 13.5,
-                                            height: 10.8,
-                                          ),
+                              // Routing Number Row - Now with TextField
+                              Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF9F1F1),
+                                        borderRadius: BorderRadius.circular(
+                                          35,
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          widget.routingNumber,
-                                          style: const TextStyle(
+                                      child: Center(
+                                        child: SvgPicture.asset(
+                                          Assets.Routing,
+                                          width: 13.5,
+                                          height: 10.8,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _routingController,
+                                        onChanged: _onRoutingInfoChanged,
+                                        style: const TextStyle(
+                                          fontFamily: 'Roboto',
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 17,
+                                          letterSpacing: 0.02,
+                                          color: Color(0xFF8A8A8C),
+                                        ),
+                                        decoration: InputDecoration(
+                                          hintText: widget.routingNumber.isEmpty
+                                              ? 'Routing Number...'
+                                              : widget.routingNumber,
+                                          hintStyle: const TextStyle(
                                             fontFamily: 'Roboto',
                                             fontWeight: FontWeight.w400,
                                             fontSize: 17,
                                             letterSpacing: 0.02,
                                             color: Color(0xFF8A8A8C),
                                           ),
+                                          border: InputBorder.none,
+                                          isDense: true,
+                                          contentPadding: EdgeInsets.zero,
                                         ),
                                       ),
-                                      Container(
-                                        width: 26,
-                                        height: 26,
-                                        child: const Icon(
-                                          Icons.info_outline,
-                                          size: 25,
-                                          color: Color(0xFFB3B3B7),
-                                        ),
+                                    ),
+
+                                    GestureDetector(
+                                      onTap: _showSwiftPopup,
+                                      child: Container(
+                                      width: 26,
+                                      height: 26,
+                                      child: const Icon(
+                                        Icons.info_outline,
+                                        size: 25,
+                                        color: Color(0xFFB3B3B7),
                                       ),
-                                    ],
-                                  ),
+                                    )),
+                                  ],
                                 ),
                               ),
                               const Divider(
@@ -390,54 +429,71 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                           ),
                           child: Column(
                             children: [
-                              // Swift Code Row
-                              GestureDetector(
-                                onTap: widget.onSwiftInfo,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 30,
-                                        height: 30,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFF9F1F1),
-                                          borderRadius: BorderRadius.circular(
-                                            35,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: SvgPicture.asset(
-                                            Assets.swiftRedLogo,
-                                            width: 22,
-                                            height: 22,
-                                          ),
+                              // Swift Code Row - Now with TextField
+                              Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF9F1F1),
+                                        borderRadius: BorderRadius.circular(
+                                          35,
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          widget.swiftCode,
-                                          style: const TextStyle(
+                                      child: Center(
+                                        child: SvgPicture.asset(
+                                          Assets.swiftRedLogo,
+                                          width: 22,
+                                          height: 22,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _swiftController,
+                                        onChanged: _onSwiftInfoChanged,
+                                        style: const TextStyle(
+                                          fontFamily: 'Roboto',
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 17,
+                                          letterSpacing: 0.02,
+                                          color: Color(0xFF8A8A8C),
+                                        ),
+                                        decoration: InputDecoration(
+                                          hintText: widget.swiftCode.isEmpty
+                                              ? 'Swift Code...'
+                                              : widget.swiftCode,
+                                          hintStyle: const TextStyle(
                                             fontFamily: 'Roboto',
                                             fontWeight: FontWeight.w400,
                                             fontSize: 17,
                                             letterSpacing: 0.02,
                                             color: Color(0xFF8A8A8C),
                                           ),
+                                          border: InputBorder.none,
+                                          isDense: true,
+                                          contentPadding: EdgeInsets.zero,
                                         ),
                                       ),
-                                      Container(
-                                        width: 26,
-                                        height: 26,
-                                        child: const Icon(
-                                          Icons.info_outline,
-                                          size: 25,
-                                          color: Color(0xFFB3B3B7),
-                                        ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: _showSwiftPopup,
+                                      child: Container(
+                                      width: 26,
+                                      height: 26,
+                                      child: const Icon(
+                                        Icons.info_outline,
+                                        size: 25,
+                                        color: Color(0xFFB3B3B7),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    )
+                                    
+                                  ],
                                 ),
                               ),
                               const Divider(
@@ -786,7 +842,6 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
     return Container(
       width: 36,
       height: 30,
-      
       child: SvgPicture.asset(Assets.spendCurrency),
     );
   }

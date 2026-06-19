@@ -9,6 +9,8 @@ import '../../../core/router/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../features/auth/presentation/unlock_screens.dart';
+import '../../pop-ups/checkYourNumber_popup.dart'; // Import the popup
+
 /// "Welcome Home — Unlock with your phone" for **new users** during the
 /// landing/onboarding flow. Distinct from [WelcomeHomePhoneScreen] (the
 /// returning-user variant) — that one shows "Transfa Passcode" + the
@@ -24,11 +26,34 @@ class RegisterPhoneScreen extends StatefulWidget {
 
 class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
   final _phone = TextEditingController(text: '0703 208 4888');
+  static const String _validPhoneNumber = '0703 208 4888'; // The expected phone number
 
   @override
   void dispose() {
     _phone.dispose();
     super.dispose();
+  }
+
+  void _handleContinue() {
+    final enteredNumber = _phone.text.trim();
+    
+    // Check if the entered number matches the expected number
+    if (enteredNumber != _validPhoneNumber) {
+      // Show the popup if numbers don't match
+      _showCheckYourNumberPopup();
+    } else {
+      // Proceed to verification if numbers match
+      context.push(Routes.verifyStartkey);
+    }
+  }
+
+  void _showCheckYourNumberPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => const CheckYourNumberPopup(),
+    );
   }
 
   @override
@@ -40,115 +65,112 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
           padding: const EdgeInsets.fromLTRB(20, 80, 20, 28),
           child: Column(
             children: [
-            _GlassWrapper(
-              child: Column(
-                children: [
-                  Image.asset( Assets.welcomeHome, width: 72, height: 72),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Welcome Home',
-                    style: AppTypography.subheading.copyWith(
-                      color: const Color(0xFF8E8E93),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 21,
+              _GlassWrapper(
+                child: Column(
+                  children: [
+                    Image.asset(Assets.welcomeHome, width: 72, height: 72),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Welcome Home',
+                      style: AppTypography.subheading.copyWith(
+                        color: const Color(0xFF8E8E93),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 21,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Continue with your phone',
-                    style: AppTypography.displayMedium.copyWith(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 26,
+                    const SizedBox(height: 2),
+                    Text(
+                      'Continue with your phone',
+                      style: AppTypography.displayMedium.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 26,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 22),
-            _GlassWrapper(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const SizedBox(height: 35),
-                      Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                      child: SizedBox(
-                        width: 32,
-                        height: 26,
-                        child: SvgPicture.asset(Assets.Nigerian_Flag, width: 40, height: 30),
-                      ),
-                      ),
-                      
-                      const SizedBox(width: 7),
-                      Text(
-                        'Nigeria',
-                        style: AppTypography.subheading.copyWith(fontSize: 17),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _PillField(controller: _phone),
-                  const SizedBox(height: 18),
-                  _RedLockPill(
-                    label: 'Transfa Passcode',
-                    onTap: () => context.push(Routes.verifyStartkey),
-                  ),
-                ],
-              ),
-            ),
-
-            const Spacer(),
-
-            // 3. Privacy footer — two-people glyph + paragraph + red link.
-            // Anchored to the bottom-center of the screen.
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(padding: const EdgeInsets.only(top: 24),
-                child: SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: SvgPicture.asset(Assets.transfaYou, fit: BoxFit.contain),
-                )),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      style: AppTypography.body.copyWith(
-                        color: AppColors.textMuted,
-                        fontSize: 15,
-                        height: 1.45,
-                      ),
+              const SizedBox(height: 22),
+              _GlassWrapper(
+                child: Column(
+                  children: [
+                    Row(
                       children: [
-                        const TextSpan(
-                          text:
-                              'As you continue, your activity and interactions help improve the service. When you pay & receive money, we also use your history to tailor your experience.\n',
-                        ),
-                        TextSpan(
-                          text: 'See how your info is managed…',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                        const SizedBox(height: 35),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          child: SizedBox(
+                            width: 32,
+                            height: 26,
+                            child: SvgPicture.asset(Assets.Nigerian_Flag, width: 40, height: 30),
                           ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => context.push(Routes.privacyPolicy),
+                        ),
+                        const SizedBox(width: 7),
+                        Text(
+                          'Nigeria',
+                          style: AppTypography.subheading.copyWith(fontSize: 17),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    _PillField(controller: _phone),
+                    const SizedBox(height: 18),
+                    _RedLockPill(
+                      label: 'Transfa Passcode',
+                      onTap: _handleContinue, // Use the validation method
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
+              ),
+              const Spacer(),
+              // 3. Privacy footer — two-people glyph + paragraph + red link.
+              // Anchored to the bottom-center of the screen.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: SvgPicture.asset(Assets.transfaYou, fit: BoxFit.contain),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.textMuted,
+                          fontSize: 15,
+                          height: 1.45,
+                        ),
+                        children: [
+                          const TextSpan(
+                            text:
+                                'As you continue, your activity and interactions help improve the service. When you pay & receive money, we also use your history to tailor your experience.\n',
+                          ),
+                          TextSpan(
+                            text: 'See how your info is managed…',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => context.push(Routes.privacyPolicy),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
-
-
-
 
 class _GlassWrapper extends StatelessWidget {
   final Widget child;
@@ -180,7 +202,6 @@ class _GlassWrapper extends StatelessWidget {
     );
   }
 }
-
 
 class _PillField extends StatelessWidget {
   final TextEditingController controller;
@@ -231,7 +252,7 @@ class _PillField extends StatelessWidget {
               ),
             ),
           ),
-          const AnimatedDottedLoader()
+          const AnimatedDottedLoader(),
         ],
       ),
     );

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/pop-ups/bank_unavailable_popup.dart';
-// ignore_for_file: unnecessary_import
-
 import '../../../core/constants/assets.dart';
 import '../../../core/theme/app_typography.dart';
 
@@ -45,23 +43,144 @@ class _ChooseBankScreenState extends State<ChooseBankScreen> {
     _Bank('FCMB', _Logo.fcmb),
   ];
 
-  // Add this method inside _ChooseBankScreenState
-void _handleBankSelection(_Bank bank) {
-  if (bank.name == 'OPay') {
-    // Show the bank unavailable popup
-    showBankUnavailablePopup(
-      context,
-      bankName: bank.name,
-      onContinueWithTransfa: () {
-        
-        debugPrint('Continue with Transfa for ${bank.name}');
-      },
-    );
-  } else {
-    // Normal bank selection
-    context.pop(bank.name);
+  // Helper method to get bank logo widget
+  Widget _getBankLogoWidget(_Bank bank) {
+    switch (bank.logo) {
+      case _Logo.opay:
+        return ClipOval(
+          child: Image.asset(Assets.bankOpay, width: 40, height: 40, fit: BoxFit.cover),
+        );
+      case _Logo.fcmb:
+        return ClipOval(
+          child: Image.asset(Assets.bankFcmb, width: 40, height: 40, fit: BoxFit.cover),
+        );
+      case _Logo.chase:
+        return Container(
+          width: 40,
+          height: 40,
+          decoration: const BoxDecoration(
+            color: Color(0xFFEAEAEE),
+            shape: BoxShape.circle,
+          ),
+          padding: const EdgeInsets.all(9),
+          child: const CustomPaint(painter: _ChaseLogoPainter()),
+        );
+      case _Logo.gtb:
+        return _InitialAvatar(initials: 'GT', bg: const Color(0xFFE85A1F), fg: Colors.white);
+      case _Logo.access:
+        return _InitialAvatar(initials: 'AB', bg: const Color(0xFFEF3E33), fg: Colors.white);
+      case _Logo.firstBank:
+        return _InitialAvatar(initials: 'FB', bg: const Color(0xFF003B71), fg: Colors.white);
+      case _Logo.zenith:
+        return _InitialAvatar(initials: 'ZB', bg: const Color(0xFFE60012), fg: Colors.white);
+      case _Logo.uba:
+        return _InitialAvatar(initials: 'U', bg: const Color(0xFFCC0000), fg: Colors.white);
+      case _Logo.kuda:
+        return _InitialAvatar(initials: 'K', bg: const Color(0xFF40196D), fg: Colors.white);
+      case _Logo.wema:
+        return _InitialAvatar(initials: 'W', bg: const Color(0xFF6F2C91), fg: Colors.white);
+      case _Logo.sterling:
+        return _InitialAvatar(initials: 'S', bg: const Color(0xFFD8232A), fg: Colors.white);
+      case _Logo.palmpay:
+        return _InitialAvatar(initials: 'P', bg: const Color(0xFF6238FB), fg: Colors.white);
+      case _Logo.moneypoint:
+        return _InitialAvatar(initials: 'M', bg: const Color(0xFF0357EE), fg: Colors.white);
+      case _Logo.stanbic:
+        return _InitialAvatar(initials: 'SI', bg: const Color(0xFF0033A0), fg: Colors.white);
+      case _Logo.union:
+        return _InitialAvatar(initials: 'UB', bg: const Color(0xFF003E7E), fg: Colors.white);
+    }
   }
-}
+
+  // Helper method to get bank logo asset
+  String _getBankLogoAsset(_Bank bank) {
+    switch (bank.logo) {
+      case _Logo.chase:
+        return Assets.bankchase;
+      case _Logo.opay:
+        return Assets.bankOpay;
+      case _Logo.fcmb:
+        return Assets.bankFcmb;
+      case _Logo.gtb:
+        return Assets.bankchase;
+      case _Logo.access:
+        return Assets.bankBlack;
+      case _Logo.firstBank:
+        return Assets.bankBlack;
+      case _Logo.zenith:
+        return Assets.bankBlack;
+      case _Logo.uba:
+        return Assets.bankBlack;
+      case _Logo.kuda:
+        return Assets.bankBlack;
+      case _Logo.wema:
+        return Assets.bankBlack;
+      case _Logo.sterling:
+        return Assets.bankBlack;
+      case _Logo.palmpay:
+        return Assets.bankBlack;
+      case _Logo.moneypoint:
+        return Assets.bankBlack;
+      case _Logo.stanbic:
+        return Assets.bankBlack;
+      case _Logo.union:
+        return Assets.bankBlack;
+    }
+  }
+
+  // Helper method to get bank gradient colors
+  (Color?, Color?) _getBankGradients(_Bank bank) {
+    switch (bank.logo) {
+      case _Logo.opay:
+        return (const Color(0xFFFFFFFF), const Color(0xFFFFFFFF));
+      case _Logo.fcmb:
+        return (const Color(0xFF5C2684), const Color(0xFF5C2684));
+      case _Logo.chase:
+        return (const Color(0xFFFFFFFF), const Color(0xFFFFFFFF));
+      case _Logo.gtb:
+        return (const Color(0xFFE85A1F), const Color(0xFFE85A1F));
+      case _Logo.access:
+        return (const Color(0xFFEF3E33), const Color(0xFFEF3E33));
+      default:
+        return (null, null);
+    }
+  }
+
+  void _handleBankSelection(_Bank bank) {
+    if (bank.name == 'OPay') {
+      showBankUnavailablePopup(
+        context,
+        bankName: bank.name,
+        onContinueWithTransfa: () {
+          debugPrint('Continue with Transfa for ${bank.name}');
+        },
+      );
+    } else {
+      final gradient = _getBankGradients(bank);
+      final result = {
+        'name': bank.name,
+        'logo': _getBankLogoAsset(bank),
+        'gradientColor1': gradient.$1,
+        'gradientColor2': gradient.$2,
+        // Store the logo type so PaySheet knows how to render it
+        'logoType': _getLogoType(bank),
+      };
+      context.pop(result);
+    }
+  }
+
+  // Helper to determine logo type
+  String _getLogoType(_Bank bank) {
+    switch (bank.logo) {
+      case _Logo.chase:
+        return 'custom_paint';
+      case _Logo.opay:
+      case _Logo.fcmb:
+        return 'image';
+      default:
+        return 'avatar';
+    }
+  }
 
   @override
   void initState() {
@@ -98,12 +217,9 @@ void _handleBankSelection(_Bank bank) {
             ListView(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 140),
               children: [
-                // Top-right close affordance.
-                
                 const _HeroCard(),
                 const SizedBox(height: 28),
 
-                // ---------- Suggestions (hidden while searching) ----------
                 if (!searching) ...[
                   const _SectionHeader(
                     label: 'Suggestions',
@@ -124,7 +240,6 @@ void _handleBankSelection(_Bank bank) {
                   const SizedBox(height: 28),
                 ],
 
-                // ---------- All Banks ----------
                 const _SectionHeader(
                   label: 'All Banks',
                   glyph: _SectionGlyph.bank,
@@ -134,8 +249,7 @@ void _handleBankSelection(_Bank bank) {
                   children: [
                     if (_filtered.isEmpty)
                       Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(20, 22, 20, 22),
+                        padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
                         child: Text(
                           'No banks match "$_query"',
                           style: AppTypography.body.copyWith(
@@ -156,7 +270,6 @@ void _handleBankSelection(_Bank bank) {
               ],
             ),
 
-            // ---------- Floating glass search bar ----------
             Positioned(
               left: 20,
               right: 20,
@@ -204,7 +317,6 @@ class _HeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Green app-icon tile with white columns bank glyph.
           Container(
             width: 60,
             height: 60,
@@ -230,8 +342,7 @@ class _HeroCard extends StatelessWidget {
               child: SvgPicture.asset(
                 Assets.bank,
                 fit: BoxFit.contain,
-                colorFilter: const ColorFilter.mode(
-                    Colors.white, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
               ),
             ),
           ),
@@ -284,8 +395,7 @@ class _SectionHeader extends StatelessWidget {
                 : SvgPicture.asset(
                     Assets.bank,
                     fit: BoxFit.contain,
-                    colorFilter: const ColorFilter.mode(
-                        Colors.black, BlendMode.srcIn),
+                    colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                   ),
           ),
           const SizedBox(width: 10),
@@ -303,7 +413,6 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// Stylised person + sparkle glyph used by the Suggestions section header.
 class _SuggestionsGlyph extends StatelessWidget {
   const _SuggestionsGlyph();
 
@@ -404,16 +513,13 @@ class _BankRow extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           child: Material(
-            color: highlighted
-                ? const Color(0xFFE5E5E7)
-                : Colors.transparent,
+            color: highlighted ? const Color(0xFFE5E5E7) : Colors.transparent,
             borderRadius: BorderRadius.circular(28),
             child: InkWell(
               onTap: onTap,
               borderRadius: BorderRadius.circular(28),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Row(
                   children: [
                     _BankAvatar(logo: bank.logo),
@@ -451,10 +557,6 @@ class _BankRow extends StatelessWidget {
 //  Search pill
 // ============================================================
 
-/// Bottom floating search bar — a frosted glass pill on the left holding the
-/// search field, with a separate frosted glass circular X button on the
-/// right. Both float over the scrolling bank list with their own backdrop
-/// blur + neumorphic shadow, so the list shows through behind them.
 class _FloatingSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -471,11 +573,6 @@ class _FloatingSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Search pill — separate glass element. Icon + "Search" hint are
-        // centered within the pill (Stack: a centered placeholder layered
-        // over a centered TextField). Once the user types, the typed text
-        // flows out from the centre and the placeholder disappears.
-
         GestureDetector(
           onTap: () {
             if (hasQuery || focusNode.hasFocus) {
@@ -495,15 +592,12 @@ class _FloatingSearchBar extends StatelessWidget {
                 width: 20,
                 height: 20,
                 fit: BoxFit.contain,
-                colorFilter: ColorFilter.mode(
-                    Colors.black54, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(Colors.black54, BlendMode.srcIn),
               ),
             ),
           ),
         ),
-
         const SizedBox(width: 14),
-
         Expanded(
           child: _GlassShell(
             borderRadius: 30,
@@ -553,15 +647,11 @@ class _FloatingSearchBar extends StatelessWidget {
             ),
           ),
         ),
-        
       ],
     );
   }
 }
 
-/// Reusable frosted-glass shell — translucent white fill, soft border, and
-/// a dual shadow (light highlight + dark drop) so the surface reads as a
-/// raised glass capsule over the list behind it.
 class _GlassShell extends StatelessWidget {
   final Widget child;
   final double borderRadius;
@@ -648,13 +738,11 @@ class _BankAvatar extends StatelessWidget {
     switch (logo) {
       case _Logo.opay:
         return ClipOval(
-          child: Image.asset(Assets.bankOpay,
-              width: size, height: size, fit: BoxFit.cover),
+          child: Image.asset(Assets.bankOpay, width: size, height: size, fit: BoxFit.cover),
         );
       case _Logo.fcmb:
         return ClipOval(
-          child: Image.asset(Assets.bankFcmb,
-              width: size, height: size, fit: BoxFit.cover),
+          child: Image.asset(Assets.bankFcmb, width: size, height: size, fit: BoxFit.cover),
         );
       case _Logo.chase:
         return Container(
@@ -668,65 +756,29 @@ class _BankAvatar extends StatelessWidget {
           child: const CustomPaint(painter: _ChaseLogoPainter()),
         );
       case _Logo.gtb:
-        return _InitialAvatar(
-            initials: 'GT',
-            bg: const Color(0xFFE85A1F),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'GT', bg: const Color(0xFFE85A1F), fg: Colors.white);
       case _Logo.access:
-        return _InitialAvatar(
-            initials: 'AB',
-            bg: const Color(0xFFEF3E33),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'AB', bg: const Color(0xFFEF3E33), fg: Colors.white);
       case _Logo.firstBank:
-        return _InitialAvatar(
-            initials: 'FB',
-            bg: const Color(0xFF003B71),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'FB', bg: const Color(0xFF003B71), fg: Colors.white);
       case _Logo.zenith:
-        return _InitialAvatar(
-            initials: 'ZB',
-            bg: const Color(0xFFE60012),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'ZB', bg: const Color(0xFFE60012), fg: Colors.white);
       case _Logo.uba:
-        return _InitialAvatar(
-            initials: 'U',
-            bg: const Color(0xFFCC0000),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'U', bg: const Color(0xFFCC0000), fg: Colors.white);
       case _Logo.kuda:
-        return _InitialAvatar(
-            initials: 'K',
-            bg: const Color(0xFF40196D),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'K', bg: const Color(0xFF40196D), fg: Colors.white);
       case _Logo.wema:
-        return _InitialAvatar(
-            initials: 'W',
-            bg: const Color(0xFF6F2C91),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'W', bg: const Color(0xFF6F2C91), fg: Colors.white);
       case _Logo.sterling:
-        return _InitialAvatar(
-            initials: 'S',
-            bg: const Color(0xFFD8232A),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'S', bg: const Color(0xFFD8232A), fg: Colors.white);
       case _Logo.palmpay:
-        return _InitialAvatar(
-            initials: 'P',
-            bg: const Color(0xFF6238FB),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'P', bg: const Color(0xFF6238FB), fg: Colors.white);
       case _Logo.moneypoint:
-        return _InitialAvatar(
-            initials: 'M',
-            bg: const Color(0xFF0357EE),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'M', bg: const Color(0xFF0357EE), fg: Colors.white);
       case _Logo.stanbic:
-        return _InitialAvatar(
-            initials: 'SI',
-            bg: const Color(0xFF0033A0),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'SI', bg: const Color(0xFF0033A0), fg: Colors.white);
       case _Logo.union:
-        return _InitialAvatar(
-            initials: 'UB',
-            bg: const Color(0xFF003E7E),
-            fg: Colors.white);
+        return _InitialAvatar(initials: 'UB', bg: const Color(0xFF003E7E), fg: Colors.white);
     }
   }
 }
@@ -735,8 +787,7 @@ class _InitialAvatar extends StatelessWidget {
   final String initials;
   final Color bg;
   final Color fg;
-  const _InitialAvatar(
-      {required this.initials, required this.bg, required this.fg});
+  const _InitialAvatar({required this.initials, required this.bg, required this.fg});
 
   @override
   Widget build(BuildContext context) {
@@ -757,8 +808,6 @@ class _InitialAvatar extends StatelessWidget {
   }
 }
 
-/// Mini Chase quadrant logo — four blue trapezoidal blades around an
-/// empty center, painted directly so we don't need a bitmap asset.
 class _ChaseLogoPainter extends CustomPainter {
   const _ChaseLogoPainter();
   @override
@@ -767,7 +816,6 @@ class _ChaseLogoPainter extends CustomPainter {
     final w = size.width, h = size.height;
     final cx = w / 2, cy = h / 2;
     final inset = w * 0.18;
-    // Top blade
     canvas.drawPath(
       Path()
         ..moveTo(cx - inset, 0)
@@ -777,7 +825,6 @@ class _ChaseLogoPainter extends CustomPainter {
         ..close(),
       blue,
     );
-    // Right blade
     canvas.drawPath(
       Path()
         ..moveTo(w, cy - inset)
@@ -787,7 +834,6 @@ class _ChaseLogoPainter extends CustomPainter {
         ..close(),
       blue,
     );
-    // Bottom blade
     canvas.drawPath(
       Path()
         ..moveTo(cx + inset, h)
@@ -797,7 +843,6 @@ class _ChaseLogoPainter extends CustomPainter {
         ..close(),
       blue,
     );
-    // Left blade
     canvas.drawPath(
       Path()
         ..moveTo(0, cy + inset)

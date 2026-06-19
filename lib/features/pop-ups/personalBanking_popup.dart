@@ -1,17 +1,29 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:transfa/core/router/routes.dart';
 import '../../core/constants/assets.dart';
 
 // ============================================================
 // BANKING POPUP (slides from top)
 // ============================================================
 class PersonalBankingPopup extends StatefulWidget {
+  final String? recipientName;
+  final String? recipientImageUrl;
+  final String? accountNumber;
+  final String? bankName;
+  final String? bankLogoAsset;
   final VoidCallback? onSaveToTransfa;
   final VoidCallback? onTransfaCashDrop;
 
   const PersonalBankingPopup({
     super.key,
+    this.recipientName,
+    this.recipientImageUrl,
+    this.accountNumber,
+    this.bankName,
+    this.bankLogoAsset,
     this.onSaveToTransfa,
     this.onTransfaCashDrop,
   });
@@ -25,6 +37,13 @@ class _BankingPopupState extends State<PersonalBankingPopup>
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
+
+  // Default values if not provided
+  String get _recipientName => widget.recipientName ?? 'Barry Bontulipo';
+  String get _recipientImageUrl => widget.recipientImageUrl ?? Assets.magic;
+  String get _accountNumber => widget.accountNumber ?? '207 922 3313';
+  String get _bankName => widget.bankName ?? 'OPay';
+  String get _bankLogoAsset => widget.bankLogoAsset ?? Assets.bankOpay;
 
   @override
   void initState() {
@@ -102,13 +121,15 @@ class _BankingPopupState extends State<PersonalBankingPopup>
                                 ),
                                 child: Column(
                                   children: [
-                                    // Avatar with gradient
-                                    const _BankingAvatar(),
+                                    // Avatar with gradient - using dynamic image
+                                    _BankingAvatar(
+                                      imageUrl: _recipientImageUrl,
+                                    ),
                                     const SizedBox(height: 20),
-                                    // Name
-                                    const Text(
-                                      'Barry Bontulipo',
-                                      style: TextStyle(
+                                    // Name - dynamic
+                                    Text(
+                                      _recipientName,
+                                      style: const TextStyle(
                                         fontFamily: 'Arial Rounded MT Bold',
                                         fontSize: 26,
                                         height: 1.3,
@@ -177,9 +198,9 @@ class _BankingPopupState extends State<PersonalBankingPopup>
                                                     ), // 30% opacity
                                                   ),
                                                 ),
-                                                const Text(
-                                                  '207 922 3313',
-                                                  style: TextStyle(
+                                                Text(
+                                                  _accountNumber,
+                                                  style: const TextStyle(
                                                     fontFamily: 'Roboto',
                                                     fontWeight: FontWeight.w400,
                                                     fontSize: 17,
@@ -208,11 +229,11 @@ class _BankingPopupState extends State<PersonalBankingPopup>
                                       padding: const EdgeInsets.all(14),
                                       child: Row(
                                         children: [
-                                          // Bank Logo Container
+                                          // Bank Logo Container - dynamic
                                           Container(
                                             width: 50,
                                             height: 50,
-                                            padding: EdgeInsets.all(8),
+                                            padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: Colors.white,
                                               borderRadius:
@@ -227,17 +248,23 @@ class _BankingPopupState extends State<PersonalBankingPopup>
                                               ],
                                             ),
                                             child: Center(
-                                              child: Image.asset(
-                                                Assets.bankOpay,
-                                                height: 40,
-                                                width: 40,
-                                              ),
+                                              child: _bankLogoAsset.contains('.svg')
+                                                  ? SvgPicture.asset(
+                                                      _bankLogoAsset,
+                                                      height: 40,
+                                                      width: 40,
+                                                    )
+                                                  : Image.asset(
+                                                      _bankLogoAsset,
+                                                      height: 40,
+                                                      width: 40,
+                                                    ),
                                             ),
                                           ),
                                           const SizedBox(width: 14),
                                           Expanded(
                                             child: Text(
-                                              'OPay',
+                                              _bankName,
                                               style: const TextStyle(
                                                 fontFamily: 'Roboto',
                                                 fontWeight: FontWeight.w400,
@@ -303,8 +330,8 @@ class _BankingPopupState extends State<PersonalBankingPopup>
                                     Expanded(
                                       child: GestureDetector(
                                         onTap: () {
-                                          Navigator.of(context).pop();
-                                          widget.onTransfaCashDrop?.call();
+                                          context.pop();
+                                          context.push(Routes.amount);
                                         },
                                         child: Container(
                                           height: 58,
@@ -356,7 +383,9 @@ class _BankingPopupState extends State<PersonalBankingPopup>
 }
 
 class _BankingAvatar extends StatelessWidget {
-  const _BankingAvatar();
+  final String imageUrl;
+
+  const _BankingAvatar({required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -373,9 +402,20 @@ class _BankingAvatar extends StatelessWidget {
       ),
       child: Center(
         child: Container(
-          width: 150,
-          height: 150,
-          child: SvgPicture.asset(Assets.contacts),
+          width: 160,
+          height: 160,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(75),
+            child: Image.asset(
+              imageUrl,
+              width: 160,
+              height: 160,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
       ),
     );

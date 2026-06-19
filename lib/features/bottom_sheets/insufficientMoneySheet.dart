@@ -8,10 +8,8 @@ import '../../../core/router/routes.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/transfa_logo.dart';
 import '../../../data/mock_api/currency.dart';
-
-// ============================================================
-// INSUFFICIENT MONEY BOTTOM SHEET
-// ============================================================
+import '../../features/pop-ups/insufficientBalance_popup.dart';
+import '../../features/pop-ups/stampDuty_popup.dart';
 
 class InsufficientMoneySheet extends StatefulWidget {
   final String amount;
@@ -45,34 +43,19 @@ class InsufficientMoneySheet extends StatefulWidget {
 
 class _InsufficientMoneySheetState extends State<InsufficientMoneySheet> {
   final TextEditingController _memoController = TextEditingController();
-  
-  // Mock user balance - insufficient for this transaction
   final double _userBalance = 200000.00;
-  
+
   double get _totalAmount {
     final amount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
     return amount + widget.transactionFee + widget.stampDuty;
   }
 
-  String _formatWithCommas(double amount) {
-    final formatter = NumberFormat('#,###.##');
-    return formatter.format(amount);
-  }
-
-  String _getMainAmount(double amount) {
-    final formatted = _formatWithCommas(amount);
-    if (formatted.contains('.')) {
-      return formatted.split('.')[0];
-    }
-    return formatted;
-  }
-
+  String _formatAmount(double amount) =>
+      NumberFormat('#,###.##').format(amount);
+  String _getMainAmount(double amount) => _formatAmount(amount).split('.')[0];
   String _getDecimalPart(double amount) {
-    final formatted = _formatWithCommas(amount);
-    if (formatted.contains('.')) {
-      return '.${formatted.split('.')[1]}';
-    }
-    return '.00';
+    final parts = _formatAmount(amount).split('.');
+    return parts.length > 1 ? '.${parts[1]}' : '.00';
   }
 
   @override
@@ -87,33 +70,571 @@ class _InsufficientMoneySheetState extends State<InsufficientMoneySheet> {
     super.dispose();
   }
 
-  void _onMemoChanged(String value) {
-    widget.onMemoChanged(value);
-  }
-
-  void _onTouchToConfirm() {
-    // Since balance is insufficient, show add money flow
-    _showAddMoneyPopup();
-  }
-
-  void _showAddMoneyPopup() {
-    // Navigate to add money screen or show popup
-    // context.push(Routes.addMoney);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Add money to continue with this transaction')),
+  void _showInsufficientPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => InsufficientMoneyPopup(
+        onAddMoney: () {
+          // Navigator.pop(context);
+          // Navigator.pop(context);
+          context.push(Routes.amount);
+        },
+      ),
     );
   }
 
-  void _onAddMoneyPressed() {
-    // Handle add money action
-    _showAddMoneyPopup();
+  void _showStampDutyPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => StampDutyPopup(),
+    );
   }
+
+  Widget _buildHeader() => Padding(
+    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+    child: Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          alignment: Alignment.center,
+          child: const TransfaMark(size: 16, white: true),
+        ),
+        const SizedBox(width: 10),
+        const Expanded(
+          child: Text(
+            'Transfa',
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w500,
+              fontSize: 24,
+              letterSpacing: 0.02,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFCFCFB).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(35),
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              Icons.close_rounded,
+              size: 16,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildRecipientInfo() => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(20),
+    child: Column(
+      children: [
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFFF6777), Color(0xFFF74155)],
+            ),
+            borderRadius: BorderRadius.circular(100),
+          ),
+          child: SvgPicture.asset(Assets.contacts),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          widget.recipientName,
+          style: const TextStyle(
+            fontFamily: 'Arial Rounded MT Bold',
+            fontWeight: FontWeight.w400,
+            fontSize: 30,
+            letterSpacing: 0.02,
+            color: Colors.black,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          widget.accountNumber,
+          style: const TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            fontSize: 17,
+            letterSpacing: 0.02,
+            color: Color(0x80000000),
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildBankField() => Container(
+    height: 70,
+    padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFCFCFB),
+      borderRadius: BorderRadius.circular(35),
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF07B826), Color(0xFF4EE659)],
+            ),
+            borderRadius: BorderRadius.circular(35),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 7,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: widget.bankLogoAsset.isNotEmpty
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(35),
+                  child: Image.asset(widget.bankLogoAsset, fit: BoxFit.cover),
+                )
+              : const Center(
+                  child: Icon(
+                    Icons.account_balance,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            widget.bankName,
+            style: const TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 17,
+              letterSpacing: 0.02,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        SvgPicture.asset(
+          Assets.context,
+          width: 12,
+          height: 16,
+          colorFilter: const ColorFilter.mode(
+            Color(0xFFB3B3B7),
+            BlendMode.srcIn,
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildAmountField() => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFCFCFB),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Send ${widget.recipientName}',
+          style: const TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w400,
+            fontSize: 17,
+            letterSpacing: 0.02,
+            color: Color(0xFF8A8A8C),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: _buildAmountText(
+                double.tryParse(widget.amount.replaceAll(',', '')) ?? 0,
+              ),
+            ),
+            _buildAddMoneyButton(),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildAmountText(double amount) => RichText(
+    text: TextSpan(
+      children: [
+        TextSpan(
+          text: '${widget.currency.symbol}${_getMainAmount(amount)}',
+          style: const TextStyle(
+            fontFamily: 'Arial Rounded MT Bold',
+            fontWeight: FontWeight.w600,
+            fontSize: 30,
+            letterSpacing: 0.02,
+            color: Colors.black,
+          ),
+        ),
+        WidgetSpan(
+          alignment: PlaceholderAlignment.baseline,
+          baseline: TextBaseline.alphabetic,
+          child: Transform.translate(
+            offset: const Offset(0, -8),
+            child: Text(
+              _getDecimalPart(amount),
+              style: const TextStyle(
+                fontFamily: 'Arial Rounded MT Bold',
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                letterSpacing: 0.02,
+                color: Color(0xFF8A8A8C),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildAddMoneyButton() => GestureDetector(
+    onTap: () => {context.push(Routes.amount)},
+    child: Container(
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+        ),
+        borderRadius: BorderRadius.circular(35),
+      ),
+      child: const Center(
+        child: Text(
+          'Add Money',
+          style: TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            letterSpacing: 0.02,
+            color: Color(0xFFFCFCFB),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _buildMemoField() => Container(
+    height: 62,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFCFCFB),
+      borderRadius: BorderRadius.circular(35),
+    ),
+    child: Row(
+      children: [
+        SvgPicture.asset(Assets.memo, width: 30, height: 30),
+        const SizedBox(width: 10),
+        Expanded(
+          child: TextField(
+            controller: _memoController,
+            onChanged: widget.onMemoChanged,
+            style: const TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 17,
+              letterSpacing: 0.02,
+              color: Colors.black,
+            ),
+            decoration: const InputDecoration(
+              hintText: 'Tactical Technology Grant',
+              hintStyle: TextStyle(
+                fontFamily: 'Roboto',
+                fontWeight: FontWeight.w400,
+                fontSize: 17,
+                letterSpacing: 0.02,
+                color: Color(0xFF8A8A8C),
+              ),
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildBalanceField() => Container(
+    height: 62,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFCFCFB),
+      borderRadius: BorderRadius.circular(35),
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(35),
+          ),
+          alignment: Alignment.center,
+          child: const TransfaMark(size: 12, white: true),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text:
+                      'Balance: ${widget.currency.symbol}${_getMainAmount(_userBalance)}',
+                  style: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.w400,
+                    fontSize: 17,
+                    letterSpacing: 0.02,
+                    color: Color(0xFF8A8A8C),
+                  ),
+                ),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.baseline,
+                  baseline: TextBaseline.alphabetic,
+                  child: Transform.translate(
+                    offset: const Offset(0, -5),
+                    child: Text(
+                      _getDecimalPart(_userBalance),
+                      style: const TextStyle(
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 11,
+                        letterSpacing: 0.02,
+                        color: Color(0xFF8A8A8C),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Container(
+          width: 26,
+          height: 26,
+          alignment: Alignment.center,
+          child: SvgPicture.asset(Assets.menu, width: 18, height: 18),
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildSummary() => Container(
+    width: double.infinity,
+    decoration: BoxDecoration(
+      color: const Color(0xFFFCFCFB),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Column(
+      children: [
+        _buildSummaryRow('Transaction Fee', widget.transactionFee),
+        const Divider(height: 1, thickness: 1, color: Color(0x08000000)),
+
+        GestureDetector(
+          onTap: _showStampDutyPopup,
+          child: _buildStampDutyRow(),
+        ),
+        const Divider(height: 1, thickness: 1, color: Color(0x08000000)),
+        _buildSummaryRow('Total', _totalAmount, bold: true),
+      ],
+    ),
+  );
+
+  Widget _buildSummaryRow(String label, double amount, {bool bold = false}) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: bold ? FontWeight.w500 : FontWeight.w400,
+                  fontSize: 17,
+                  letterSpacing: 0.02,
+                  color: bold ? Colors.black : const Color(0xFF8A8A8C),
+                ),
+              ),
+            ),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '${widget.currency.symbol}${_getMainAmount(amount)}',
+                    style: TextStyle(
+                      fontFamily: 'Roboto',
+                      fontWeight: bold ? FontWeight.w500 : FontWeight.w400,
+                      fontSize: 17,
+                      letterSpacing: 0.02,
+                      color: Colors.black,
+                    ),
+                  ),
+                  if (!bold)
+                    const TextSpan(
+                      text: ' Fee',
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.w400,
+                        fontSize: 17,
+                        letterSpacing: 0.02,
+                        color: Colors.black,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _buildStampDutyRow() => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    child: Row(
+      children: [
+        Container(
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF2F3F5),
+            borderRadius: BorderRadius.circular(35),
+          ),
+          alignment: Alignment.center,
+          child: Image.asset(Assets.cbnLogo, width: 14, height: 18),
+        ),
+        const SizedBox(width: 10),
+        const Expanded(
+          child: Text(
+            'Stamp Duty',
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 17,
+              letterSpacing: 0.02,
+              color: Color(0xFF8A8A8C),
+            ),
+          ),
+        ),
+        Container(
+          width: 20,
+          height: 20,
+          alignment: Alignment.center,
+          child: const Icon(Icons.info_outline, size: 16, color: Colors.black),
+        ),
+        const SizedBox(width: 8),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text:
+                    '${widget.currency.symbol}${_getMainAmount(widget.stampDuty)}',
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 17,
+                  letterSpacing: 0.02,
+                  color: Colors.black,
+                ),
+              ),
+              const TextSpan(
+                text: ' Fee',
+                style: TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 17,
+                  letterSpacing: 0.02,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildConfirmButton() => GestureDetector(
+    onTap: _showInsufficientPopup,
+    child: Container(
+      width: double.infinity,
+      height: 150,
+      padding: const EdgeInsets.all(30),
+      decoration: BoxDecoration(
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5)],
+        borderRadius: BorderRadius.circular(35),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 58,
+            height: 58,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.black.withOpacity(0.3),
+                width: 3,
+              ),
+              borderRadius: BorderRadius.circular(58),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Touch to Confirm',
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontWeight: FontWeight.w400,
+              fontSize: 17,
+              letterSpacing: 0.02,
+              color: Color(0x4D000000),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
-    final String symbol = widget.currency.symbol;
-    final double parsedAmount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
-    
     return Container(
       height: 620,
       padding: const EdgeInsets.all(20),
@@ -131,641 +652,26 @@ class _InsufficientMoneySheetState extends State<InsufficientMoneySheet> {
             color: Colors.transparent,
             child: Column(
               children: [
-                // Fixed Header (doesn't scroll)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        alignment: Alignment.center,
-                        child: const TransfaMark(size: 16, white: true),
-                      ),
-                      const SizedBox(width: 10),
-                      const Expanded(
-                        child: Text(
-                          'Transfa',
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w500,
-                            fontSize: 24,
-                            letterSpacing: 0.02,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.close_rounded,
-                            size: 16,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Scrollable Body
+                _buildHeader(),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                     physics: const BouncingScrollPhysics(),
                     child: Column(
                       children: [
-                        // Face Shot, Name & Account Number Section
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            children: [
-                              // Avatar
-                              Container(
-                                width: 120,
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [Color(0xFFFF6777), Color(0xFFF74155)],
-                                  ),
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                                child: SvgPicture.asset(
-                                  Assets.contacts,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              // Recipient Name
-                              Text(
-                                widget.recipientName,
-                                style: const TextStyle(
-                                  fontFamily: 'Arial Rounded MT Bold',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 30,
-                                  letterSpacing: 0.02,
-                                  color: Colors.black,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 4),
-                              // Account Number
-                              Text(
-                                widget.accountNumber,
-                                style: const TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 17,
-                                  letterSpacing: 0.02,
-                                  color: Color(0x80000000),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildRecipientInfo(),
                         const SizedBox(height: 20),
-
-                        // Selected Bank Field
-                        Container(
-                          height: 70,
-                          padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB),
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          child: Row(
-                            children: [
-                              // Bank Logo
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [Color(0xFF07B826), Color(0xFF4EE659)],
-                                  ),
-                                  borderRadius: BorderRadius.circular(35),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 7,
-                                      offset: Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: widget.bankLogoAsset.isNotEmpty
-                                    ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(35),
-                                        child: Image.asset(
-                                          widget.bankLogoAsset,
-                                          width: 50,
-                                          height: 50,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
-                                    : const Center(
-                                        child: Icon(
-                                          Icons.account_balance,
-                                          color: Colors.white,
-                                          size: 24,
-                                        ),
-                                      ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  widget.bankName,
-                                  style: const TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    letterSpacing: 0.02,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                              SvgPicture.asset(
-                                Assets.context,
-                                width: 12,
-                                height: 16,
-                                colorFilter: const ColorFilter.mode(
-                                  Color(0xFFB3B3B7),
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildBankField(),
                         const SizedBox(height: 20),
-
-                        // Send Amount Field with Add Money Button
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Send ${widget.recipientName}',
-                                style: const TextStyle(
-                                  fontFamily: 'Roboto',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 17,
-                                  letterSpacing: 0.02,
-                                  color: Color(0xFF8A8A8C),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: '$symbol${_getMainAmount(parsedAmount)}',
-                                            style: const TextStyle(
-                                              fontFamily: 'Arial Rounded MT Bold',
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 30,
-                                              letterSpacing: 0.02,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          WidgetSpan(
-                                            alignment: PlaceholderAlignment.baseline,
-                                            baseline: TextBaseline.alphabetic,
-                                            child: Transform.translate(
-                                              offset: const Offset(0, -8),
-                                              child: Text(
-                                                _getDecimalPart(parsedAmount),
-                                                style: const TextStyle(
-                                                  fontFamily: 'Arial Rounded MT Bold',
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                  letterSpacing: 0.02,
-                                                  color: Color(0xFF8A8A8C),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  // Add Money Button
-                                  GestureDetector(
-                                    onTap: _onAddMoneyPressed,
-                                    child: Container(
-                                      height: 38,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
-                                        ),
-                                        borderRadius: BorderRadius.circular(35),
-                                      ),
-                                      child: const Center(
-                                        child: Text(
-                                          'Add Money',
-                                          style: TextStyle(
-                                            fontFamily: 'Roboto',
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 14,
-                                            letterSpacing: 0.02,
-                                            color: Color(0xFFFCFCFB),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildAmountField(),
                         const SizedBox(height: 20),
-
-                        // Memo Field
-                        Container(
-                          height: 62,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB),
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          child: Row(
-                            children: [
-                              SvgPicture.asset(
-                                Assets.memo,
-                                width: 30,
-                                height: 30,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: TextField(
-                                  controller: _memoController,
-                                  onChanged: _onMemoChanged,
-                                  style: const TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    letterSpacing: 0.02,
-                                    color: Colors.black,
-                                  ),
-                                  decoration: const InputDecoration(
-                                    hintText: 'Tactical Technology Grant',
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'Roboto',
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 17,
-                                      letterSpacing: 0.02,
-                                      color: Color(0xFF8A8A8C),
-                                    ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildMemoField(),
                         const SizedBox(height: 20),
-
-                        // Pay with Field
-                        Container(
-                          height: 62,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB),
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 30,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: BorderRadius.circular(35),
-                                ),
-                                alignment: Alignment.center,
-                                child: const TransfaMark(size: 12, white: true),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: 'Balance: $symbol${_getMainAmount(_userBalance)}',
-                                        style: const TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 17,
-                                          letterSpacing: 0.02,
-                                          color: Color(0xFF8A8A8C),
-                                        ),
-                                      ),
-                                      WidgetSpan(
-                                        alignment: PlaceholderAlignment.baseline,
-                                        baseline: TextBaseline.alphabetic,
-                                        child: Transform.translate(
-                                          offset: const Offset(0, -5),
-                                          child: Text(
-                                            _getDecimalPart(_userBalance),
-                                            style: const TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 11,
-                                              letterSpacing: 0.02,
-                                              color: Color(0xFF8A8A8C),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: 26,
-                                height: 26,
-                                alignment: Alignment.center,
-                                child: SvgPicture.asset(
-                                  Assets.menu,
-                                  width: 18,
-                                  height: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildBalanceField(),
                         const SizedBox(height: 20),
-
-                        // Summary Section
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Column(
-                            children: [
-                              // Transaction Fee
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Expanded(
-                                      child: Text(
-                                        'Transaction Fee',
-                                        style: TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 17,
-                                          letterSpacing: 0.02,
-                                          color: Color(0xFF8A8A8C),
-                                        ),
-                                      ),
-                                    ),
-                                    RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: '$symbol${_getMainAmount(widget.transactionFee)}',
-                                            style: const TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 17,
-                                              letterSpacing: 0.02,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          
-                                          const TextSpan(
-                                            text: ' Fee',
-                                            style: TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 17,
-                                              letterSpacing: 0.02,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0x08000000),
-                              ),
-                              // Stamp Duty
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 26,
-                                      height: 26,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF2F3F5),
-                                        borderRadius: BorderRadius.circular(35),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Image.asset(
-                                        Assets.cbnLogo,
-                                        width: 14,
-                                        height: 18,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    const Expanded(
-                                      child: Text(
-                                        'Stamp Duty',
-                                        style: TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 17,
-                                          letterSpacing: 0.02,
-                                          color: Color(0xFF8A8A8C),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 20,
-                                      height: 20,
-                                      alignment: Alignment.center,
-                                      child: const Icon(
-                                        Icons.info_outline,
-                                        size: 16,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: '$symbol${_getMainAmount(widget.stampDuty)}',
-                                            style: const TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 17,
-                                              letterSpacing: 0.02,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          
-                                          const TextSpan(
-                                            text: ' Fee',
-                                            style: TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 17,
-                                              letterSpacing: 0.02,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Color(0x08000000),
-                              ),
-                              // Total
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Expanded(
-                                      child: Text(
-                                        'Total',
-                                        style: TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 17,
-                                          letterSpacing: 0.02,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                    RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: '$symbol${_getMainAmount(_totalAmount)}',
-                                            style: const TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 17,
-                                              letterSpacing: 0.02,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildSummary(),
                         const SizedBox(height: 20),
-
-                        // Pay Bubble - Touch to Confirm (Disabled State)
-                        GestureDetector(
-                          onTap: _onTouchToConfirm,
-                          child: Container(
-                            width: double.infinity,
-                            height: 150,
-                            padding: const EdgeInsets.all(30),
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(35),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 58,
-                                  height: 58,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.black.withOpacity(0.3),
-                                      width: 3,
-                                    ),
-                                    borderRadius: BorderRadius.circular(58),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                const Text(
-                                  'Touch to Confirm',
-                                  style: TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    letterSpacing: 0.02,
-                                    color: Color(0x4D000000),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        _buildConfirmButton(),
                         const SizedBox(height: 20),
                       ],
                     ),

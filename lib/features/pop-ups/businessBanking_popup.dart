@@ -7,11 +7,21 @@ import '../../core/constants/assets.dart';
 // BUSINESS BANKING POPUP (slides from top)
 // ============================================================
 class BusinessBankingPopup extends StatefulWidget {
+  final String? businessName;
+  final String? businessImageUrl;
+  final String? accountNumber;
+  final String? bankName;
+  final String? bankLogoAsset;
   final VoidCallback? onSaveToTransfa;
   final VoidCallback? onTransfaCashDrop;
 
   const BusinessBankingPopup({
     super.key,
+    this.businessName,
+    this.businessImageUrl,
+    this.accountNumber,
+    this.bankName,
+    this.bankLogoAsset,
     this.onSaveToTransfa,
     this.onTransfaCashDrop,
   });
@@ -25,6 +35,13 @@ class _BusinessBankingPopupState extends State<BusinessBankingPopup>
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
+
+  // Default values if not provided
+  String get _businessName => widget.businessName ?? 'Uptown Stores';
+  String get _businessImageUrl => widget.businessImageUrl ?? Assets.contact;
+  String get _accountNumber => widget.accountNumber ?? '207 922 3313';
+  String get _bankName => widget.bankName ?? 'FCMB';
+  String get _bankLogoAsset => widget.bankLogoAsset ?? Assets.bankFcmb;
 
   @override
   void initState() {
@@ -102,13 +119,15 @@ class _BusinessBankingPopupState extends State<BusinessBankingPopup>
                                 ),
                                 child: Column(
                                   children: [
-                                    // Business Avatar
-                                    const _BusinessAvatar(),
+                                    // Business Avatar - dynamic
+                                    _BusinessAvatar(
+                                      imageUrl: _businessImageUrl,
+                                    ),
                                     const SizedBox(height: 20),
-                                    // Business Name
-                                    const Text(
-                                      'Uptown Stores',
-                                      style: TextStyle(
+                                    // Business Name - dynamic
+                                    Text(
+                                      _businessName,
+                                      style: const TextStyle(
                                         fontFamily: 'Arial Rounded MT Bold',
                                         fontSize: 26,
                                         height: 1.3,
@@ -142,7 +161,7 @@ class _BusinessBankingPopupState extends State<BusinessBankingPopup>
                                           Container(
                                             width: 50,
                                             height: 50,
-                                            padding: EdgeInsets.all(12),
+                                            padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
                                               gradient: const LinearGradient(
                                                 begin: Alignment.topCenter,
@@ -155,7 +174,7 @@ class _BusinessBankingPopupState extends State<BusinessBankingPopup>
                                               borderRadius:
                                                   BorderRadius.circular(35),
                                             ),
-                                            child:  _BankIcon(),
+                                            child: const _BankIcon(),
                                           ),
                                           const SizedBox(width: 14),
                                           // Account Details
@@ -177,9 +196,9 @@ class _BusinessBankingPopupState extends State<BusinessBankingPopup>
                                                     ), // 30% opacity
                                                   ),
                                                 ),
-                                                const Text(
-                                                  '207 922 3313',
-                                                  style: TextStyle(
+                                                Text(
+                                                  _accountNumber,
+                                                  style: const TextStyle(
                                                     fontFamily: 'Roboto',
                                                     fontWeight: FontWeight.w400,
                                                     fontSize: 17,
@@ -208,13 +227,15 @@ class _BusinessBankingPopupState extends State<BusinessBankingPopup>
                                       padding: const EdgeInsets.all(14),
                                       child: Row(
                                         children: [
-                                          // FCMB Logo
+                                          // Bank Logo Container - dynamic
                                           Container(
                                             width: 50,
                                             height: 50,
-                                            padding: EdgeInsets.all(8),
+                                            padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFF5C2684),
+                                              color: _bankLogoAsset == Assets.bankFcmb
+                                                  ? const Color(0xFF5C2684)
+                                                  : Colors.white,
                                               borderRadius:
                                                   BorderRadius.circular(50),
                                               boxShadow: [
@@ -226,12 +247,24 @@ class _BusinessBankingPopupState extends State<BusinessBankingPopup>
                                                 ),
                                               ],
                                             ),
-                                            child: Image.asset(Assets.bankFcmb, height: 30, width: 30,),
+                                            child: Center(
+                                              child: _bankLogoAsset.contains('.svg')
+                                                  ? SvgPicture.asset(
+                                                      _bankLogoAsset,
+                                                      height: 30,
+                                                      width: 30,
+                                                    )
+                                                  : Image.asset(
+                                                      _bankLogoAsset,
+                                                      height: 30,
+                                                      width: 30,
+                                                    ),
+                                            ),
                                           ),
                                           const SizedBox(width: 14),
                                           Expanded(
                                             child: Text(
-                                              'FCMB',
+                                              _bankName,
                                               style: const TextStyle(
                                                 fontFamily: 'Roboto',
                                                 fontWeight: FontWeight.w400,
@@ -357,7 +390,9 @@ class _BusinessBankingPopupState extends State<BusinessBankingPopup>
 }
 
 class _BusinessAvatar extends StatelessWidget {
-  const _BusinessAvatar();
+  final String imageUrl;
+
+  const _BusinessAvatar({required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -376,8 +411,25 @@ class _BusinessAvatar extends StatelessWidget {
         child: Container(
           width: 140,
           height: 140,
-
-          child: SvgPicture.asset(Assets.contact),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(70),
+            child: imageUrl.contains('.svg')
+                ? SvgPicture.asset(
+                    imageUrl,
+                    width: 140,
+                    height: 140,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    imageUrl,
+                    width: 140,
+                    height: 140,
+                    fit: BoxFit.cover,
+                  ),
+          ),
         ),
       ),
     );
@@ -389,10 +441,9 @@ class _BankIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(Assets.bankBlack, height: 30, width: 30,);
+    return SvgPicture.asset(Assets.bankBlack, height: 30, width: 30);
   }
 }
-
 
 class _SaveIcon extends StatelessWidget {
   const _SaveIcon();
@@ -402,7 +453,6 @@ class _SaveIcon extends StatelessWidget {
     return Container(
       width: 22,
       height: 22,
-      
       child: SvgPicture.asset(Assets.contactsWhite),
     );
   }
@@ -413,7 +463,6 @@ class _TransfaAirIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(Assets.logoSmallWhite, height: 20, width: 20,);
+    return SvgPicture.asset(Assets.logoSmallWhite, height: 20, width: 20);
   }
 }
-

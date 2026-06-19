@@ -1,17 +1,17 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import '../../../core/router/routes.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/assets.dart';
+import '../../../core/router/routes.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../shared/widgets/transfa_logo.dart';
 import '../../../shared/widgets/wallpaper_scaffold.dart';
+import '../../../features/pop-ups/cashDrop_popup.dart';
+import '../../../features/pop-ups/transfaAccountShare_popup.dart';
 
 /// Frosted "Add Money" widget pair — intro card explaining the feature
 /// and an account-share card with Copy/Share/CashDrop actions.
@@ -21,7 +21,10 @@ class AddMoneyScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dva = ref.watch(dvaProvider);
-    final account = dva.maybeWhen(data: (d) => d.accountNumber, orElse: () => '—');
+    final account = dva.maybeWhen(
+      data: (d) => d.accountNumber,
+      orElse: () => '—',
+    );
 
     return WallpaperScaffold(
       darken: 0.55,
@@ -31,7 +34,7 @@ class AddMoneyScreen extends ConsumerWidget {
         child: Column(
           children: [
             const Spacer(flex: 2),
-            _IntroWidget(),
+            const _IntroWidget(),
             const SizedBox(height: 22),
             _ShareWidget(
               account: account.replaceAllMapped(
@@ -41,13 +44,11 @@ class AddMoneyScreen extends ConsumerWidget {
             ),
             const Spacer(flex: 3),
             const Spacer(flex: 1),
-
-            // 3. Bottom row: gradient Home pill (left) + red + button (right).
+            // Bottom row: gradient Home pill (left) + red + button (right).
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _WalletPill(onTap: () => context.go(Routes.wallet)),
-                
               ],
             ),
           ],
@@ -57,6 +58,9 @@ class AddMoneyScreen extends ConsumerWidget {
   }
 }
 
+// ============================================================
+// WALLET PILL
+// ============================================================
 
 class _WalletPill extends StatelessWidget {
   final VoidCallback onTap;
@@ -74,20 +78,31 @@ class _WalletPill extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
+              color: Colors.black.withOpacity(0.18),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
           ],
         ),
         alignment: Alignment.center,
-        child: SvgPicture.asset(Assets.transfaWallet, width: 35, height: 35, fit: BoxFit.contain),
+        child: SvgPicture.asset(
+          Assets.transfaWallet,
+          width: 35,
+          height: 35,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }
 }
 
+// ============================================================
+// INTRO WIDGET
+// ============================================================
+
 class _IntroWidget extends StatelessWidget {
+  const _IntroWidget();
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -98,9 +113,9 @@ class _IntroWidget extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(20, 22, 24, 26),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.18),
+            color: Colors.white.withOpacity(0.18),
             borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+            border: Border.all(color: Colors.white.withOpacity(0.35)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,16 +128,29 @@ class _IntroWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 alignment: Alignment.center,
-                child: SvgPicture.asset(Assets.transfaCash, width: 55, height: 55, fit: BoxFit.contain),
+                child: SvgPicture.asset(
+                  Assets.transfaCash,
+                  width: 55,
+                  height: 55,
+                  fit: BoxFit.contain,
+                ),
               ),
               const SizedBox(height: 20),
-              Text('Add Money',
-                  style: AppTypography.displayMedium.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.w800, fontSize: 28)),
+              Text(
+                'Add Money',
+                style: AppTypography.displayMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 28,
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 'Ask anyone to Transfa money to you and get it right away.',
-                style: AppTypography.body.copyWith(color: Colors.white, fontSize: 18),
+                style: AppTypography.body.copyWith(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
               ),
             ],
           ),
@@ -132,9 +160,31 @@ class _IntroWidget extends StatelessWidget {
   }
 }
 
+// ============================================================
+// SHARE WIDGET
+// ============================================================
+
 class _ShareWidget extends StatelessWidget {
   final String account;
   const _ShareWidget({required this.account});
+
+  void _showCashDropPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.7),
+      builder: (context) => const CashDropPopup(),
+    );
+  }
+
+  void _showTransfaAccountSharePopup(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.6),
+      builder: (context) => const TransfaAccountSharePopup(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,9 +195,9 @@ class _ShareWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.16),
+            color: Colors.white.withOpacity(0.16),
             borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.32)),
+            border: Border.all(color: Colors.white.withOpacity(0.32)),
           ),
           child: Column(
             children: [
@@ -160,18 +210,29 @@ class _ShareWidget extends StatelessWidget {
                       color: const Color(0xFF1A1A1A),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Center(child: TransfaMark(size: 26, white: true)),
+                    child: const Center(
+                      child: TransfaMark(size: 26, white: true),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('WEMA BANK',
-                          style: AppTypography.caption.copyWith(
-                              color: Colors.white.withValues(alpha: 0.55), fontSize: 14)),
-                      Text(account,
-                          style: AppTypography.heading.copyWith(
-                              color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700)),
+                      Text(
+                        'WEMA BANK',
+                        style: AppTypography.caption.copyWith(
+                          color: Colors.white.withOpacity(0.55),
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        account,
+                        style: AppTypography.heading.copyWith(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -180,20 +241,36 @@ class _ShareWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  // Copy Button
                   _ActionPill(
                     label: 'Copy',
                     svgAsset: Assets.copyWhite,
+                    bg: Colors.white.withOpacity(0.18),
                     onTap: () {
-                      Clipboard.setData(ClipboardData(text: account.replaceAll(' ', '')));
+                      Clipboard.setData(
+                        ClipboardData(text: account.replaceAll(' ', '')),
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Account number copied')));
+                        const SnackBar(content: Text('Account number copied')),
+                      );
                     },
                   ),
-                  const _ActionPill(label: 'Share', svgAsset: Assets.share),
-                  const _ActionPill(
-                    label: 'CashDrop',
-                    svgAsset: Assets.cashDrop,
-                    bg: Color(0xFF1976FF),
+                  // Share Button - with GestureDetector like ViewBalancePopup
+                  GestureDetector(
+                    onTap: () => _showTransfaAccountSharePopup(context),
+                    child: const _ActionPill(
+                      label: 'Share',
+                      svgAsset: Assets.share,
+                    ),
+                  ),
+                  // CashDrop Button - with GestureDetector like ViewBalancePopup
+                  GestureDetector(
+                    onTap: () => _showCashDropPopup(context),
+                    child: const _ActionPill(
+                      label: 'CashDrop',
+                      svgAsset: Assets.cashDrop,
+                      bg: Color(0xFF1976FF), // Blue gradient like ViewBalancePopup
+                    ),
                   ),
                 ],
               ),
@@ -205,12 +282,22 @@ class _ShareWidget extends StatelessWidget {
   }
 }
 
+// ============================================================
+// ACTION PILL
+// ============================================================
+
 class _ActionPill extends StatelessWidget {
   final String label;
   final String svgAsset;
   final Color? bg;
   final VoidCallback? onTap;
-  const _ActionPill({required this.label, required this.svgAsset, this.bg, this.onTap});
+
+  const _ActionPill({
+    required this.label,
+    required this.svgAsset,
+    this.bg,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -223,9 +310,9 @@ class _ActionPill extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: bg ?? Colors.white.withValues(alpha: 0.18),
+              color: bg ?? Colors.white.withOpacity(0.18),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+              border: Border.all(color: Colors.white.withOpacity(0.35)),
             ),
             child: Center(
               child: SizedBox(
@@ -236,9 +323,13 @@ class _ActionPill extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(label,
-              style: AppTypography.body
-                  .copyWith(color: Colors.white, fontSize: 14)),
+          Text(
+            label,
+            style: AppTypography.body.copyWith(
+              color: Colors.white,
+              fontSize: 14,
+            ),
+          ),
         ],
       ),
     );

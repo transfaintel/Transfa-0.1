@@ -12,12 +12,14 @@ class TransfaStatusUnavailablePopup extends StatefulWidget {
   final String accountName;
   final String accountNumber;
   final double amount;
+  final String? image;
   final String description;
   final String bankName;
 
   const TransfaStatusUnavailablePopup({
     super.key,
     this.onClose,
+    this.image = '',
     this.onTransfaCashDrop,
     required this.accountName,
     required this.accountNumber,
@@ -164,7 +166,7 @@ class _TransfaStatusUnavailablePopupState extends State<TransfaStatusUnavailable
                                 child: Column(
                                   children: [
                                     // Avatar with YELLOW WAY gradient
-                                    const _UnavailableBusinessAvatar(),
+                                    _UnavailableBusinessAvatar(image: widget.image!),
                                     const SizedBox(height: 10),
                                     // Business Name
                                     Text(
@@ -329,32 +331,40 @@ class _TransfaStatusUnavailablePopupState extends State<TransfaStatusUnavailable
 }
 
 class _UnavailableBusinessAvatar extends StatelessWidget {
-  const _UnavailableBusinessAvatar();
+  final String image;
+
+  const _UnavailableBusinessAvatar({required this.image});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
+      width: 110,
+      height: 110,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [Color(0xFFFFA800), Color(0xFFF97A21)],
         ),
         shape: BoxShape.circle,
       ),
-      child: Center(
-        child: Container(
-          width: 110,
-          height: 110,
-          child: SvgPicture.asset(Assets.contacts),
-        ),
-      ),
+      clipBehavior: Clip.hardEdge,
+      child: image.isEmpty
+          ? SvgPicture.asset(
+              Assets.contacts,
+              width: 110,
+              height: 110,
+              fit: BoxFit.contain,
+            )
+          : Image.asset(
+              image,
+              width: 110,
+              height: 110,
+              fit: BoxFit.cover,
+            ),
     );
   }
 }
-
 class _StatusTransfaIcon extends StatelessWidget {
   const _StatusTransfaIcon();
 

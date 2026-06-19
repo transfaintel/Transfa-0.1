@@ -237,7 +237,7 @@ class _FaceShotAvatar extends StatelessWidget {
 
       child: CircleAvatar(
         radius: 30,
-        backgroundImage: const AssetImage(Assets.magic),
+        backgroundImage: AssetImage( imageUrl ?? Assets.magic),
         backgroundColor: Colors.grey,
       ),
     );

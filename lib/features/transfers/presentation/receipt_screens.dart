@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:transfa/features/pop-ups/businessBanking_popup.dart';
+import 'package:transfa/features/pop-ups/personalBanking_popup.dart';
+import 'package:transfa/features/pop-ups/transfaAccountPreview_popup.dart';
 
 import '../../../core/constants/assets.dart';
 import '../../../core/router/routes.dart';
@@ -9,6 +12,11 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/transfa_logo.dart';
+import '../../../features/pop-ups/transfaDone_popup.dart';
+import '../../../features/pop-ups/transfaStatusProgress_popup.dart';
+import '../../../features/pop-ups/transfaStatusUnavailable_popup.dart';
+import '../../../features/pop-ups/transfaStatus_popup.dart';
+import '../../../features/pop-ups/stampDuty_popup.dart';
 
 /// Universal-Income style receipt — Magic sends ₦2,000,000.
 class ReceiptUniversalScreen extends ConsumerWidget {
@@ -95,25 +103,43 @@ class _UniversalReceiptPage extends StatelessWidget {
                       children: [
                         _hPad(const TransfaMark(size: 38)),
                         const SizedBox(height: 6),
-                        _hPad(Text('Transfa Receipt',
-                            style: AppTypography.bodyStrong
-                                .copyWith(fontSize: 17))),
+                        _hPad(
+                          Text(
+                            'Transfa Receipt',
+                            style: AppTypography.bodyStrong.copyWith(
+                              fontSize: 17,
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 24),
-                        _hPad(Text(amount,
+                        _hPad(
+                          Text(
+                            amount,
                             style: AppTypography.displayLarge.copyWith(
-                                fontSize: 44,
-                                fontWeight: FontWeight.w800,
-                                color: amountColor))),
+                              fontSize: 44,
+                              fontWeight: FontWeight.w800,
+                              color: amountColor,
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        _hPad(Text(subtitle,
+                        _hPad(
+                          Text(
+                            subtitle,
                             textAlign: TextAlign.center,
                             style: AppTypography.body.copyWith(
-                                color: AppColors.textMuted, fontSize: 17))),
+                              color: AppColors.textMuted,
+                              fontSize: 17,
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 18),
-                        _hPad(_UniversalRecipientPill(
-                          name: recipientName,
-                          assetImage: recipientAsset,
-                        )),
+                        _hPad(
+                          _UniversalRecipientPill(
+                            name: recipientName,
+                            assetImage: recipientAsset,
+                          ),
+                        ),
                         const SizedBox(height: 18),
                         Container(
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 22),
@@ -131,13 +157,19 @@ class _UniversalReceiptPage extends StatelessWidget {
                                 label: 'Time',
                                 value: '11:44:09 AM',
                               ),
-                              const Divider(color: Color(0xFFEEEEEE), height: 1),
+                              const Divider(
+                                color: Color(0xFFEEEEEE),
+                                height: 1,
+                              ),
                               _MetaRow(
                                 icon: const _DayBadge(),
                                 label: 'Day',
                                 value: 'Sunday, March 10',
                               ),
-                              const Divider(color: Color(0xFFEEEEEE), height: 1),
+                              const Divider(
+                                color: Color(0xFFEEEEEE),
+                                height: 1,
+                              ),
                               const SizedBox(height: 14),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,20 +181,22 @@ class _UniversalReceiptPage extends StatelessWidget {
                                       height: 48,
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF1A1A1A),
-                                        borderRadius:
-                                            BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       alignment: Alignment.center,
                                       child: const TransfaMark(
-                                          size: 26, white: true),
+                                        size: 26,
+                                        white: true,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
                                       'Send Dollars to friends, family,\nand anyone worldwide today.\nTransfa AI is coming soon ❤️💛',
-                                      style: AppTypography.body
-                                          .copyWith(fontSize: 17),
+                                      style: AppTypography.body.copyWith(
+                                        fontSize: 17,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -176,9 +210,13 @@ class _UniversalReceiptPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Text('Designed by Magic in Ohafia.',
-                  style: AppTypography.caption
-                      .copyWith(color: AppColors.textMuted, fontSize: 14)),
+              Text(
+                'Designed by Magic in Ohafia.',
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textMuted,
+                  fontSize: 14,
+                ),
+              ),
               const SizedBox(height: 14),
               Row(
                 children: [
@@ -208,13 +246,15 @@ class ReceiptStatusScreen extends ConsumerWidget {
         name: 'Magic Payma',
         assetImage: Assets.magic,
       ),
-      memo: 'Hi handsome. What’s up?',
+      memo: 'Hi handsome. What\'s up?',
       status: _ReceiptStatus.done,
       transactionFee: '₦1,000 Fee',
       total: '₦2,026,000',
       supportStyle: _ReceiptSupportStyle.row,
       showShare: true,
       onShare: () => context.push(Routes.receiptUniversal),
+      bankName: 'GTBank',
+      accountNumber: '0123456789',
     );
   }
 }
@@ -240,6 +280,8 @@ class ReceiptUnableScreen extends ConsumerWidget {
       total: '₦36,055',
       supportStyle: _ReceiptSupportStyle.tile,
       showShare: false,
+      bankName: 'Access Bank',
+      accountNumber: '9876543210',
     );
   }
 }
@@ -285,6 +327,8 @@ class ReceiptInReviewScreen extends ConsumerWidget {
           ),
         ],
       ),
+      bankName: 'GTBank',
+      accountNumber: '0123456789',
     );
   }
 }
@@ -310,6 +354,8 @@ class ReceiptReceivedScreen extends ConsumerWidget {
       supportStyle: _ReceiptSupportStyle.tile,
       showShare: true,
       onShare: () => context.push(Routes.receiptUniversal),
+      bankName: 'GTBank',
+      accountNumber: '0123456789',
     );
   }
 }
@@ -335,6 +381,8 @@ class ReceiptReceivedCompanyScreen extends ConsumerWidget {
       supportStyle: _ReceiptSupportStyle.tile,
       showShare: true,
       onShare: () => context.push(Routes.receiptUniversal),
+      bankName: 'GTBank',
+      accountNumber: '0123456789',
     );
   }
 }
@@ -344,14 +392,15 @@ class ReceiptReceivedCompanyScreen extends ConsumerWidget {
 // =============================================================
 
 enum _ReceiptStatus { done, processing, unable }
+
 enum _ReceiptSupportStyle { row, tile }
+
 class _ReceiptRecipient {
   final String name;
   final String? assetImage;
   final Color? avatarColor;
-  /// When true, render a blue rounded-square business glyph instead of
-  /// the round person/photo avatar — used for company recipients.
   final bool businessIcon;
+
   const _ReceiptRecipient({
     required this.name,
     this.assetImage,
@@ -371,22 +420,16 @@ class _ReceiptPage extends StatelessWidget {
   final _ReceiptRecipient recipient;
   final String memo;
   final _ReceiptStatus status;
-  /// Optional Transaction fee line — when null, the row is dropped
-  /// (company-cashout receipts only show Status + Total).
   final String? transactionFee;
   final String? stampDuty;
   final String total;
   final _ReceiptSupportStyle supportStyle;
   final bool showShare;
   final VoidCallback? onShare;
-
-  /// In-Review variant — when supplied, the Support Memo card + its action
-  /// pills are rendered in place of the Status / Transaction / Total card,
-  /// and the regular memo bubble moves below them.
   final _SupportMemoData? supportMemo;
-
-  /// Hide the "Paid with" detail row (used by the In-Review variant).
   final bool showPaidWith;
+  final String? bankName;
+  final String? accountNumber;
 
   const _ReceiptPage({
     required this.amount,
@@ -403,7 +446,64 @@ class _ReceiptPage extends StatelessWidget {
     this.onShare,
     this.supportMemo,
     this.showPaidWith = true,
+    this.bankName,
+    this.accountNumber,
   });
+
+  void _showProgressPopup(BuildContext context) {
+    final amountValue =
+        double.tryParse(amount.replaceAll(RegExp(r'[₦$,]'), '')) ?? 0;
+    final bank = bankName ?? 'Unknown Bank';
+    final account = accountNumber ?? 'N/A';
+
+    switch (status) {
+      case _ReceiptStatus.done:
+        showDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierColor: Colors.black.withOpacity(0.5),
+          builder: (context) => TransfaStatusPopup(
+            businessName: recipient.name,
+            amount: amountValue,
+            description: memo,
+            bankName: bank,
+            accountNumber: account,
+            image: recipient.assetImage ?? '',
+          ),
+        );
+        break;
+      case _ReceiptStatus.processing:
+        showDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierColor: Colors.black.withOpacity(0.5),
+          builder: (context) => TransfaStatusProgressPopup(
+            accountName: recipient.name,
+            amount: amountValue,
+            description: memo,
+            bankName: bank,
+            accountNumber: account,
+            image: recipient.assetImage ?? '',
+          ),
+        );
+        break;
+      case _ReceiptStatus.unable:
+        showDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierColor: Colors.black.withOpacity(0.5),
+          builder: (context) => TransfaStatusUnavailablePopup(
+            accountName: recipient.name,
+            amount: amountValue,
+            description: memo,
+            bankName: bank,
+            accountNumber: account,
+            image: recipient.assetImage ?? '',
+          ),
+        );
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -416,31 +516,109 @@ class _ReceiptPage extends StatelessWidget {
             ListView(
               padding: const EdgeInsets.fromLTRB(0, 24, 0, 140),
               children: [
-                _hPad(Column(
-                  children: [
-                    const TransfaMark(size: 38),
-                    const SizedBox(height: 6),
-                    Text('Transfa Receipt',
-                        style: AppTypography.bodyStrong.copyWith(fontSize: 18)),
-                  ],
-                )),
+                _hPad(
+                  Column(
+                    children: [
+                      const TransfaMark(size: 38),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Transfa Receipt',
+                        style: AppTypography.bodyStrong.copyWith(fontSize: 18),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 24),
-                _hPad(Center(
-                  child: Text(amount,
+                _hPad(
+                  Center(
+                    child: Text(
+                      amount,
                       style: AppTypography.displayLarge.copyWith(
-                          fontSize: 44,
-                          fontWeight: FontWeight.w800,
-                          color: amountColor)),
-                )),
+                        fontSize: 44,
+                        fontWeight: FontWeight.w800,
+                        color: amountColor,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 4),
-                _hPad(Center(
-                  child: Text(subtitle,
+                _hPad(
+                  Center(
+                    child: Text(
+                      subtitle,
                       style: AppTypography.body.copyWith(
-                          color: AppColors.textMuted, fontSize: 18),
-                      textAlign: TextAlign.center),
-                )),
+                        color: AppColors.textMuted,
+                        fontSize: 18,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 28),
-                _hPad(_RecipientPill(recipient: recipient)),
+                GestureDetector(
+                  onTap: () => {
+
+                    if (bankName == "Transfa"){
+                        showDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      barrierColor: Colors.black.withOpacity(0.5),
+                      builder: (context) => PersonalBankingPopup(
+                        recipientName: recipient.name,
+                        recipientImageUrl: recipient.assetImage ?? Assets.magic,
+                        accountNumber: accountNumber ?? 'N/A',
+                        bankName: bankName ?? 'Unknown Bank',
+                        // bankLogoAsset: widget.bankLogoAsset,
+                        onSaveToTransfa: () {
+                          // Handle Save to Transfa action
+                        },
+                        onTransfaCashDrop: () {
+                          // Handle Transfa CashDrop action
+                        },
+                      ),
+                    ),
+                    } else if (recipient.businessIcon == true){
+                        showDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      barrierColor: Colors.black.withOpacity(0.5),
+                      builder: (context) => BusinessBankingPopup(
+                        businessName: recipient.name,
+                        // businessImageUrl: recipient.assetImage ?? Assets.magic,
+                        onSaveToTransfa: () {
+                          // Handle Save to Transfa action
+                        },
+                        onTransfaCashDrop: () {
+                          // Handle Transfa CashDrop action
+                        },
+                      ),
+                    ),
+                    }
+                    
+                    else {
+                        showDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      barrierColor: Colors.black.withOpacity(0.5),
+                      builder: (context) => TransfaAccountPreviewPopup(
+                        userName: recipient.name,
+                        userImageUrl: recipient.assetImage ?? '',
+                        onSaveToTransfa: () {
+                          // Handle Save to Transfa action
+                        },
+                        onTransfaCashDrop: () {
+                          // Handle Transfa CashDrop action
+                        },
+                      ),
+                    ),
+                    }
+
+                    
+                    
+                  },
+                  child: _hPad(_RecipientPill(recipient: recipient)),
+                ),
+
                 if (inReview) ...[
                   const SizedBox(height: 18),
                   _hPad(_SupportMemoCard(data: supportMemo!)),
@@ -452,19 +630,29 @@ class _ReceiptPage extends StatelessWidget {
                   const SizedBox(height: 20),
                   _hPad(_MemoBubble(text: memo)),
                   const SizedBox(height: 20),
-                  _hPad(_StatusSummaryCard(
-                    status: status,
-                    transactionFee: transactionFee,
-                    stampDuty: stampDuty,
-                    total: total,
-                  )),
+                  GestureDetector(
+                    onTap: () => _showProgressPopup(context),
+                    child: _hPad(
+                      _StatusSummaryCard(
+                        status: status,
+                        transactionFee: transactionFee,
+                        stampDuty: stampDuty,
+                        total: total,
+                      ),
+                    ),
+                  ),
                 ],
                 const SizedBox(height: 50),
                 _DetailStripe(showPaidWith: showPaidWith),
                 const SizedBox(height: 22),
-                _hPad(supportStyle == _ReceiptSupportStyle.row
-                    ? const _GetSupportCard()
-                    : const _SupportTile()),
+                GestureDetector(
+                  onTap: () => (context.push(Routes.supportChat)),
+                  child: _hPad(
+                    supportStyle == _ReceiptSupportStyle.row
+                        ? const _GetSupportCard()
+                        : const _SupportTile(),
+                  ),
+                ),
               ],
             ),
             Positioned(
@@ -475,8 +663,7 @@ class _ReceiptPage extends StatelessWidget {
                 children: [
                   _SaveIconButton(onTap: () {}),
                   const Spacer(),
-                  if (showShare)
-                    _SharePill(onTap: onShare ?? () {}),
+                  if (showShare) _SharePill(onTap: onShare ?? () {}),
                 ],
               ),
             ),
@@ -509,8 +696,11 @@ class _RecipientPill extends StatelessWidget {
           ),
         ),
         alignment: Alignment.center,
-        child: const Icon(Icons.business_rounded,
-            color: Colors.white, size: 28),
+        child: const Icon(
+          Icons.business_rounded,
+          color: Colors.white,
+          size: 28,
+        ),
       );
     } else if (recipient.assetImage != null) {
       avatar = CircleAvatar(
@@ -527,8 +717,7 @@ class _RecipientPill extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         alignment: Alignment.center,
-        child: const Icon(Icons.person_rounded,
-            color: Colors.white, size: 28),
+        child: SvgPicture.asset(Assets.contacts, fit: BoxFit.cover, height: 46),
       );
     }
     return Container(
@@ -549,8 +738,10 @@ class _RecipientPill extends StatelessWidget {
           avatar,
           const SizedBox(width: 14),
           Expanded(
-            child: Text(recipient.name,
-                style: AppTypography.subheading.copyWith(fontSize: 17)),
+            child: Text(
+              recipient.name,
+              style: AppTypography.subheading.copyWith(fontSize: 17),
+            ),
           ),
         ],
       ),
@@ -580,8 +771,10 @@ class _MemoBubble extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Text(text,
-                style: AppTypography.subheading.copyWith(fontSize: 17)),
+            child: Text(
+              text,
+              style: AppTypography.subheading.copyWith(fontSize: 17),
+            ),
           ),
         ],
       ),
@@ -594,16 +787,25 @@ class _MemoBubble extends StatelessWidget {
 /// Unable to Send (orange info-circle).
 class _StatusSummaryCard extends StatelessWidget {
   final _ReceiptStatus status;
-  /// Nullable so company receipts can omit the Transaction row entirely.
   final String? transactionFee;
   final String? stampDuty;
   final String total;
+
   const _StatusSummaryCard({
     required this.status,
     this.transactionFee,
     this.stampDuty,
     required this.total,
   });
+
+  void _showStampDutyPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => StampDutyPopup(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -623,21 +825,37 @@ class _StatusSummaryCard extends StatelessWidget {
             const Divider(color: Color(0xFFEEEEEE), height: 1),
             _SummaryRow(
               label: 'Transaction',
-              value: Text(transactionFee!,
-                  style: AppTypography.subheading.copyWith(fontSize: 17)),
+              value: Text(
+                transactionFee!,
+                style: AppTypography.subheading.copyWith(fontSize: 17),
+              ),
             ),
           ],
           if (stampDuty != null) ...[
             const Divider(color: Color(0xFFEEEEEE), height: 1),
-            _StampDutyRow(value: stampDuty!),
+            GestureDetector(
+              onTap: () => {
+                showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  barrierColor: Colors.black.withOpacity(0.5),
+                  builder: (context) => StampDutyPopup(),
+                ),
+              },
+              child: _StampDutyRow(value: stampDuty!),
+            ),
           ],
           const Divider(color: Color(0xFFEEEEEE), height: 1),
           _SummaryRow(
             label: 'Total',
             labelBold: true,
-            value: Text(total,
-                style: AppTypography.subheading
-                    .copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+            value: Text(
+              total,
+              style: AppTypography.subheading.copyWith(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
@@ -654,29 +872,30 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (icon, label, color) = switch (status) {
       _ReceiptStatus.done => (
-          const _DoneBadge(),
-          'Done',
-          const Color(0xFF07B826),
-        ),
+        const _DoneBadge(),
+        'Done',
+        const Color(0xFF07B826),
+      ),
       _ReceiptStatus.processing => (
-          const _ProcessingBadge(),
-          'Processing',
-          const Color(0xFFFF9F0A),
-        ),
+        const _ProcessingBadge(),
+        'Processing',
+        const Color(0xFFFF9F0A),
+      ),
       _ReceiptStatus.unable => (
-          const _UnableBadge(),
-          'Unable to Send',
-          const Color(0xFFFF9F0A),
-        ),
+        const _UnableBadge(),
+        'Unable to Send',
+        const Color(0xFFFF9F0A),
+      ),
     };
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         icon,
         const SizedBox(width: 8),
-        Text(label,
-            style: AppTypography.subheading
-                .copyWith(fontSize: 17, color: color)),
+        Text(
+          label,
+          style: AppTypography.subheading.copyWith(fontSize: 17, color: color),
+        ),
       ],
     );
   }
@@ -696,8 +915,11 @@ class _ProcessingBadge extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
-      child: const Icon(Icons.access_time_filled_rounded,
-          color: Colors.white, size: 18),
+      child: const Icon(
+        Icons.access_time_filled_rounded,
+        color: Colors.white,
+        size: 18,
+      ),
     );
   }
 }
@@ -716,8 +938,11 @@ class _UnableBadge extends StatelessWidget {
         border: Border.all(color: const Color(0xFFFF9F0A), width: 2),
       ),
       alignment: Alignment.center,
-      child: const Icon(Icons.priority_high_rounded,
-          color: Color(0xFFFF9F0A), size: 16),
+      child: const Icon(
+        Icons.priority_high_rounded,
+        color: Color(0xFFFF9F0A),
+        size: 16,
+      ),
     );
   }
 }
@@ -736,14 +961,22 @@ class _StampDutyRow extends StatelessWidget {
           Container(
             width: 28,
             height: 28,
-            
             alignment: Alignment.center,
-            child: Image.asset(Assets.cbnLogo, width: 18, height: 18, fit: BoxFit.contain),
+            child: Image.asset(
+              Assets.cbnLogo,
+              width: 18,
+              height: 18,
+              fit: BoxFit.contain,
+            ),
           ),
           const SizedBox(width: 5),
-          Text('Stamp Duty',
-              style: AppTypography.subheading
-                  .copyWith(color: AppColors.textMuted, fontSize: 17)),
+          Text(
+            'Stamp Duty',
+            style: AppTypography.subheading.copyWith(
+              color: AppColors.textMuted,
+              fontSize: 17,
+            ),
+          ),
           const Spacer(),
           Container(
             width: 22,
@@ -753,17 +986,18 @@ class _StampDutyRow extends StatelessWidget {
               border: Border.all(color: AppColors.textMuted, width: 1.4),
             ),
             alignment: Alignment.center,
-            child: Text('i',
-                style: AppTypography.caption.copyWith(
-                  color: AppColors.textMuted,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                  height: 1,
-                )),
+            child: Text(
+              'i',
+              style: AppTypography.caption.copyWith(
+                color: AppColors.textMuted,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                height: 1,
+              ),
+            ),
           ),
           const SizedBox(width: 10),
-          Text(value,
-              style: AppTypography.subheading.copyWith(fontSize: 17)),
+          Text(value, style: AppTypography.subheading.copyWith(fontSize: 17)),
         ],
       ),
     );
@@ -871,21 +1105,33 @@ class _SupportMemoCard extends StatelessWidget {
                 child: const TransfaMark(size: 18, white: true),
               ),
               const SizedBox(width: 12),
-              Text(data.title,
-                  style: AppTypography.subheading.copyWith(
-                      fontSize: 20, fontWeight: FontWeight.w700)),
+              Text(
+                data.title,
+                style: AppTypography.subheading.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const Spacer(),
-              Text(data.timer,
-                  style: AppTypography.subheading.copyWith(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFFFF9F0A))),
+              Text(
+                data.timer,
+                style: AppTypography.subheading.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFFF9F0A),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          Text(data.body,
-              style: AppTypography.body.copyWith(
-                  fontSize: 17, height: 1.35, color: Colors.black87)),
+          Text(
+            data.body,
+            style: AppTypography.body.copyWith(
+              fontSize: 17,
+              height: 1.35,
+              color: Colors.black87,
+            ),
+          ),
         ],
       ),
     );
@@ -932,9 +1178,13 @@ class _ActionPill extends StatelessWidget {
           ],
         ),
         alignment: Alignment.center,
-        child: Text(action.label,
-            style: AppTypography.subheading
-                .copyWith(fontSize: 18, fontWeight: FontWeight.w600)),
+        child: Text(
+          action.label,
+          style: AppTypography.subheading.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
@@ -954,10 +1204,7 @@ Widget _hPad(Widget child) =>
 class _UniversalRecipientPill extends StatelessWidget {
   final String name;
   final String assetImage;
-  const _UniversalRecipientPill({
-    required this.name,
-    required this.assetImage,
-  });
+  const _UniversalRecipientPill({required this.name, required this.assetImage});
 
   @override
   Widget build(BuildContext context) {
@@ -982,8 +1229,7 @@ class _UniversalRecipientPill extends StatelessWidget {
             backgroundImage: AssetImage(assetImage),
           ),
           const SizedBox(width: 14),
-          Text(name,
-              style: AppTypography.subheading.copyWith(fontSize: 22)),
+          Text(name, style: AppTypography.subheading.copyWith(fontSize: 22)),
         ],
       ),
     );
@@ -994,7 +1240,11 @@ class _MetaRow extends StatelessWidget {
   final Widget icon;
   final String label;
   final String value;
-  const _MetaRow({required this.icon, required this.label, required this.value});
+  const _MetaRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1004,12 +1254,15 @@ class _MetaRow extends StatelessWidget {
         children: [
           icon,
           const SizedBox(width: 12),
-          Text(label,
-              style: AppTypography.subheading
-                  .copyWith(color: AppColors.textMuted, fontSize: 17)),
+          Text(
+            label,
+            style: AppTypography.subheading.copyWith(
+              color: AppColors.textMuted,
+              fontSize: 17,
+            ),
+          ),
           const Spacer(),
-          Text(value,
-              style: AppTypography.subheading.copyWith(fontSize: 17)),
+          Text(value, style: AppTypography.subheading.copyWith(fontSize: 17)),
         ],
       ),
     );
@@ -1032,12 +1285,14 @@ class _SummaryRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
         children: [
-          Text(label,
-              style: AppTypography.subheading.copyWith(
-                fontSize: 17,
-                fontWeight: labelBold ? FontWeight.w700 : FontWeight.w400,
-                color: labelBold ? Colors.black : AppColors.textMuted,
-              )),
+          Text(
+            label,
+            style: AppTypography.subheading.copyWith(
+              fontSize: 17,
+              fontWeight: labelBold ? FontWeight.w700 : FontWeight.w400,
+              color: labelBold ? Colors.black : AppColors.textMuted,
+            ),
+          ),
           const Spacer(),
           value,
         ],
@@ -1052,10 +1307,7 @@ class _PinkClockIcon extends StatelessWidget {
     return Container(
       width: 32,
       height: 32,
-      decoration: const BoxDecoration(
-        // color: Color(0xFFFCE4EC),
-        shape: BoxShape.circle,
-      ),
+      decoration: const BoxDecoration(shape: BoxShape.circle),
       alignment: Alignment.center,
       child: SizedBox(
         width: 18,
@@ -1087,12 +1339,15 @@ class _DetailRow extends StatelessWidget {
         children: [
           icon,
           const SizedBox(width: 12),
-          Text(label,
-              style: AppTypography.subheading
-                  .copyWith(color: AppColors.textMuted, fontSize: 17)),
+          Text(
+            label,
+            style: AppTypography.subheading.copyWith(
+              color: AppColors.textMuted,
+              fontSize: 17,
+            ),
+          ),
           const Spacer(),
-          Text(value,
-              style: AppTypography.subheading.copyWith(fontSize: 17)),
+          Text(value, style: AppTypography.subheading.copyWith(fontSize: 17)),
         ],
       ),
     );
@@ -1118,21 +1373,25 @@ class _DayBadge extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Fri',
-              style: AppTypography.caption.copyWith(
-                color: const Color(0xFFFF375F),
-                fontWeight: FontWeight.w700,
-                fontSize: 7,
-                height: 1,
-              )),
+          Text(
+            'Fri',
+            style: AppTypography.caption.copyWith(
+              color: const Color(0xFFFF375F),
+              fontWeight: FontWeight.w700,
+              fontSize: 7,
+              height: 1,
+            ),
+          ),
           const SizedBox(height: 1),
-          Text('10',
-              style: AppTypography.subheading.copyWith(
-                color: const Color(0xFFFF375F),
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-                height: 1,
-              )),
+          Text(
+            '10',
+            style: AppTypography.subheading.copyWith(
+              color: const Color(0xFFFF375F),
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              height: 1,
+            ),
+          ),
         ],
       ),
     );
@@ -1248,9 +1507,13 @@ class _SupportTile extends StatelessWidget {
             child: const TransfaMark(size: 30, white: true),
           ),
           const SizedBox(height: 8),
-          Text('Support',
-              style: AppTypography.body.copyWith(
-                  fontSize: 16, fontWeight: FontWeight.w500)),
+          Text(
+            'Support',
+            style: AppTypography.body.copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -1262,8 +1525,6 @@ class _GetSupportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Same rounded-card silhouette as the Summary and Magic cards above,
-    // but with a translucent (glass) fill instead of solid white.
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -1302,11 +1563,16 @@ class _GetSupportCard extends StatelessWidget {
             child: const TransfaMark(size: 22, white: true),
           ),
           const SizedBox(width: 14),
-          Text('Get Support',
-              style: AppTypography.subheading.copyWith(fontSize: 22)),
+          Text(
+            'Get Support',
+            style: AppTypography.subheading.copyWith(fontSize: 22),
+          ),
           const Spacer(),
-          const Icon(Icons.chevron_left_rounded,
-              color: Color(0xFFBDBDBD), size: 28),
+          const Icon(
+            Icons.chevron_left_rounded,
+            color: Color(0xFFBDBDBD),
+            size: 28,
+          ),
         ],
       ),
     );
@@ -1393,8 +1659,10 @@ class _SavePill extends StatelessWidget {
           ],
         ),
         alignment: Alignment.center,
-        child: Text('Save to Photos',
-            style: AppTypography.subheading.copyWith(fontSize: 17)),
+        child: Text(
+          'Save to Photos',
+          style: AppTypography.subheading.copyWith(fontSize: 17),
+        ),
       ),
     );
   }
@@ -1431,9 +1699,13 @@ class _SharePill extends StatelessWidget {
               child: SvgPicture.asset(Assets.share, fit: BoxFit.contain),
             ),
             const SizedBox(width: 10),
-            Text('Share',
-                style: AppTypography.subheading
-                    .copyWith(fontSize: 17, color: const Color(0xFFFF375F))),
+            Text(
+              'Share',
+              style: AppTypography.subheading.copyWith(
+                fontSize: 17,
+                color: const Color(0xFFFF375F),
+              ),
+            ),
           ],
         ),
       ),
