@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:transfa/features/auth/presentation/onboarding_screen.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_colors.dart';
@@ -26,7 +27,35 @@ class _WelcomeIntroScreenState extends State<WelcomeIntroScreen>
   void _next() {
     if (_isNavigating) return;
     _isNavigating = true;
-    context.go(Routes.register);
+    
+    // Navigate with slide-up transition
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const OnboardingScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeOutCubic;
+          
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+          
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 500),
+      ),
+    ).then((_) {
+      // Reset navigation flag when returning to this screen
+      if (mounted) {
+        setState(() {
+          _isNavigating = false;
+          _dragOffset = 0;
+        });
+      }
+    });
   }
 
   @override
