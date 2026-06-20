@@ -323,7 +323,7 @@ class ReceiptInReviewScreen extends ConsumerWidget {
           ),
           _ReceiptAction(
             label: 'Add Address',
-            onTap: () => context.push(Routes.location),
+            onTap: () => {},
           ),
         ],
       ),
@@ -661,7 +661,8 @@ class _ReceiptPage extends StatelessWidget {
               bottom: 16,
               child: Row(
                 children: [
-                  _SaveIconButton(onTap: () {}),
+                  _SaveIconButton(onTap: () {
+                          context.push(Routes.transfaAi);}),
                   const Spacer(),
                   if (showShare) _SharePill(onTap: onShare ?? () {}),
                 ],

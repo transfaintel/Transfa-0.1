@@ -1,10 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:transfa/features/bottom_sheets/insufficientMoneySheet.dart';
+import 'package:transfa/features/bottom_sheets/multipleAccountsSheet.dart';
+import 'package:transfa/features/transfers/presentation/choose_bank_screen.dart';
+import 'package:transfa/features/transfers/presentation/choose_country_screen.dart';
 import 'package:transfa/shared/widgets/animated_dotted_loader.dart';
 import '../../../core/constants/assets.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/transfa_logo.dart';
 import '../../../data/mock_api/currency.dart';
 import '../../features/pop-ups/swiftCode_popup.dart';
@@ -58,6 +62,17 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
   final TextEditingController _routingController = TextEditingController();
   final TextEditingController _swiftController = TextEditingController();
 
+  // Mock data for insufficient money sheet
+  final double _stampDuty = 50.00;
+  final double _disputeProtection = 25.00;
+
+  // Selected country and bank state
+  String _selectedCountry = '';
+  String _selectedCountryFlag = '';
+  String _selectedBankName = '';
+  String _selectedBankLogo = '';
+  AmountCurrency _selectedCurrency = AmountCurrency.usd;
+
   double get _totalAmount {
     final amount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
     return amount + widget.transactionFee;
@@ -90,6 +105,11 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
     _memoController.text = widget.memo;
     _routingController.text = widget.routingNumber;
     _swiftController.text = widget.swiftCode;
+    _selectedCountry = widget.country;
+    _selectedCountryFlag = Assets.spendCurrency; // Default to USD flag
+    _selectedBankName = widget.bankName;
+    _selectedBankLogo = Assets.bankchase;
+    _selectedCurrency = widget.currency;
   }
 
   @override
@@ -117,13 +137,175 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
       context: context,
       barrierDismissible: true,
       barrierColor: Colors.black.withOpacity(0.5),
-      builder: (context) => SwiftCodeInfoPopup(),
+      builder: (context) => const SwiftCodeInfoPopup(),
     );
+  }
+
+  void _showMultipleBanksPopup() {
+    final banks = [
+      const BankAccount(
+        name: 'Transfa',
+        logoAsset: Assets.logoSmallWhite,
+        gradientColor1: Color(0xFF000000),
+        gradientColor2: Color(0xFF000000),
+      ),
+      const BankAccount(
+        name: 'FCMB',
+        logoAsset: Assets.bankFcmb,
+        gradientColor1: Color(0xFF5C2684),
+        gradientColor2: Color(0xFF5C2684),
+      ),
+      const BankAccount(
+        name: 'OPay',
+        logoAsset: Assets.bankOpay,
+        gradientColor1: Color(0xFFFFFFFF),
+        gradientColor2: Color(0xFFFFFFFF),
+      ),
+    ];
+
+    context.pop();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(45),
+          topRight: Radius.circular(45),
+        ),
+      ),
+      builder: (context) => MultipleAccountsSheet(
+        recipientName: widget.accountName,
+        currency: AmountCurrency.usd,
+        amount: widget.amount,
+        memo: widget.memo,
+        recipientImageUrl: Assets.magic,
+        accountNumber: widget.accountNumber,
+        banks: banks,
+        onMemoChanged: (newMemo) {
+          widget.onMemoChanged(newMemo);
+          _memoController.text = newMemo;
+        },
+      ),
+    );
+  }
+
+
+  void _onTouchToConfirm() {
+    // Close the current bottom sheet
+    Navigator.pop(context);
+    
+    // Show the insufficient money sheet
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.2),
+      builder: (context) => InsufficientMoneySheet(
+        amount: widget.amount,
+        currency: _selectedCurrency,
+        memo: _memoController.text,
+        recipientName: widget.accountName,
+        accountNumber: widget.accountNumber,
+        bankName: _selectedBankName,
+        bankLogoAsset: _selectedBankLogo,
+        transactionFee: widget.transactionFee,
+        stampDuty: _stampDuty,
+        disputeProtection: _disputeProtection,
+        onMemoChanged: _onMemoChanged,
+      ),
+    );
+  }
+
+  void _selectCountry() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SendMoneyWherePage(),
+      ),
+    );
+    
+    if (result != null && mounted) {
+      setState(() {
+        _selectedCountry = result['name'] ?? _selectedCountry;
+        _selectedCountryFlag = result['flag'] ?? _selectedCountryFlag;
+        _selectedCurrency = result['currency'] ?? _selectedCurrency;
+      });
+    }
+  }
+
+  void _selectBank() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ChooseBankScreen(),
+      ),
+    );
+    
+    if (result != null && mounted) {
+      setState(() {
+        _selectedBankName = result['name'] ?? _selectedBankName;
+        _selectedBankLogo = result['logo'] ?? _selectedBankLogo;
+      });
+    }
+  }
+
+  Widget _buildBankLogo(String logoAsset, String bankName) {
+    if (bankName == 'OPay') {
+      return Container(
+        width: 30,
+        height: 30,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: Image.asset(logoAsset, fit: BoxFit.contain),
+      );
+    } else if (bankName == 'FCMB') {
+      return Container(
+        width: 30,
+        height: 30,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: const Color(0xFF5C2684),
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: Image.asset(logoAsset, fit: BoxFit.contain),
+      );
+    } else if (bankName == 'Chase') {
+      return Container(
+        width: 30,
+        height: 30,
+        padding: const EdgeInsets.all(4),
+        child: SvgPicture.asset(logoAsset, fit: BoxFit.contain),
+      );
+    } else {
+      return Container(
+        width: 30,
+        height: 30,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF2F3F5),
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: SvgPicture.asset(Assets.bank, fit: BoxFit.contain),
+      );
+    }
+  }
+
+  Widget _buildCountryFlag(String flagAsset) {
+    if (flagAsset == Assets.spendCurrency) {
+      return SvgPicture.asset(flagAsset, width: 30, height: 20);
+    } else {
+      return SvgPicture.asset(flagAsset, width: 30, height: 20);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final String symbol = widget.currency.symbol;
+    final String symbol = _selectedCurrency.symbol;
     final double parsedAmount =
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
 
@@ -211,7 +393,9 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                           child: Column(
                             children: [
                               // Account Number Row
-                              Padding(
+                              GestureDetector(
+                                onTap: _showMultipleBanksPopup,
+                                child: Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Row(
                                   children: [
@@ -241,18 +425,20 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                     Container(
                                       width: 26,
                                       height: 26,
-                                      child: AnimatedDottedLoader(),
+                                      child: const AnimatedDottedLoader(),
                                     ),
                                   ],
                                 ),
                               ),
+                              ),
+                              
                               const Divider(
                                 height: 1,
                                 indent: 16,
                                 endIndent: 16,
                                 color: Color(0x08000000),
                               ),
-                              // Routing Number Row - Now with TextField
+                              // Routing Number Row
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Row(
@@ -262,9 +448,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                       height: 30,
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFF9F1F1),
-                                        borderRadius: BorderRadius.circular(
-                                          35,
-                                        ),
+                                        borderRadius: BorderRadius.circular(35),
                                       ),
                                       child: Center(
                                         child: SvgPicture.asset(
@@ -303,18 +487,18 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                         ),
                                       ),
                                     ),
-
                                     GestureDetector(
                                       onTap: _showSwiftPopup,
                                       child: Container(
-                                      width: 26,
-                                      height: 26,
-                                      child: const Icon(
-                                        Icons.info_outline,
-                                        size: 25,
-                                        color: Color(0xFFB3B3B7),
+                                        width: 26,
+                                        height: 26,
+                                        child: const Icon(
+                                          Icons.info_outline,
+                                          size: 25,
+                                          color: Color(0xFFB3B3B7),
+                                        ),
                                       ),
-                                    )),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -370,51 +554,46 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Bank Field
-                        Container(
-                          height: 62,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB),
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 30,
-                                height: 30,
-                                padding: EdgeInsets.all(7),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Color(0xFF07B826),
-                                      Color(0xFF4EE659),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(35),
-                                ),
-                                child: SvgPicture.asset(
-                                  Assets.bank,
-                                  width: 14,
-                                  height: 14,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  widget.bankName,
-                                  style: const TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    letterSpacing: 0.02,
-                                    color: Color(0xFF8A8A8C),
+                        // Bank Field - Now clickable
+                        GestureDetector(
+                          onTap: _selectBank,
+                          child: Container(
+                            height: 62,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFCFCFB),
+                              borderRadius: BorderRadius.circular(35),
+                            ),
+                            child: Row(
+                              children: [
+                                _buildBankLogo(_selectedBankLogo, _selectedBankName),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    _selectedBankName,
+                                    style: const TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 17,
+                                      letterSpacing: 0.02,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                                Transform.rotate(
+                                  angle: 3.14159,
+                                  child: SvgPicture.asset(
+                                    Assets.context,
+                                    width: 10.5,
+                                    height: 14,
+                                    colorFilter: const ColorFilter.mode(
+                                      Color(0xFFB3B3B7),
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -429,7 +608,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                           ),
                           child: Column(
                             children: [
-                              // Swift Code Row - Now with TextField
+                              // Swift Code Row
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Row(
@@ -439,9 +618,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                       height: 30,
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFF9F1F1),
-                                        borderRadius: BorderRadius.circular(
-                                          35,
-                                        ),
+                                        borderRadius: BorderRadius.circular(35),
                                       ),
                                       child: Center(
                                         child: SvgPicture.asset(
@@ -483,16 +660,15 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                     GestureDetector(
                                       onTap: _showSwiftPopup,
                                       child: Container(
-                                      width: 26,
-                                      height: 26,
-                                      child: const Icon(
-                                        Icons.info_outline,
-                                        size: 25,
-                                        color: Color(0xFFB3B3B7),
+                                        width: 26,
+                                        height: 26,
+                                        child: const Icon(
+                                          Icons.info_outline,
+                                          size: 25,
+                                          color: Color(0xFFB3B3B7),
+                                        ),
                                       ),
                                     ),
-                                    )
-                                    
                                   ],
                                 ),
                               ),
@@ -544,45 +720,48 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                 endIndent: 16,
                                 color: Color(0x08000000),
                               ),
-                              // Country Row with Dropdown
-                              Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(35),
+                              // Country Row - Now clickable
+                              GestureDetector(
+                                onTap: _selectCountry,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(35),
+                                        ),
+                                        child: _buildCountryFlag(_selectedCountryFlag),
                                       ),
-                                      child: _buildUSDFlag(),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        widget.country,
-                                        style: const TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 17,
-                                          letterSpacing: 0.02,
-                                          color: Colors.black,
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          _selectedCountry,
+                                          style: const TextStyle(
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 17,
+                                            letterSpacing: 0.02,
+                                            color: Colors.black,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Transform.rotate(
-                                      angle: 3.14159, // 180 degrees
-                                      child: SvgPicture.asset(
-                                        Assets.context,
-                                        width: 10.5,
-                                        height: 14,
-                                        colorFilter: const ColorFilter.mode(
-                                          Color(0xFFB3B3B7),
-                                          BlendMode.srcIn,
+                                      Transform.rotate(
+                                        angle: 3.14159,
+                                        child: SvgPicture.asset(
+                                          Assets.context,
+                                          width: 10.5,
+                                          height: 14,
+                                          colorFilter: const ColorFilter.mode(
+                                            Color(0xFFB3B3B7),
+                                            BlendMode.srcIn,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -616,8 +795,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text:
-                                          '$symbol${_getMainAmount(parsedAmount)}',
+                                      text: '$symbol${_getMainAmount(parsedAmount)}',
                                       style: const TextStyle(
                                         fontFamily: 'Arial Rounded MT Bold',
                                         fontWeight: FontWeight.w600,
@@ -726,8 +904,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
-                                        text:
-                                            'Balance: $symbol${_getMainAmount(widget.userBalance)}',
+                                        text: 'Balance: $symbol${_getMainAmount(widget.userBalance)}',
                                         style: const TextStyle(
                                           fontFamily: 'Roboto',
                                           fontWeight: FontWeight.w400,
@@ -737,8 +914,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                         ),
                                       ),
                                       WidgetSpan(
-                                        alignment:
-                                            PlaceholderAlignment.baseline,
+                                        alignment: PlaceholderAlignment.baseline,
                                         baseline: TextBaseline.alphabetic,
                                         child: Transform.translate(
                                           offset: const Offset(0, -5),
@@ -775,13 +951,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
 
                         // Pay Bubble - Touch to Confirm
                         GestureDetector(
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Processing payment...'),
-                              ),
-                            );
-                          },
+                          onTap: _onTouchToConfirm,
                           child: Container(
                             width: double.infinity,
                             height: 150,
@@ -835,14 +1005,6 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildUSDFlag() {
-    return Container(
-      width: 36,
-      height: 30,
-      child: SvgPicture.asset(Assets.spendCurrency),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:transfa/features/auth/presentation/welcome_screen.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_typography.dart';
@@ -22,8 +23,11 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
   String _first = '';
   String _confirm = '';
   bool _confirming = false;
+  bool _isNavigating = false;
 
   void _tap(String v) async {
+    if (_isNavigating) return;
+    
     setState(() {
       if (!_confirming) {
         if (_first.length < _length) _first += v;
@@ -35,8 +39,30 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
 
     if (_confirming && _confirm.length == _length) {
       if (_first == _confirm) {
+        _isNavigating = true;
         await ref.read(authRepositoryProvider).createPin(_first);
-        if (mounted) context.go(Routes.welcome);
+        if (mounted) {
+          // Navigate with a clean transition to welcome
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => const WelcomeScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                const begin = Offset(0.0, 1.0);
+                const end = Offset.zero;
+                const curve = Curves.easeOutCubic;
+                
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+                
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+          );
+        }
       } else {
         // mismatch — reset both, stay on create step
         setState(() {
@@ -46,7 +72,10 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Passcodes don't match. Try again.")),
+            const SnackBar(
+              content: Text("Passcodes don't match. Try again."),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }
@@ -54,6 +83,7 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
   }
 
   void _back() {
+    if (_isNavigating) return;
     setState(() {
       if (_confirming && _confirm.isNotEmpty) {
         _confirm = _confirm.substring(0, _confirm.length - 1);
@@ -89,7 +119,6 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
             const SizedBox(height: 50),
             _Keypad(onTap: _tap, onBack: _back, showBack: filled > 0 || _confirming),
             const Spacer(),
-            
           ],
         ),
       ),

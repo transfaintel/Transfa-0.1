@@ -6,6 +6,7 @@ import '../../../core/constants/assets.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/transfa_logo.dart';
 import '../../../data/mock_api/currency.dart';
+import '../../features/pop-ups/chooseBank_popup.dart';
 
 // ============================================================
 // CONVERT CURRENCY BOTTOM SHEET
@@ -53,6 +54,11 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
   // Mock user balance
   final double _userBalance = 25000000.00;
 
+  // Bank selection state
+  String _selectedBankName = '';
+  String _selectedBankLogo = '';
+  bool _isBankSelected = false;
+
   double get _totalAmount {
     final amount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
     return amount + widget.transactionFee;
@@ -83,6 +89,9 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
   void initState() {
     super.initState();
     _memoController.text = widget.memo;
+    // Initialize with default bank
+    _selectedBankName = widget.bankName;
+    _selectedBankLogo = widget.bankLogoAsset;
   }
 
   @override
@@ -93,6 +102,90 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
 
   void _onMemoChanged(String value) {
     widget.onMemoChanged(value);
+  }
+
+  void _showBankPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => ChooseBankPopup(
+        onTransfaSelected: () {
+          setState(() {
+            _selectedBankName = 'Transfa';
+            _selectedBankLogo = Assets.logoSmallWhite;
+            _isBankSelected = true;
+          });
+        },
+        onChaseSelected: () {
+          setState(() {
+            _selectedBankName = 'Chase';
+            _selectedBankLogo = Assets.bankchase;
+            _isBankSelected = true;
+          });
+        },
+        onOPaySelected: () {
+          setState(() {
+            _selectedBankName = 'OPay';
+            _selectedBankLogo = Assets.bankOpay;
+            _isBankSelected = true;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildBankLogo(String logoAsset, String bankName) {
+    if (bankName == 'Transfa') {
+      return Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: Center(
+          child: SizedBox(
+            width: 26,
+            height: 26,
+            child: SvgPicture.asset(logoAsset),
+          ),
+        ),
+      );
+    } else if (bankName == 'OPay') {
+      return Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: Center(
+          child: Container(
+            width: 30,
+            height: 30,
+            child: Image.asset(logoAsset, fit: BoxFit.contain),
+          ),
+        ),
+      );
+    } else {
+      // Chase or default
+      return Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF2F3F5),
+          borderRadius: BorderRadius.circular(35),
+        ),
+        child: Center(
+          child: Container(
+            width: 26,
+            height: 26,
+            child: SvgPicture.asset(logoAsset),
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -112,7 +205,6 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
         ),
       ),
       child: ClipRRect(
-        
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: Material(
@@ -196,18 +288,15 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
                                   ),
                                   borderRadius: BorderRadius.circular(120),
                                 ),
-                                child:ClipRRect(
-                                        borderRadius: BorderRadius.circular(
-                                          120,
-                                        ),
-                                        child: Image.asset(
-                                          Assets.magic,
-                                          width: 120,
-                                          height: 120,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
-                                    
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(120),
+                                  child: Image.asset(
+                                    Assets.magic,
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 10),
                               // Recipient Name
@@ -227,60 +316,74 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Selected Bank Field
-                        Container(
-                          height: 70,
-                          padding: const EdgeInsets.fromLTRB(10, 10, 16, 10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFCFCFB),
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          child: Row(
-                            children: [
-                              // Bank Logo - Chase
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF2F3F5),
-                                  borderRadius: BorderRadius.circular(35),
-                                ),
-                                child: Center(
-                                  child: Container(
-                                    width: 26,
-                                    height: 26,
-                                    child: SvgPicture.asset(Assets.bankchase),
+                        // Selected Bank Field - Now with tap to choose
+                        GestureDetector(
+                          onTap: _showBankPopup,
+                          child: Container(
+                            height: 70,
+                            padding: const EdgeInsets.fromLTRB(10, 10, 16, 10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFCFCFB),
+                              borderRadius: BorderRadius.circular(35),
+                            ),
+                            child: Row(
+                              children: [
+                                // Bank Logo
+                                _selectedBankName == "Chase"
+                                    ? Container(
+                                        width: 50,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            35,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Container(
+                                            width: 30,
+                                            height: 30,
+                                            child: SvgPicture.asset(
+                                              Assets.bankchase,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : _buildBankLogo(
+                                        _selectedBankLogo,
+                                        _selectedBankName,
+                                      ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    _selectedBankName,
+                                    style: const TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 17,
+                                      letterSpacing: 0.02,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  widget.bankName,
-                                  style: const TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    letterSpacing: 0.02,
-                                    color: Colors.black,
+                                Transform.rotate(
+                                  angle: 3.14159, // 180 degrees
+                                  child: SvgPicture.asset(
+                                    Assets.context,
+                                    width: 12,
+                                    height: 16,
+                                    colorFilter: const ColorFilter.mode(
+                                      Color(0xFFB3B3B7),
+                                      BlendMode.srcIn,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Transform.rotate(
-                                angle: 3.14159, // 180 degrees
-                                child: SvgPicture.asset(
-                                  Assets.context,
-                                  width: 12,
-                                  height: 16,
-                                  colorFilter: const ColorFilter.mode(
-                                    Color(0xFFB3B3B7),
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
+
                         const SizedBox(height: 20),
 
                         // Convert & Send Amount Field
@@ -355,35 +458,43 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
                                                               ),
                                                       ),
                                                     ),
-                                                   
                                                   ],
                                                 ),
                                               ),
                                             ),
                                             widget.fromCurrency ==
-                                                      AmountCurrency.usd
-                                                  ? Container(
-                                              width: 35,
-                                              height: 35,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: _buildUSDFlag()
-                                            )
-                                            
-                                                  : Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                                  child: Container(
-                                              width: 26,
-                                              height: 20,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                              child: _buildNGNFlag(),
-                                            ),
-                                            ) 
-                                            
+                                                    AmountCurrency.usd
+                                                ? Container(
+                                                    width: 35,
+                                                    height: 35,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                    ),
+                                                    child: _buildUSDFlag(),
+                                                  )
+                                                : Padding(
+                                                    padding:
+                                                        EdgeInsets.fromLTRB(
+                                                          0,
+                                                          0,
+                                                          10,
+                                                          0,
+                                                        ),
+                                                    child: Container(
+                                                      width: 26,
+                                                      height: 20,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                      ),
+                                                      child: _buildNGNFlag(),
+                                                    ),
+                                                  ),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
@@ -415,7 +526,6 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
                                                         ),
                                                       ),
                                                     ),
-                                                    
                                                   ],
                                                 ),
                                               ),
@@ -609,7 +719,6 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          
                                           const TextSpan(
                                             text: ' Fee',
                                             style: TextStyle(
@@ -665,7 +774,6 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          
                                         ],
                                       ),
                                     ),
@@ -787,15 +895,11 @@ class _ConvertCurrencySheetState extends State<ConvertCurrencySheet> {
 
   Widget _buildUSDFlag() {
     return Container(
-      
-      child: SvgPicture.asset(Assets.spendCurrency, height: 60, width: 60,)
+      child: SvgPicture.asset(Assets.spendCurrency, height: 60, width: 60),
     );
   }
 
   Widget _buildNGNFlag() {
-    return Container(
-      
-      child: SvgPicture.asset(Assets.Nigerian_Flag),
-    );
+    return Container(child: SvgPicture.asset(Assets.Nigerian_Flag));
   }
 }

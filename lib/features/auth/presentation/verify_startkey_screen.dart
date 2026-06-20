@@ -104,7 +104,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
     // If code is "000000", proceed with verification
     await ref.read(authRepositoryProvider).verifyOtp(_code);
     if (!mounted) return;
-    context.push(Routes.createPin);
+    context.push(Routes.addBvn);
   }
 
   void _showEnterCorrectCodePopup() {

@@ -6,6 +6,7 @@ import '../../../core/constants/assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/glass_card.dart';
+import '../../../data/mock_api/currency.dart';
 
 class SendMoneyWherePage extends StatelessWidget {
   const SendMoneyWherePage({super.key});
@@ -36,11 +37,11 @@ class SendMoneyWherePage extends StatelessWidget {
                         const SizedBox(height: 40),
 
                         // Top Countries Section
-                        _buildTopCountriesSection(),
+                        _buildTopCountriesSection(context),
                         const SizedBox(height: 20),
 
                         // All Countries Section
-                        _buildAllCountriesSection(),
+                        _buildAllCountriesSection(context),
                       ],
                     ),
                   ),
@@ -116,7 +117,7 @@ class SendMoneyWherePage extends StatelessWidget {
     );
   }
 
-  Widget _buildTopCountriesSection() {
+  Widget _buildTopCountriesSection(BuildContext context) {
     return Container(
       width: 350,
       child: Column(
@@ -161,30 +162,42 @@ class SendMoneyWherePage extends StatelessWidget {
             child: Column(
               children: [
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildUSAFlag(),
                   name: 'United States',
-                  code: '',
+                  code: 'USD',
+                  flagAsset: Assets.spendCurrency,
+                  currency: AmountCurrency.usd,
                   hasCheck: false,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildNigeriaFlag(),
                   name: 'Nigeria',
-                  code: '',
+                  code: 'NGN',
+                  flagAsset: Assets.Nigerian_Flag,
+                  currency: AmountCurrency.ngn,
                   hasCheck: true,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildUKFlag(),
                   name: 'United Kingdom',
-                  code: '',
+                  code: 'GBP',
+                  flagAsset: Assets.UKFlags,
+                  currency: AmountCurrency.usd, // Default to USD if not available
                   hasCheck: false,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildRwandaFlag(),
                   name: 'Rwanda',
-                  code: '',
+                  code: 'RWF',
+                  flagAsset: Assets.rwandaFlag,
+                  currency: AmountCurrency.usd, // Default to USD if not available
                   hasCheck: false,
                 ),
               ],
@@ -195,7 +208,7 @@ class SendMoneyWherePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAllCountriesSection() {
+  Widget _buildAllCountriesSection(BuildContext context) {
     return Container(
       width: 350,
       child: Column(
@@ -240,30 +253,42 @@ class SendMoneyWherePage extends StatelessWidget {
             child: Column(
               children: [
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildUSAFlag(),
                   name: 'United States',
-                  code: '',
+                  code: 'USD',
+                  flagAsset: Assets.spendCurrency,
+                  currency: AmountCurrency.usd,
                   hasCheck: false,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildNigeriaFlag(),
                   name: 'Nigeria',
-                  code: '',
+                  code: 'NGN',
+                  flagAsset: Assets.Nigerian_Flag,
+                  currency: AmountCurrency.ngn,
                   hasCheck: false,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildUKFlag(),
                   name: 'United Kingdom',
-                  code: '',
+                  code: 'GBP',
+                  flagAsset: Assets.UKFlags,
+                  currency: AmountCurrency.usd,
                   hasCheck: false,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildRwandaFlag(),
                   name: 'Rwanda',
-                  code: '',
+                  code: 'RWF',
+                  flagAsset: Assets.rwandaFlag,
+                  currency: AmountCurrency.usd,
                   hasCheck: false,
                 ),
               ],
@@ -281,30 +306,42 @@ class SendMoneyWherePage extends StatelessWidget {
             child: Column(
               children: [
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildChinaFlag(),
                   name: 'China',
-                  code: '',
+                  code: 'CNY',
+                  flagAsset: Assets.China_Flag,
+                  currency: AmountCurrency.usd,
                   hasCheck: false,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildUSAFlag(),
                   name: 'United States',
-                  code: '',
+                  code: 'USD',
+                  flagAsset: Assets.spendCurrency,
+                  currency: AmountCurrency.usd,
                   hasCheck: false,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildRwandaFlag(),
                   name: 'Rwanda',
-                  code: '',
+                  code: 'RWF',
+                  flagAsset: Assets.rwandaFlag,
+                  currency: AmountCurrency.usd,
                   hasCheck: false,
                 ),
                 const _SlimDivider(),
                 _buildCountryRow(
+                  context,
                   flagWidget: _buildUKFlag(),
                   name: 'United Kingdom',
-                  code: '',
+                  code: 'GBP',
+                  flagAsset: Assets.UKFlags,
+                  currency: AmountCurrency.usd,
                   hasCheck: false,
                 ),
               ],
@@ -316,50 +353,55 @@ class SendMoneyWherePage extends StatelessWidget {
     );
   }
 
-  Widget _buildCountryRow({
+  Widget _buildCountryRow(
+    BuildContext context, {
     required Widget flagWidget,
     required String name,
     required String code,
+    required String flagAsset,
+    required AmountCurrency currency,
     required bool hasCheck,
   }) {
-    return Container(
-      width: 338,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      child: Row(
-        children: [
-          flagWidget,
-          const SizedBox(width: 14),
-          Expanded(
-            child: Text(
-              name,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0.34,
-                color: Colors.black,
-                height: 1.5,
+    return GestureDetector(
+      onTap: () {
+        // Return the selected country data
+        Navigator.pop(context, {
+          'name': name,
+          'code': code,
+          'flag': flagAsset,
+          'currency': currency,
+        });
+      },
+      child: Container(
+        width: 338,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        child: Row(
+          children: [
+            flagWidget,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.34,
+                  color: Colors.black,
+                  height: 1.5,
+                ),
               ),
             ),
-          ),
-          Text(
-            code,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.34,
-              color: Colors.black,
-              height: 1.5,
-            ),
-          ),
-          if (hasCheck) ...[
-            const SizedBox(width: 10),
-            Container(
-              width: 26,
-              height: 26,
-              child: const Icon(Icons.check, color:  Color(0xFFF41E42), size: 12),
-            ),
+            
+            if (hasCheck) ...[
+              const SizedBox(width: 10),
+              Container(
+                width: 26,
+                height: 26,
+                child: const Icon(Icons.check, color: Color(0xFFF41E42), size: 12),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -414,51 +456,6 @@ class SendMoneyWherePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: SvgPicture.asset(Assets.China_Flag),
-    );
-  }
-
-  Widget _buildSouthAfricaFlag() {
-    return Container(
-      width: 32,
-      height: 26,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        color: const Color(0xFFD9D9D9),
-      ),
-    );
-  }
-
-  Widget _buildKenyaFlag() {
-    return Container(
-      width: 32,
-      height: 26,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 9,
-            child: Container(color: Colors.black),
-          ),
-          Expanded(
-            flex: 4,
-            child: Container(color: const Color(0xFFEC1C24)),
-          ),
-          Expanded(
-            flex: 4,
-            child: Container(color: const Color(0xFF137A08)),
-          ),
-          Expanded(
-            flex: 4,
-            child: Container(color: const Color(0xFFEC1C24)),
-          ),
-          Expanded(
-            flex: 5,
-            child: Container(color: Colors.black),
-          ),
-        ],
-      ),
     );
   }
 }

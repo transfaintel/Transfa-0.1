@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants/assets.dart';
+import '../../core/router/routes.dart';
 
 // ============================================================
 // TRANSFA DONE POPUP (slides from top)
@@ -27,6 +29,7 @@ class _TransfaDonePopupState extends State<TransfaDonePopup>
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
+  bool _isNavigating = false;
 
   @override
   void initState() {
@@ -45,10 +48,14 @@ class _TransfaDonePopupState extends State<TransfaDonePopup>
     ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
     _slideController.forward();
 
-    // Auto close after 2 seconds
+    // Auto close after 2 seconds and navigate to receipt
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
+      if (mounted && !_isNavigating) {
+        _isNavigating = true;
+        // Close the popup first
         Navigator.of(context).pop();
+        // Then navigate to receipt screen using GoRouter
+        context.go(Routes.receiptInReview); 
         widget.onClose?.call();
       }
     });
@@ -64,8 +71,12 @@ class _TransfaDonePopupState extends State<TransfaDonePopup>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pop();
-        widget.onClose?.call();
+        if (!_isNavigating) {
+          _isNavigating = true;
+          Navigator.of(context).pop();
+          context.go(Routes.receiptInReview);
+          widget.onClose?.call();
+        }
       },
       child: FadeTransition(
         opacity: _fadeAnimation,

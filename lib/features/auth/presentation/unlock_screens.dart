@@ -462,7 +462,7 @@ class _PayKeypad extends StatelessWidget {
                 width: 78,
                 height: 78,
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () {context.push(Routes.faceShotUnlock);},
                   icon: SvgPicture.asset(
                     Assets.faceId,
                     width: 34,
@@ -739,7 +739,7 @@ class _WelcomeHomePhoneScreenState extends State<WelcomeHomePhoneScreen> {
               children: [
                 _BottomSquare(
                   label: 'New\nTransfa',
-                  onTap: () => context.push(Routes.register),
+                  onTap: () => context.push(Routes.onboarding),
                   child: SvgPicture.asset(Assets.logoChromatic, width: 30, height: 30),
                 ),
                 const SizedBox(width: 18),

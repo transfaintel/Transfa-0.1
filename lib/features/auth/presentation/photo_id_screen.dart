@@ -53,7 +53,7 @@ class _PhotoIdScreenState extends State<PhotoIdScreen> with SingleTickerProvider
     super.dispose();
   }
 
-  void _submit() => context.push(Routes.verifyNin);
+  void _submit() => context.push(Routes.addMoney);
 
   Future<bool> _requestPermissions() async {
     // For Android 13+ (API 33+)

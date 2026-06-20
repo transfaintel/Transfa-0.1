@@ -191,5 +191,6 @@ class Assets {
   static const passportSample = '$_img/Passport 2.png';
   static const Amadioha= '$_img/Amadioha.png';
   static const Saphirre= '$_img/Saphirre.png';
+  static const bankOfAmerica= '$_img/boa.png';
   static const notRecognized = '$_icon/notRecognized.svg';
 }

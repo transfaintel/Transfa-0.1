@@ -84,6 +84,8 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
     ref.read(transferDraftProvider.notifier).state = ref
         .read(transferDraftProvider)
         .copyWith(amount: value);
+
+        
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

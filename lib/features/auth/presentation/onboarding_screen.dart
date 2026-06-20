@@ -52,7 +52,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               const Expanded(flex: 6, child: _FeatureList()),
               PillButton(
                 label: 'Get Started',
-                onPressed: () => context.push(Routes.identityVerification),
+                onPressed: () => {
+                  context.pop(),
+                  context.push(Routes.register)
+                },
               ),
             ],
           ),

@@ -495,7 +495,7 @@ class AddBvnScreen extends StatelessWidget {
           context,
           enteredBvn: enteredBvn,
           onConfirm: () {
-            context.push(Routes.verifyBvn);
+            context.push(Routes.identityVerification);
           },
         );
       },

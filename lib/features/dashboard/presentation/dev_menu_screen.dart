@@ -704,6 +704,7 @@ class _BottomSheetTestSection extends StatelessWidget {
                       ),
                     ),
                     builder: (context) => InsufficientMoneySheet(
+                      disputeProtection: 0.00,
                       amount: insufficientSheetAmount,
                       currency: insufficientSheetCurrency,
                       memo: insufficientSheetMemo,
