@@ -13,7 +13,7 @@ import '../../../shared/widgets/transfa_logo.dart';
 import '../../../shared/widgets/wallpaper_scaffold.dart';
 import '../../../features/pop-ups/viewBalance_popup.dart';
 import '../../../features/pop-ups/transfaAccountShare_popup.dart';
-import '../../../features/pop-ups/cashDrop_popup.dart';
+import '../../../features/pop-ups/cashdrop_popup.dart';
 
 /// iOS-style home: bell top-right, "🏠 Home" title, frosted balance widget
 /// with profile + balance + Add Money pill, then a grid of app icons.

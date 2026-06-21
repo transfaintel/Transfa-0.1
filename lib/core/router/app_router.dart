@@ -43,7 +43,7 @@ import '../../features/transfers/presentation/amount_keypad_screen.dart';
 import '../../features/transfers/presentation/amount_currency_sheet.dart';
 import '../../features/transfers/presentation/info_modals.dart';
 import '../../features/transfers/presentation/status_screens.dart';
-import '../../features/pop-ups/cashdrop_popup.dart';
+import '../../features/pop-ups/cashdrop_screen.dart';
 import '../../features/transfers/presentation/choose_bank_screen.dart';
 import '../../features/transfers/presentation/receipt_screens.dart';
 import '../../features/transfers/presentation/recipient_picker_screen.dart';

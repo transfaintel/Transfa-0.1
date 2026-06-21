@@ -10,7 +10,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../shared/widgets/transfa_logo.dart';
 import '../../../shared/widgets/wallpaper_scaffold.dart';
-import '../../../features/pop-ups/cashDrop_popup.dart';
+import '../../../features/pop-ups/cashdrop_popup.dart';
 import '../../../features/pop-ups/transfaAccountShare_popup.dart';
 
 /// Frosted "Add Money" widget pair — intro card explaining the feature

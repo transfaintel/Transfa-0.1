@@ -28,7 +28,7 @@ import '../../../core/constants/assets.dart';
 import '../../../features/pop-ups/currency_popup.dart';
 import '../../../features/pop-ups/bank_unavailable_popup.dart';
 import '../../../features/pop-ups/no_internet_popup.dart';
-import '../../../features/pop-ups/cashdrop_popup.dart';
+import '../../../features/pop-ups/cashdrop_screen.dart';
 
 // BOTTOM SHEET IMPORTS FOR DEV TESTING
 import '../../../features/bottom_sheets/pay_bottomsheet.dart';

@@ -29,7 +29,7 @@ class Assets {
   static const howWeKeepInfo = "$_icon/HowWeKeepInfo.svg";
   static const sharingInfo = "$_icon/sharingInfo.svg";
   static const privateInfoBlue = "$_icon/privateInfoBlue.svg";
-  static const autoCollect = "$_icon/autoCollect.svg";
+  static const autoCollect = "$_icon/auto_collect.svg";
   static const contactClosed = "$_icon/contactClosed.svg";
 
 
@@ -72,7 +72,7 @@ class Assets {
   static const transfaAirMood = '$_icon/Transfa Air Mood.svg';
   static const star = '$_icon/Star.svg';
   static const globe = '$_icon/Globe.svg';
-  static const context = '$_icon/CONTEXT.svg';
+  static const context = '$_icon/context_icon.svg';
   static const networkUnavailable = '$_icon/NetworkUnavailable.svg';
   static const checkGreen = '$_icon/CheckGreen.svg';
 
@@ -118,18 +118,18 @@ class Assets {
   static const copyWhite = '$_icon/copyWhite.svg';
   static const check = '$_icon/CHECK.svg';
   static const doneBright = '$_icon/Done (Bright).svg';
-  static const contacts = '$_icon/Contacts.svg';
-  static const contactHeader = '$_icon/contacts.svg';
+  static const contacts = '$_icon/contacts_icon.svg';
+  static const contactHeader = '$_icon/contacts_header.svg';
   static const recents = '$_icon/Recents.svg';
   static const recentScreen = '$_icon/Recent Screen.svg';
   static const memo = '$_icon/MEMO.svg';
   static const time = '$_icon/TIME.svg';
   static const today = '$_icon/Today.svg';
-  static const context_ = '$_icon/Context.svg';
+  static const context_ = '$_icon/context_small.svg';
   static const recover = '$_icon/RECOVER.svg';
   static const photoBubble = '$_icon/Photo Bubble.svg';
   static const settings = '$_icon/Vector.svg';
-  static const transfaStartkey = '$_icon/TransfaStartkey.svg';
+  static const transfaStartkey = '$_icon/transfa_startkey.svg';
   static const menu = '$_icon/Menu.svg';  
 
   // ---------- Bubbles ----------
