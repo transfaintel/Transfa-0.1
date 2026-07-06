@@ -39,8 +39,10 @@ class TransfaModalHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: AppTypography.displayMedium
-                .copyWith(fontWeight: FontWeight.w800, fontSize: 28),
+            style: AppTypography.displayMedium.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 28,
+            ),
           ),
         ),
         GestureDetector(
@@ -60,7 +62,11 @@ class TransfaModalHeader extends StatelessWidget {
               ],
             ),
             alignment: Alignment.center,
-            child: const Icon(Icons.close_rounded, size: 22, color: Colors.black),
+            child: const Icon(
+              Icons.close_rounded,
+              size: 22,
+              color: Colors.black,
+            ),
           ),
         ),
       ],
@@ -83,8 +89,8 @@ class TodayKeypadTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      height: 60,
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(32),
@@ -213,23 +219,15 @@ class HomeFab extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFB347), Color(0xFFCB6BBA)],
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        width: 60,
+        height: 60,
         alignment: Alignment.center,
-        child: const Icon(Icons.home_rounded, color: Colors.white, size: 26),
+        child: SvgPicture.asset(
+          Assets.sweetHome,
+          width: 60,
+          height: 60,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

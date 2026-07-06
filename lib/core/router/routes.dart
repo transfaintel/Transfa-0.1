@@ -16,6 +16,7 @@ class Routes {
   static const photoId = '/identity/photo-id';
   static const verifyNin = '/identity/verify-nin';
   static const addBvn = '/identity/add-bvn';
+  static const addNin = '/identity/add-nin';
   static const verifyBvn = '/identity/verify-bvn';
   static const unsupportedId = '/identity/unsupported';
   static const photoIdGuide = '/identity/photo-id-guide';
@@ -88,8 +89,10 @@ class Routes {
   static const receiptReceived = '/transfer/receipt-received';
   static const receiptInReview = '/transfer/receipt-in-review';
   static const receiptReceivedCompany = '/transfer/receipt-received-company';
-  static const receiptUniversalReceived = '/transfer/receipt-universal-received';
-  static const receiptUniversalProcessing = '/transfer/receipt-universal-processing';
+  static const receiptUniversalReceived =
+      '/transfer/receipt-universal-received';
+  static const receiptUniversalProcessing =
+      '/transfer/receipt-universal-processing';
 
   // Settings
   static const settings = '/settings';

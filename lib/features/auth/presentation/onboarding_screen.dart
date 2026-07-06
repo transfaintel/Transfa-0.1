@@ -52,10 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               const Expanded(flex: 6, child: _FeatureList()),
               PillButton(
                 label: 'Get Started',
-                onPressed: () => {
-                  context.pop(),
-                  context.push(Routes.register)
-                },
+                onPressed: () => {context.pop(), context.push(Routes.register)},
               ),
             ],
           ),
@@ -200,9 +197,10 @@ class _Feature extends StatelessWidget {
                 title,
                 style: AppTypography.headingLarge.copyWith(
                   fontWeight: FontWeight.w800,
+                  fontSize: 20,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
                 subtitle,
                 style: AppTypography.body.copyWith(

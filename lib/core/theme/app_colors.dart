@@ -10,7 +10,7 @@ class AppColors {
   static const Color primaryLight = Color(0xFFFF4466);
 
   // Surfaces — slightly desaturated to make the floating glass cards pop.
-  static const Color background = Color(0xFFECECEC);
+  static const Color background = Color(0xEEEEEEF1);
   static const Color backgroundAlt = Color(0xFFFCFCFB);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceMuted = Color(0xFFF5F5F4);

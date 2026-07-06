@@ -139,10 +139,10 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
     // Get the recipient name from widget
     final String recipientName = widget.recipientName;
     final String recipientImageUrl = widget.recipientImageUrl!;
-    
+
     // Close the current bottom sheet first
     Navigator.of(context).pop();
-    
+
     // Then show the done popup
     showDialog(
       context: context,
@@ -176,13 +176,18 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
 
     // Determine which logo to show
-    final String logoToShow = _selectedBankLogoAsset ?? widget.bankLogoAsset ?? '';
-    final String bankNameToShow = _selectedBankName.isNotEmpty ? _selectedBankName : widget.bankName;
-    final Color? gradient1 = _selectedBankGradientColor1 ?? widget.bankGradientColor1;
-    final Color? gradient2 = _selectedBankGradientColor2 ?? widget.bankGradientColor2;
+    final String logoToShow =
+        _selectedBankLogoAsset ?? widget.bankLogoAsset ?? '';
+    final String bankNameToShow = _selectedBankName.isNotEmpty
+        ? _selectedBankName
+        : widget.bankName;
+    final Color? gradient1 =
+        _selectedBankGradientColor1 ?? widget.bankGradientColor1;
+    final Color? gradient2 =
+        _selectedBankGradientColor2 ?? widget.bankGradientColor2;
 
     return Container(
-      height: 620,
+      height: (MediaQuery.of(context).size.height * 0.5),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),
@@ -342,7 +347,8 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                                   width: 50,
                                   height: 50,
                                   decoration: BoxDecoration(
-                                    gradient: gradient1 != null && gradient2 != null
+                                    gradient:
+                                        gradient1 != null && gradient2 != null
                                         ? LinearGradient(
                                             begin: Alignment.topCenter,
                                             end: Alignment.bottomCenter,
@@ -367,7 +373,9 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                                   ),
                                   child: logoToShow.isNotEmpty
                                       ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(35),
+                                          borderRadius: BorderRadius.circular(
+                                            35,
+                                          ),
                                           child: Container(
                                             padding: const EdgeInsets.all(10),
                                             child: logoToShow.contains('.svg')
@@ -418,7 +426,7 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 20),
 
                         // Send Amount Field
@@ -510,7 +518,7 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                                     color: Colors.black,
                                   ),
                                   decoration: const InputDecoration(
-                                    hintText: '10 Acres',
+                                    hintText: 'Memo: what’s the money for?',
                                     hintStyle: TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -753,16 +761,6 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                             width: double.infinity,
                             height: 150,
                             padding: const EdgeInsets.all(30),
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(35),
-                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

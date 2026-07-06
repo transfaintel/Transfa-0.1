@@ -68,7 +68,11 @@ class _IdCollectScreenState extends State<IdCollectScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(width: 56, height: 56, child: widget.iconBuilder(context)),
+                      SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: widget.iconBuilder(context),
+                      ),
                       const SizedBox(height: 15),
                       Text(
                         widget.title,
@@ -93,7 +97,10 @@ class _IdCollectScreenState extends State<IdCollectScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
                   child: Column(
                     children: [
-                      _LockField(controller: _ctrl, placeholder: widget.placeholder),
+                      _LockField(
+                        controller: _ctrl,
+                        placeholder: widget.placeholder,
+                      ),
                       const SizedBox(height: 14),
                       _RedContinue(
                         onTap: () {
@@ -163,14 +170,20 @@ class _LockField extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: const Icon(Icons.lock_rounded, color: Colors.white, size: 20),
+            child: const Icon(
+              Icons.lock_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]'))],
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+              ],
               style: AppTypography.subheading.copyWith(
                 fontSize: 19,
                 letterSpacing: 1.4,
@@ -239,7 +252,11 @@ class _FooterPill extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _FooterPill({required this.icon, required this.label, required this.onTap});
+  const _FooterPill({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -250,7 +267,7 @@ class _FooterPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 240, 240, 240),
           borderRadius: BorderRadius.circular(40),
-          border: Border.all(color: const Color.fromARGB(255, 245, 245, 245))
+          border: Border.all(color: const Color.fromARGB(255, 245, 245, 245)),
         ),
         alignment: Alignment.center,
         child: Row(
@@ -274,8 +291,9 @@ class _FooterPill extends StatelessWidget {
 
 Future<void> showBvnGlassPopup(
   BuildContext context, {
-  required String enteredBvn,
+  required String enteredNumber,
   required VoidCallback onConfirm,
+  required String idType,
 }) {
   return showGeneralDialog(
     context: context,
@@ -283,8 +301,9 @@ Future<void> showBvnGlassPopup(
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     transitionDuration: const Duration(milliseconds: 400),
     pageBuilder: (_, __, ___) => _BvnGlassModalContent(
-      enteredBvn: enteredBvn,
+      enteredNumber: enteredNumber,
       onConfirm: onConfirm,
+      idType: idType,
     ),
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0, 1);
@@ -292,36 +311,39 @@ Future<void> showBvnGlassPopup(
       const curve = Curves.easeOutCubic;
       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
       var offsetAnimation = animation.drive(tween);
-      var fadeTween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
+      var fadeTween = Tween(
+        begin: 0.0,
+        end: 1.0,
+      ).chain(CurveTween(curve: curve));
       var fadeAnimation = animation.drive(fadeTween);
-      
+
       return FadeTransition(
         opacity: fadeAnimation,
-        child: SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        ),
+        child: SlideTransition(position: offsetAnimation, child: child),
       );
     },
   );
 }
 
 class _BvnGlassModalContent extends StatelessWidget {
-  final String enteredBvn;
+  final String enteredNumber;
   final VoidCallback onConfirm;
+  final String idType;
 
   const _BvnGlassModalContent({
-    required this.enteredBvn,
+    required this.enteredNumber,
     required this.onConfirm,
+    required this.idType,
   });
 
   @override
   Widget build(BuildContext context) {
-    String displayBvn = enteredBvn.replaceAll(RegExp(r'\s'), '');
+    String displayBvn = enteredNumber.replaceAll(RegExp(r'\s'), '');
     if (displayBvn.length == 11) {
-      displayBvn = '${displayBvn.substring(0, 4)} ${displayBvn.substring(4, 8)} ${displayBvn.substring(8)}';
+      displayBvn =
+          '${displayBvn.substring(0, 4)} ${displayBvn.substring(4, 8)} ${displayBvn.substring(8)}';
     }
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
       child: Align(
@@ -353,7 +375,10 @@ class _BvnGlassModalContent extends StatelessWidget {
                     borderRadius: BorderRadius.circular(45),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 32,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -364,10 +389,10 @@ class _BvnGlassModalContent extends StatelessWidget {
                             color: Colors.white.withValues(alpha: 0.6),
                             shape: BoxShape.circle,
                           ),
-                          child: SvgPicture.asset(  
-                            Assets.avatar, 
-                            width: 40, 
-                            height: 40, 
+                          child: SvgPicture.asset(
+                            Assets.avatar,
+                            width: 40,
+                            height: 40,
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -383,7 +408,10 @@ class _BvnGlassModalContent extends StatelessWidget {
                         const SizedBox(height: 30),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 18,
+                            horizontal: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(30),
@@ -394,10 +422,10 @@ class _BvnGlassModalContent extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              SvgPicture.asset( 
-                                Assets.Nigerian_Flag, 
-                                width: 24, 
-                                height: 24, 
+                              SvgPicture.asset(
+                                Assets.Nigerian_Flag,
+                                width: 24,
+                                height: 24,
                                 fit: BoxFit.contain,
                               ),
                               const SizedBox(width: 8),
@@ -414,7 +442,7 @@ class _BvnGlassModalContent extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 18),
-                        _StatusSummaryCard(total: "0"),
+                        _StatusSummaryCard(total: "0", idType: idType),
                         const SizedBox(height: 22),
                         Expanded(
                           child: GestureDetector(
@@ -428,12 +456,17 @@ class _BvnGlassModalContent extends StatelessWidget {
                                 gradient: const LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
-                                  colors: [AppColors.primaryLight, AppColors.primary],
+                                  colors: [
+                                    AppColors.primaryLight,
+                                    AppColors.primary,
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(40),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.28),
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.28,
+                                    ),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
                                   ),
@@ -487,13 +520,55 @@ class AddBvnScreen extends StatelessWidget {
         child: Image.asset(Assets.cbnLogo, fit: BoxFit.contain),
       ),
       title: 'Add Your BVN',
-      subtitle: 'Earn money across Nigeria and\naccess banking & capital services.',
+      subtitle:
+          'Earn money across Nigeria and\naccess banking & capital services.',
       placeholder: '0000 1111 0000 2222',
       footerLookupLabel: 'My BVN',
+      onContinue: (enteredNumber) {
+        showBvnGlassPopup(
+          context,
+          enteredNumber: enteredNumber,
+          idType: 'BVN',
+          onConfirm: () {
+            context.push(Routes.identityVerification);
+          },
+        );
+      },
+    );
+  }
+}
+
+class AddNinScreen extends StatelessWidget {
+  const AddNinScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IdCollectScreen(
+      iconBuilder: (_) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Image.asset(Assets.nimcLogo, fit: BoxFit.contain),
+      ),
+      title: 'Add Your NIN',
+      subtitle:
+          'Earn money across Nigeria and\naccess banking & capital services.',
+      placeholder: '0000 1111 0000 2222',
+      footerLookupLabel: 'My NIN',
       onContinue: (enteredBvn) {
         showBvnGlassPopup(
           context,
-          enteredBvn: enteredBvn,
+          enteredNumber: enteredBvn,
+          idType: 'NIN',
           onConfirm: () {
             context.push(Routes.identityVerification);
           },
@@ -524,9 +599,15 @@ class _SummaryRow extends StatelessWidget {
         children: [
           Row(
             children: [
-              SvgPicture.asset(icon, width: 30, height: 30, fit: BoxFit.contain),
+              SvgPicture.asset(
+                icon,
+                width: 30,
+                height: 30,
+                fit: BoxFit.contain,
+              ),
               const SizedBox(width: 8),
-              Text(label,
+              Text(
+                label,
                 style: AppTypography.subheading.copyWith(
                   fontSize: 17,
                   fontWeight: FontWeight.w400,
@@ -545,7 +626,8 @@ class _SummaryRow extends StatelessWidget {
 
 class _StatusSummaryCard extends StatelessWidget {
   final String total;
-  const _StatusSummaryCard({required this.total});
+  final String idType;
+  const _StatusSummaryCard({required this.total, required this.idType});
 
   @override
   Widget build(BuildContext context) {
@@ -561,23 +643,44 @@ class _StatusSummaryCard extends StatelessWidget {
             label: 'Born',
             icon: Assets.birthdayCake,
             labelBold: true,
-            value: Text("Friday, December 10",
-              style: AppTypography.body.copyWith(fontSize: 17, fontWeight: FontWeight.w300),
+            value: Text(
+              "Friday, December 10",
+              style: AppTypography.body.copyWith(
+                fontSize: 17,
+                fontWeight: FontWeight.w300,
+              ),
             ),
           ),
-          _SummaryRow(
-            label: 'BVN',
-            icon: Assets.nationalID,
-            labelBold: true,
-            value: Text("0000 1111 0000 2222",
-              style: AppTypography.subheading.copyWith(fontSize: 17, fontWeight: FontWeight.w300),
-            ),
-          ),
+
+          idType == 'BVN'
+              ? _SummaryRow(
+                  label: 'BVN',
+                  icon: Assets.nationalID,
+                  labelBold: true,
+                  value: Text(
+                    "0000 1111 0000 2222",
+                    style: AppTypography.subheading.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                )
+              : _SummaryRow(
+                  label: 'NIN',
+                  icon: Assets.nationalID,
+                  labelBold: true,
+                  value: Text(
+                    "0000 1111 0000 2222",
+                    style: AppTypography.subheading.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                ),
         ],
       ),
     );
   }
-
 }
 // class _SoftCancel extends StatelessWidget {
 //   final VoidCallback onTap;

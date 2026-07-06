@@ -318,13 +318,10 @@ class ReceiptInReviewScreen extends ConsumerWidget {
             'Add your BVN and residential address to complete this transaction and raise your money limits to ₦5 Million Naira.',
         actions: [
           _ReceiptAction(
-            label: 'Add BVN',
-            onTap: () => context.push(Routes.addBvn),
+            label: 'Add NIN',
+            onTap: () => context.push(Routes.addNin),
           ),
-          _ReceiptAction(
-            label: 'Add Address',
-            onTap: () => {},
-          ),
+          _ReceiptAction(label: 'Add Address', onTap: () => {}),
         ],
       ),
       bankName: 'GTBank',
@@ -557,64 +554,64 @@ class _ReceiptPage extends StatelessWidget {
                 const SizedBox(height: 28),
                 GestureDetector(
                   onTap: () => {
-
-                    if (bankName == "Transfa"){
+                    if (bankName == "Transfa")
+                      {
                         showDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      barrierColor: Colors.black.withOpacity(0.5),
-                      builder: (context) => PersonalBankingPopup(
-                        recipientName: recipient.name,
-                        recipientImageUrl: recipient.assetImage ?? Assets.magic,
-                        accountNumber: accountNumber ?? 'N/A',
-                        bankName: bankName ?? 'Unknown Bank',
-                        // bankLogoAsset: widget.bankLogoAsset,
-                        onSaveToTransfa: () {
-                          // Handle Save to Transfa action
-                        },
-                        onTransfaCashDrop: () {
-                          // Handle Transfa CashDrop action
-                        },
-                      ),
-                    ),
-                    } else if (recipient.businessIcon == true){
+                          context: context,
+                          barrierDismissible: true,
+                          barrierColor: Colors.black.withOpacity(0.5),
+                          builder: (context) => PersonalBankingPopup(
+                            recipientName: recipient.name,
+                            recipientImageUrl:
+                                recipient.assetImage ?? Assets.magic,
+                            accountNumber: accountNumber ?? 'N/A',
+                            bankName: bankName ?? 'Unknown Bank',
+                            // bankLogoAsset: widget.bankLogoAsset,
+                            onSaveToTransfa: () {
+                              // Handle Save to Transfa action
+                            },
+                            onTransfaCashDrop: () {
+                              // Handle Transfa CashDrop action
+                            },
+                          ),
+                        ),
+                      }
+                    else if (recipient.businessIcon == true)
+                      {
                         showDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      barrierColor: Colors.black.withOpacity(0.5),
-                      builder: (context) => BusinessBankingPopup(
-                        businessName: recipient.name,
-                        // businessImageUrl: recipient.assetImage ?? Assets.magic,
-                        onSaveToTransfa: () {
-                          // Handle Save to Transfa action
-                        },
-                        onTransfaCashDrop: () {
-                          // Handle Transfa CashDrop action
-                        },
-                      ),
-                    ),
-                    }
-                    
-                    else {
+                          context: context,
+                          barrierDismissible: true,
+                          barrierColor: Colors.black.withOpacity(0.5),
+                          builder: (context) => BusinessBankingPopup(
+                            businessName: recipient.name,
+                            // businessImageUrl: recipient.assetImage ?? Assets.magic,
+                            onSaveToTransfa: () {
+                              // Handle Save to Transfa action
+                            },
+                            onTransfaCashDrop: () {
+                              // Handle Transfa CashDrop action
+                            },
+                          ),
+                        ),
+                      }
+                    else
+                      {
                         showDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      barrierColor: Colors.black.withOpacity(0.5),
-                      builder: (context) => TransfaAccountPreviewPopup(
-                        userName: recipient.name,
-                        userImageUrl: recipient.assetImage ?? '',
-                        onSaveToTransfa: () {
-                          // Handle Save to Transfa action
-                        },
-                        onTransfaCashDrop: () {
-                          // Handle Transfa CashDrop action
-                        },
-                      ),
-                    ),
-                    }
-
-                    
-                    
+                          context: context,
+                          barrierDismissible: true,
+                          barrierColor: Colors.black.withOpacity(0.5),
+                          builder: (context) => TransfaAccountPreviewPopup(
+                            userName: recipient.name,
+                            userImageUrl: recipient.assetImage ?? '',
+                            onSaveToTransfa: () {
+                              // Handle Save to Transfa action
+                            },
+                            onTransfaCashDrop: () {
+                              // Handle Transfa CashDrop action
+                            },
+                          ),
+                        ),
+                      },
                   },
                   child: _hPad(_RecipientPill(recipient: recipient)),
                 ),
@@ -661,8 +658,11 @@ class _ReceiptPage extends StatelessWidget {
               bottom: 16,
               child: Row(
                 children: [
-                  _SaveIconButton(onTap: () {
-                          context.push(Routes.transfaAi);}),
+                  _SaveIconButton(
+                    onTap: () {
+                      context.push(Routes.transfaAi);
+                    },
+                  ),
                   const Spacer(),
                   if (showShare) _SharePill(onTap: onShare ?? () {}),
                 ],

@@ -45,10 +45,10 @@ class DollarAccountSheet extends StatefulWidget {
 
 class _DollarAccountSheetState extends State<DollarAccountSheet> {
   final TextEditingController _memoController = TextEditingController();
-  
+
   // Mock user balance
   final double _userBalance = 200000.00;
-  
+
   double get _totalAmount {
     final amount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
     return amount + widget.transactionFee + widget.disputeProtection;
@@ -93,28 +93,29 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
 
   void _onTouchToConfirm() {
     // Handle confirmation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Processing payment...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Processing payment...')));
   }
 
   void _onAddMoneyPressed() {
     // Handle add money action
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Add money to continue')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Add money to continue')));
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isUSD = widget.currency == AmountCurrency.usd;
     final String symbol = widget.currency.symbol;
-    
+
     // Parse amounts
-    final double parsedAmount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
-    
+    final double parsedAmount =
+        double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
+
     return Container(
-      height: 620,
+      height: (MediaQuery.of(context).size.height * 0.5),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),
@@ -124,7 +125,6 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
         ),
       ),
       child: ClipRRect(
-        
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: Material(
@@ -191,7 +191,7 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(20),
-                          
+
                           child: Column(
                             children: [
                               // Avatar - Different gradient for USD
@@ -203,18 +203,22 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                       ? const LinearGradient(
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
-                                          colors: [Color(0xFF00FD83), Color(0xFF00A95D)],
+                                          colors: [
+                                            Color(0xFF00FD83),
+                                            Color(0xFF00A95D),
+                                          ],
                                         )
                                       : const LinearGradient(
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
-                                          colors: [Color(0xFFFF6777), Color(0xFFF74155)],
+                                          colors: [
+                                            Color(0xFFFF6777),
+                                            Color(0xFFF74155),
+                                          ],
                                         ),
                                   borderRadius: BorderRadius.circular(100),
                                 ),
-                                child: SvgPicture.asset(
-                                  Assets.contacts,
-                                ),
+                                child: SvgPicture.asset(Assets.contacts),
                               ),
                               const SizedBox(height: 10),
                               // Recipient Name
@@ -265,7 +269,10 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                   gradient: const LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
-                                    colors: [Color(0xFF07B826), Color(0xFF4EE659)],
+                                    colors: [
+                                      Color(0xFF07B826),
+                                      Color(0xFF4EE659),
+                                    ],
                                   ),
                                   borderRadius: BorderRadius.circular(35),
                                   boxShadow: const [
@@ -351,9 +358,11 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: '$symbol${_getMainAmount(parsedAmount)}',
+                                            text:
+                                                '$symbol${_getMainAmount(parsedAmount)}',
                                             style: const TextStyle(
-                                              fontFamily: 'Arial Rounded MT Bold',
+                                              fontFamily:
+                                                  'Arial Rounded MT Bold',
                                               fontWeight: FontWeight.w600,
                                               fontSize: 30,
                                               letterSpacing: 0.02,
@@ -361,14 +370,16 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                             ),
                                           ),
                                           WidgetSpan(
-                                            alignment: PlaceholderAlignment.baseline,
+                                            alignment:
+                                                PlaceholderAlignment.baseline,
                                             baseline: TextBaseline.alphabetic,
                                             child: Transform.translate(
                                               offset: const Offset(0, -8),
                                               child: Text(
                                                 _getDecimalPart(parsedAmount),
                                                 style: const TextStyle(
-                                                  fontFamily: 'Arial Rounded MT Bold',
+                                                  fontFamily:
+                                                      'Arial Rounded MT Bold',
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16,
                                                   letterSpacing: 0.02,
@@ -394,7 +405,10 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                         gradient: const LinearGradient(
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
-                                          colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+                                          colors: [
+                                            Color(0xFFFF7088),
+                                            Color(0xFFF41E42),
+                                          ],
                                         ),
                                         borderRadius: BorderRadius.circular(35),
                                       ),
@@ -447,7 +461,7 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                     color: Colors.black,
                                   ),
                                   decoration: const InputDecoration(
-                                    hintText: 'Tactical Technology Grant',
+                                    hintText: 'Memo: what’s the money for?',
                                     hintStyle: TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -492,7 +506,8 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: 'Balance: $symbol${_getMainAmount(_userBalance)}',
+                                        text:
+                                            'Balance: $symbol${_getMainAmount(_userBalance)}',
                                         style: const TextStyle(
                                           fontFamily: 'Roboto',
                                           fontWeight: FontWeight.w400,
@@ -502,7 +517,8 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                         ),
                                       ),
                                       WidgetSpan(
-                                        alignment: PlaceholderAlignment.baseline,
+                                        alignment:
+                                            PlaceholderAlignment.baseline,
                                         baseline: TextBaseline.alphabetic,
                                         child: Transform.translate(
                                           offset: const Offset(0, -5),
@@ -570,7 +586,8 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: '$symbol${_getMainAmount(widget.transactionFee)}',
+                                            text:
+                                                '$symbol${_getMainAmount(widget.transactionFee)}',
                                             style: const TextStyle(
                                               fontFamily: 'Roboto',
                                               fontWeight: FontWeight.w400,
@@ -579,7 +596,7 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          
+
                                           const TextSpan(
                                             text: ' Fee',
                                             style: TextStyle(
@@ -609,7 +626,6 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                 ),
                                 child: Row(
                                   children: [
-                                   
                                     const Expanded(
                                       child: Text(
                                         'Dispute Protection',
@@ -626,7 +642,8 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: '$symbol${_getMainAmount(widget.disputeProtection)}',
+                                            text:
+                                                '$symbol${_getMainAmount(widget.disputeProtection)}',
                                             style: const TextStyle(
                                               fontFamily: 'Roboto',
                                               fontWeight: FontWeight.w400,
@@ -635,7 +652,6 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          
                                         ],
                                       ),
                                     ),
@@ -671,7 +687,8 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: '$symbol${_getMainAmount(_totalAmount)}',
+                                            text:
+                                                '$symbol${_getMainAmount(_totalAmount)}',
                                             style: const TextStyle(
                                               fontFamily: 'Roboto',
                                               fontWeight: FontWeight.w500,
@@ -680,7 +697,6 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          
                                         ],
                                       ),
                                     ),
@@ -699,16 +715,6 @@ class _DollarAccountSheetState extends State<DollarAccountSheet> {
                             width: double.infinity,
                             height: 150,
                             padding: const EdgeInsets.all(30),
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(35),
-                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

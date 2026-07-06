@@ -70,7 +70,7 @@ class _SummaryNotesSheetState extends State<SummaryNotesSheet> {
     final bool isDarkAmount = widget.fromCurrency == AmountCurrency.usd;
 
     return Container(
-      height: 704,
+      height: (MediaQuery.of(context).size.height * 0.5),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),

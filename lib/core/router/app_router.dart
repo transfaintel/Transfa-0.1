@@ -65,14 +65,11 @@ CustomTransitionPage buildPageWithTransition(Widget child) {
       const begin = Offset(0, 1); // Start from bottom
       const end = Offset.zero;
       const curve = Curves.easeOutCubic;
-      
+
       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
       var offsetAnimation = animation.drive(tween);
-      
-      return SlideTransition(
-        position: offsetAnimation,
-        child: child,
-      );
+
+      return SlideTransition(position: offsetAnimation, child: child);
     },
     transitionDuration: const Duration(milliseconds: 800),
   );
@@ -97,13 +94,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       slideRoute(Routes.onboarding, const OnboardingScreen()),
 
       // Identity / KYC
-      slideRoute(Routes.identityVerification, const IdentityVerificationScreen()),
+      slideRoute(
+        Routes.identityVerification,
+        const IdentityVerificationScreen(),
+      ),
       slideRoute(Routes.identityPrivacy, const PrivacyIdScreen()),
       slideRoute(Routes.identityBankPrivacy, const PrivacyBankScreen()),
       slideRoute(Routes.photoId, const PhotoIdScreen()),
       slideRoute(Routes.photoIdGuide, const PhotoIdGuideScreen()),
       slideRoute(Routes.verifyNin, const VerifyNinScreen()),
       slideRoute(Routes.addBvn, const AddBvnScreen()),
+      slideRoute(Routes.addNin, const AddNinScreen()),
       slideRoute(Routes.verifyBvn, const VerifyBvnScreen()),
       slideRoute(Routes.unsupportedId, const UnsupportedIdScreen()),
       slideRoute(Routes.location, const LocationScreen()),
@@ -128,14 +129,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       slideRoute(Routes.supportChat, const SupportChatScreen()),
       slideRoute(Routes.walletWidget, const WalletWidgetScreen()),
       slideRoute(Routes.transactions, const TransactionHistoryScreen()),
-      
+
       GoRoute(
         path: Routes.transactionDetails,
         pageBuilder: (context, state) => buildPageWithTransition(
           TransactionDetailsScreen(id: state.pathParameters['id']!),
         ),
       ),
-      
+
       slideRoute(Routes.transfer, const TransferScreen()),
       slideRoute(Routes.transferDetails, const TransferDetailsScreen()),
       slideRoute(Routes.transferConfirm, const TransferConfirmScreen()),
@@ -147,16 +148,28 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       slideRoute(Routes.recipientPick, const RecipientPickerScreen()),
       slideRoute(Routes.recipientProfile, const RecipientProfileScreen()),
       slideRoute(Routes.recipientMultiBank, const RecipientMultiBankScreen()),
-      slideRoute(Routes.recipientAmountPreview, const RecipientAmountPreviewScreen()),
+      slideRoute(
+        Routes.recipientAmountPreview,
+        const RecipientAmountPreviewScreen(),
+      ),
       slideRoute(Routes.chooseBank, const ChooseBankScreen()),
       slideRoute(Routes.receiptUniversal, const ReceiptUniversalScreen()),
       slideRoute(Routes.receiptStatus, const ReceiptStatusScreen()),
       slideRoute(Routes.receiptUnable, const ReceiptUnableScreen()),
       slideRoute(Routes.receiptReceived, const ReceiptReceivedScreen()),
       slideRoute(Routes.receiptInReview, const ReceiptInReviewScreen()),
-      slideRoute(Routes.receiptReceivedCompany, const ReceiptReceivedCompanyScreen()),
-      slideRoute(Routes.receiptUniversalReceived, const ReceiptUniversalReceivedScreen()),
-      slideRoute(Routes.receiptUniversalProcessing, const ReceiptUniversalProcessingScreen()),
+      slideRoute(
+        Routes.receiptReceivedCompany,
+        const ReceiptReceivedCompanyScreen(),
+      ),
+      slideRoute(
+        Routes.receiptUniversalReceived,
+        const ReceiptUniversalReceivedScreen(),
+      ),
+      slideRoute(
+        Routes.receiptUniversalProcessing,
+        const ReceiptUniversalProcessingScreen(),
+      ),
       slideRoute(Routes.chooseCountry, const SendMoneyWherePage()),
 
       // Unlock + recovery
@@ -193,6 +206,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       slideRoute(Routes.legal, const LegalScreen()),
       slideRoute(Routes.changePassword, const ChangePasswordScreen()),
     ],
-    errorBuilder: (_, state) => Scaffold(body: Center(child: Text('No route: ${state.uri}'))),
+    errorBuilder: (_, state) =>
+        Scaffold(body: Center(child: Text('No route: ${state.uri}'))),
   );
 });

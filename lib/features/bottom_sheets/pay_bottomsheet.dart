@@ -408,7 +408,7 @@ class _PaySheetState extends State<PaySheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 620,
+      height: (MediaQuery.of(context).size.height * 0.5),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),
@@ -717,7 +717,7 @@ class _PaySheetState extends State<PaySheet> {
                                     color: Colors.black,
                                   ),
                                   decoration: const InputDecoration(
-                                    hintText: 'What\'s the money for?',
+                                    hintText: 'Memo: What\'s the money for?',
                                     hintStyle: TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -867,16 +867,6 @@ class _PaySheetState extends State<PaySheet> {
                             width: double.infinity,
                             height: 150,
                             padding: const EdgeInsets.all(30),
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(35),
-                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

@@ -104,7 +104,7 @@ class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
 
     return Container(
-      height: 620,
+      height: (MediaQuery.of(context).size.height * 0.5),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),
@@ -396,7 +396,7 @@ class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
                                     color: Colors.black,
                                   ),
                                   decoration: const InputDecoration(
-                                    hintText: 'What\'s the money for?',
+                                    hintText: 'Memo: what’s the money for?',
                                     hintStyle: TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -639,16 +639,6 @@ class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
                             width: double.infinity,
                             height: 150,
                             padding: const EdgeInsets.all(30),
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(35),
-                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -697,11 +687,7 @@ class _BankRow extends StatelessWidget {
   final String name;
   final VoidCallback onTap;
 
-  const _BankRow({
-    required this.logo,
-    required this.name,
-    required this.onTap,
-  });
+  const _BankRow({required this.logo, required this.name, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -713,11 +699,7 @@ class _BankRow extends StatelessWidget {
         child: Row(
           children: [
             // Bank Logo
-            Container(
-              width: 50,
-              height: 50,
-              child: logo,
-            ),
+            Container(width: 50, height: 50, child: logo),
             const SizedBox(width: 10),
             Expanded(
               child: Text(

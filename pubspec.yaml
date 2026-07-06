@@ -1,7 +1,7 @@
 # pubspec.yaml
 name: transfa
 description: "Transfa - NGN wallet & international transfers fintech app."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
@@ -28,6 +28,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.3.0
 
 flutter:
   uses-material-design: true

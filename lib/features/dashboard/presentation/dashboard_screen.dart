@@ -28,10 +28,11 @@ class DashboardScreen extends ConsumerWidget {
     return WallpaperScaffold(
       darken: 0.35,
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Spacer(flex: 1),
             // Bell with red dot
             Align(
               alignment: Alignment.centerRight,
@@ -40,49 +41,39 @@ class DashboardScreen extends ConsumerWidget {
                 children: [
                   IconButton(
                     onPressed: () => context.push(Routes.notifications),
-                    icon: const Icon(
-                      Icons.notifications_rounded,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                  ),
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      width: 12,
-                      height: 12,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF9F0A),
-                        shape: BoxShape.circle,
-                      ),
+                    icon: SvgPicture.asset(
+                      Assets.notificationCenter,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 40),
             // "🏠 Home" title — long-press opens the Dev menu so every
             // screen in the app is reachable during development.
-            GestureDetector(
-              onLongPress: () => context.push(Routes.devMenu),
-              behavior: HitTestBehavior.opaque,
-              child: Row(
-                children: [
-                  SvgPicture.asset(Assets.home, fit: BoxFit.contain),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Home',
-                    style: AppTypography.displayLarge.copyWith(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.w600,
+            Padding(
+              padding: const EdgeInsets.only(left: 24),
+              child: GestureDetector(
+                onLongPress: () => context.push(Routes.devMenu),
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  children: [
+                    SvgPicture.asset(Assets.home, fit: BoxFit.contain),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Home',
+                      style: AppTypography.displayLarge.copyWith(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 50),
             _BalanceWidget(
               user: user,
               balance: wallet.maybeWhen(
@@ -234,10 +225,11 @@ class _BalanceWidget extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            height: 190,
+            padding: const EdgeInsets.all(30),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(45),
               border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
             ),
             child: Column(
@@ -349,8 +341,8 @@ class _HomeAppIcon extends StatelessWidget {
         children: [
           support == true
               ? Container(
-                  width: 66,
-                  height: 66,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
                     color: background,
                     gradient: gradient,
@@ -365,8 +357,8 @@ class _HomeAppIcon extends StatelessWidget {
                   ),
                   child: Center(
                     child: SizedBox(
-                      width: 66,
-                      height: 66,
+                      width: 60,
+                      height: 60,
                       child:
                           child ??
                           (svgAsset != null
@@ -376,8 +368,8 @@ class _HomeAppIcon extends StatelessWidget {
                   ),
                 )
               : Container(
-                  width: 66,
-                  height: 66,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
                     color: background,
                     gradient: gradient,

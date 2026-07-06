@@ -191,11 +191,10 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
     );
   }
 
-
   void _onTouchToConfirm() {
     // Close the current bottom sheet
     Navigator.pop(context);
-    
+
     // Show the insufficient money sheet
     showModalBottomSheet(
       context: context,
@@ -221,11 +220,9 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
   void _selectCountry() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const SendMoneyWherePage(),
-      ),
+      MaterialPageRoute(builder: (context) => const SendMoneyWherePage()),
     );
-    
+
     if (result != null && mounted) {
       setState(() {
         _selectedCountry = result['name'] ?? _selectedCountry;
@@ -238,11 +235,9 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
   void _selectBank() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const ChooseBankScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const ChooseBankScreen()),
     );
-    
+
     if (result != null && mounted) {
       setState(() {
         _selectedBankName = result['name'] ?? _selectedBankName;
@@ -310,7 +305,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
 
     return Container(
-      height: 620,
+      height: (MediaQuery.of(context).size.height * 0.5),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),
@@ -396,24 +391,12 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                               GestureDetector(
                                 onTap: _showMultipleBanksPopup,
                                 child: Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Row(
-                                  children: [
-                                    const Text(
-                                      'To:',
-                                      style: TextStyle(
-                                        fontFamily: 'Roboto',
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 17,
-                                        letterSpacing: 0.02,
-                                        color: Color(0xFF8A8A8C),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        widget.accountNumber,
-                                        style: const TextStyle(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Row(
+                                    children: [
+                                      const Text(
+                                        'To:',
+                                        style: TextStyle(
                                           fontFamily: 'Roboto',
                                           fontWeight: FontWeight.w400,
                                           fontSize: 17,
@@ -421,17 +404,29 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                           color: Color(0xFF8A8A8C),
                                         ),
                                       ),
-                                    ),
-                                    Container(
-                                      width: 26,
-                                      height: 26,
-                                      child: const AnimatedDottedLoader(),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          widget.accountNumber,
+                                          style: const TextStyle(
+                                            fontFamily: 'Roboto',
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 17,
+                                            letterSpacing: 0.02,
+                                            color: Color(0xFF8A8A8C),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 26,
+                                        height: 26,
+                                        child: const AnimatedDottedLoader(),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              ),
-                              
+
                               const Divider(
                                 height: 1,
                                 indent: 16,
@@ -566,7 +561,10 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                             ),
                             child: Row(
                               children: [
-                                _buildBankLogo(_selectedBankLogo, _selectedBankName),
+                                _buildBankLogo(
+                                  _selectedBankLogo,
+                                  _selectedBankName,
+                                ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
@@ -731,9 +729,13 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                         width: 40,
                                         height: 40,
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(35),
+                                          borderRadius: BorderRadius.circular(
+                                            35,
+                                          ),
                                         ),
-                                        child: _buildCountryFlag(_selectedCountryFlag),
+                                        child: _buildCountryFlag(
+                                          _selectedCountryFlag,
+                                        ),
                                       ),
                                       const SizedBox(width: 10),
                                       Expanded(
@@ -795,7 +797,8 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: '$symbol${_getMainAmount(parsedAmount)}',
+                                      text:
+                                          '$symbol${_getMainAmount(parsedAmount)}',
                                       style: const TextStyle(
                                         fontFamily: 'Arial Rounded MT Bold',
                                         fontWeight: FontWeight.w600,
@@ -858,7 +861,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                   ),
                                   decoration: InputDecoration(
                                     hintText: widget.memo.isEmpty
-                                        ? 'Memo...'
+                                        ? 'Memo: what’s the money for?'
                                         : widget.memo,
                                     hintStyle: const TextStyle(
                                       fontFamily: 'Roboto',
@@ -904,7 +907,8 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                   text: TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: 'Balance: $symbol${_getMainAmount(widget.userBalance)}',
+                                        text:
+                                            'Balance: $symbol${_getMainAmount(widget.userBalance)}',
                                         style: const TextStyle(
                                           fontFamily: 'Roboto',
                                           fontWeight: FontWeight.w400,
@@ -914,7 +918,8 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                         ),
                                       ),
                                       WidgetSpan(
-                                        alignment: PlaceholderAlignment.baseline,
+                                        alignment:
+                                            PlaceholderAlignment.baseline,
                                         baseline: TextBaseline.alphabetic,
                                         child: Transform.translate(
                                           offset: const Offset(0, -5),
@@ -956,16 +961,6 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                             width: double.infinity,
                             height: 150,
                             padding: const EdgeInsets.all(30),
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(35),
-                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

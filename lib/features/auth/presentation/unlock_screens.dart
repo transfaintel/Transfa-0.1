@@ -47,7 +47,7 @@ class _LockscreenShell extends StatelessWidget {
             header,
             const SizedBox(height: 26),
             _Dots(length: length, filled: filled),
-            
+
             const SizedBox(height: 22),
             _Keypad(onTap: onKey, onBack: onBack, showBack: filled > 0),
             const Spacer(),
@@ -163,7 +163,6 @@ class _PillTextButton extends StatelessWidget {
         width: 500,
         padding: const EdgeInsets.symmetric(horizontal: 22),
         decoration: BoxDecoration(
-
           color: Colors.white.withValues(alpha: 0.18),
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
@@ -413,7 +412,7 @@ class _PayPasscodeScreenState extends State<PayPasscodeScreen> {
             // Custom keypad row with Face ID in bottom-left.
             _PayKeypad(onTap: _tap, onBack: _back, showBack: _code.isNotEmpty),
             const Spacer(),
-            
+
             Align(
               alignment: Alignment.centerLeft,
               child: _RedCancelPill(onTap: () => context.pop()),
@@ -462,7 +461,9 @@ class _PayKeypad extends StatelessWidget {
                 width: 78,
                 height: 78,
                 child: IconButton(
-                  onPressed: () {context.push(Routes.faceShotUnlock);},
+                  onPressed: () {
+                    context.push(Routes.faceShotUnlock);
+                  },
                   icon: SvgPicture.asset(
                     Assets.faceId,
                     width: 34,
@@ -523,7 +524,7 @@ class _FaceShotUnlockScreenState extends State<FaceShotUnlockScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: AppColors.backgroundAlt,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 80, 24, 28),
@@ -680,7 +681,7 @@ class _WelcomeHomePhoneScreenState extends State<WelcomeHomePhoneScreen> {
             _GlassWrapper(
               child: Column(
                 children: [
-                  Image.asset( Assets.welcomeHome, width: 72, height: 72),
+                  Image.asset(Assets.welcomeHome, width: 72, height: 72),
                   const SizedBox(height: 4),
                   Text(
                     'Welcome Home',
@@ -708,14 +709,19 @@ class _WelcomeHomePhoneScreenState extends State<WelcomeHomePhoneScreen> {
                   Row(
                     children: [
                       const SizedBox(height: 35),
-                      Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                      child: SizedBox(
-                        width: 32,
-                        height: 26,
-                        child: SvgPicture.asset(Assets.Nigerian_Flag, width: 40, height: 30),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: SizedBox(
+                          width: 32,
+                          height: 26,
+                          child: SvgPicture.asset(
+                            Assets.Nigerian_Flag,
+                            width: 40,
+                            height: 30,
+                          ),
+                        ),
                       ),
-                      ),
-                      
+
                       const SizedBox(width: 7),
                       Text(
                         'Nigeria',
@@ -740,7 +746,11 @@ class _WelcomeHomePhoneScreenState extends State<WelcomeHomePhoneScreen> {
                 _BottomSquare(
                   label: 'New\nTransfa',
                   onTap: () => context.push(Routes.onboarding),
-                  child: SvgPicture.asset(Assets.logoChromatic, width: 30, height: 30),
+                  child: SvgPicture.asset(
+                    Assets.logoChromatic,
+                    width: 30,
+                    height: 30,
+                  ),
                 ),
                 const SizedBox(width: 18),
                 _BottomSquare(
@@ -786,8 +796,6 @@ class _GlassWrapper extends StatelessWidget {
     );
   }
 }
-
-
 
 class _PillField extends StatelessWidget {
   final TextEditingController controller;
@@ -838,7 +846,7 @@ class _PillField extends StatelessWidget {
               ),
             ),
           ),
-          const AnimatedDottedLoader()
+          const AnimatedDottedLoader(),
         ],
       ),
     );
@@ -962,7 +970,7 @@ class _ForgotPasscodeScreenState extends State<ForgotPasscodeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SvgPicture.asset(  Assets.allPasscodes, width: 60, height: 60),
+                  SvgPicture.asset(Assets.allPasscodes, width: 60, height: 60),
                   const SizedBox(height: 18),
                   Text(
                     'Forgot Passcode',
@@ -988,7 +996,11 @@ class _ForgotPasscodeScreenState extends State<ForgotPasscodeScreen> {
                       SizedBox(
                         width: 32,
                         height: 16,
-                        child: SvgPicture.asset(Assets.Nigerian_Flag, width: 40, height: 30)
+                        child: SvgPicture.asset(
+                          Assets.Nigerian_Flag,
+                          width: 40,
+                          height: 30,
+                        ),
                       ),
                       const SizedBox(width: 5),
                       Text(
@@ -996,7 +1008,11 @@ class _ForgotPasscodeScreenState extends State<ForgotPasscodeScreen> {
                         style: AppTypography.subheading.copyWith(fontSize: 17),
                       ),
                       const Spacer(),
-                      SvgPicture.asset(Assets.locationAlt, width: 20, height: 30,),
+                      SvgPicture.asset(
+                        Assets.locationAlt,
+                        width: 20,
+                        height: 30,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -1160,7 +1176,7 @@ class RecoveryStartkeyScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SvgPicture.asset(  Assets.allPasscodes, width: 60, height: 60),
+                  SvgPicture.asset(Assets.allPasscodes, width: 60, height: 60),
                   const SizedBox(height: 18),
                   Text(
                     'Verify Your Startkey',
@@ -1184,55 +1200,69 @@ class RecoveryStartkeyScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                    Text(
-                    'Enter the Startkey here',
-                    style: AppTypography.subheading.copyWith(fontSize: 17),
+                      Text(
+                        'Enter the Startkey here',
+                        style: AppTypography.subheading.copyWith(fontSize: 17),
+                      ),
+                      SizedBox(width: 10),
+                      AnimatedDottedLoader(),
+                    ],
                   ),
-                  SizedBox(width: 10),
-                  AnimatedDottedLoader()
-                  ],),
-                  
+
                   const SizedBox(height: 56),
-                  Padding(padding: EdgeInsets.fromLTRB(40, 0, 40, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(
-                      6,
-                      (_) =>
-                          Container(width: 30, height: 3, color: Colors.black),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(40, 0, 40, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(
+                        6,
+                        (_) => Container(
+                          width: 30,
+                          height: 3,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
-                  ),
                   ),
                   const SizedBox(height: 28),
                 ],
               ),
             ),
             const SizedBox(height: 100),
-            Padding(padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-            child: _GlassWrapper(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Missing the Key?',
-                    style: AppTypography.subheading.copyWith(fontSize: 16),
-                  ),
-                  const SizedBox(height: 14),
-                  _ActionRow(
-                    icon: SvgPicture.asset( Assets.memoReady, width: 20, height: 20,),
-                    label: 'Send New Startkey',
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 10),
-                  _ActionRow(
-                    icon: SvgPicture.asset( Assets.checks, width: 20, height: 20,),
-                    label: 'Cancel',
-                    onTap: () => context.pop(),
-                  ),
-                ],
+            Padding(
+              padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+              child: _GlassWrapper(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Missing the Key?',
+                      style: AppTypography.subheading.copyWith(fontSize: 16),
+                    ),
+                    const SizedBox(height: 14),
+                    _ActionRow(
+                      icon: SvgPicture.asset(
+                        Assets.memoReady,
+                        width: 20,
+                        height: 20,
+                      ),
+                      label: 'Send New Startkey',
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 10),
+                    _ActionRow(
+                      icon: SvgPicture.asset(
+                        Assets.checks,
+                        width: 20,
+                        height: 20,
+                      ),
+                      label: 'Cancel',
+                      onTap: () => context.pop(),
+                    ),
+                  ],
+                ),
               ),
-            ),)
-            
+            ),
           ],
         ),
       ),
@@ -1259,7 +1289,7 @@ class _ActionRow extends StatelessWidget {
         child: Row(
           children: [
             icon,
-           
+
             const SizedBox(width: 10),
             Text(
               label,

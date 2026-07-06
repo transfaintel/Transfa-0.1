@@ -103,20 +103,20 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
     widget.onMemoChanged(value);
   }
 
-  void _showNotAvailable(){
+  void _showNotAvailable() {
     showDialog(
       context: context,
       barrierDismissible: true,
       barrierColor: Colors.black.withValues(alpha: 0.5),
       useSafeArea: true,
-      builder: (context) => BankUnavailablePopup(bankName: "Wema",),
+      builder: (context) => BankUnavailablePopup(bankName: "Wema"),
     );
   }
 
   void _onBankSelected(BankAccount bank) {
     // Close the multiple accounts sheet
     Navigator.pop(context);
-    
+
     // Show the single account sheet with the selected bank
     showModalBottomSheet(
       context: context,
@@ -154,7 +154,7 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
 
     return Container(
-      height: 620,
+      height: (MediaQuery.of(context).size.height * 0.5),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),
@@ -442,7 +442,7 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                                     color: Colors.black,
                                   ),
                                   decoration: const InputDecoration(
-                                    hintText: 'Tactical Technology Grant',
+                                    hintText: 'Memo: what’s the money for?',
                                     hintStyle: TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -695,16 +695,6 @@ class _MultipleAccountsSheetState extends State<MultipleAccountsSheet> {
                             width: double.infinity,
                             height: 150,
                             padding: const EdgeInsets.all(30),
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(35),
-                            ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

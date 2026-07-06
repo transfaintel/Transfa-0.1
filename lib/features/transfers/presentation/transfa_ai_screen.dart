@@ -85,7 +85,6 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
         .read(transferDraftProvider)
         .copyWith(amount: value);
 
-        
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -154,7 +153,7 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.backgroundAlt,
     body: Stack(
       children: [
         Positioned.fill(
@@ -199,10 +198,12 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
           bottom: 24,
           child: SafeArea(
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 HomeFab(onTap: () => context.go(Routes.dashboard)),
                 const SizedBox(width: 16),
-                Expanded(
+                Container(
+                  width: 250,
                   child: TodayKeypadTabs(
                     keypadActive: _view == TransfaAiView.keypad,
                     onTodayTap: () => _toggle(TransfaAiView.today),
@@ -787,7 +788,7 @@ class _KeypadView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SafeArea(
     child: Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 110),
       child: Column(
         children: [
           Align(
@@ -836,7 +837,7 @@ class _KeypadView extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: AppTypography.displayLarge.copyWith(
-                fontSize: 56,
+                fontSize: 40,
                 fontWeight: FontWeight.w800,
                 color: Colors.black,
                 height: 1.0,
@@ -862,28 +863,15 @@ class _KeypadView extends StatelessWidget {
           GestureDetector(
             onTap: onSend,
             child: Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4EE659), Color(0xFF07B826)],
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF07B826).withValues(alpha: 0.3),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.arrow_upward_rounded,
-                color: Colors.white,
-                size: 36,
+              child: SvgPicture.asset(
+                Assets.sendIcon,
+                width: 78,
+                height: 78,
+                fit: BoxFit.contain,
               ),
             ),
           ),
+          const SizedBox(height: 20),
         ],
       ),
     ),
@@ -934,19 +922,16 @@ class _Keypad extends StatelessWidget {
       height: 78,
       alignment: Alignment.center,
       child: Container(
-        width: 56,
-        height: 44,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFFFB347), Color(0xFFFF7A00)],
-          ),
-          borderRadius: BorderRadius.horizontal(
-            left: Radius.circular(24),
-            right: Radius.circular(10),
-          ),
-        ),
+        width: 78,
+        height: 78,
+
         alignment: Alignment.center,
-        child: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
+        child: SvgPicture.asset(
+          Assets.deleteIcon,
+          width: 32,
+          height: 26,
+          fit: BoxFit.contain,
+        ),
       ),
     ),
   );

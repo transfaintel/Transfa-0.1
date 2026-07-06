@@ -1,4 +1,3 @@
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,10 +21,22 @@ class FaceShotPopupState extends State<FaceShotPopup>
   late Animation<double> _fadeAnimation;
 
   final List<Map<String, dynamic>> _exampleFaces = [
-    {'asset': Assets.magic, 'gradient': [const Color(0xFF00BCF6), const Color(0xFF006EFF)]},
-    {'asset': Assets.Amadioha, 'gradient': [const Color(0xFFB571E3), const Color(0xFF7E2FFF)]},
-    {'asset': Assets.avatarJanelle, 'gradient': [const Color(0xFF00BCF6), const Color(0xFF006EFF)]},
-    {'asset': Assets.Saphirre, 'gradient': [const Color(0xFFB571E3), const Color(0xFF7E2FFF)]},
+    {
+      'asset': Assets.coperateMan,
+      'gradient': [const Color(0xFF00BCF6), const Color(0xFF006EFF)],
+    },
+    {
+      'asset': Assets.casualMan,
+      'gradient': [const Color(0xFFB571E3), const Color(0xFF7E2FFF)],
+    },
+    {
+      'asset': Assets.avatarJanelle,
+      'gradient': [const Color(0xFF00BCF6), const Color(0xFF006EFF)],
+    },
+    {
+      'asset': Assets.Saphirre,
+      'gradient': [const Color(0xFFB571E3), const Color(0xFF7E2FFF)],
+    },
   ];
 
   @override
@@ -36,9 +47,13 @@ class FaceShotPopupState extends State<FaceShotPopup>
       duration: const Duration(milliseconds: 500),
     );
     _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
-    _fadeAnimation = Tween<double>(begin: 0, end: 1)
-        .animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
+        .animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
     _slideController.forward();
   }
 
@@ -82,7 +97,10 @@ class FaceShotPopupState extends State<FaceShotPopup>
                         borderRadius: BorderRadius.circular(45),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 25,
+                          vertical: 25,
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -126,29 +144,35 @@ class FaceShotPopupState extends State<FaceShotPopup>
                               children: [
                                 const SizedBox(height: 10),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     _ExampleFaceCard(
                                       assetPath: _exampleFaces[0]['asset'],
-                                      gradientColors: _exampleFaces[0]['gradient'],
+                                      gradientColors:
+                                          _exampleFaces[0]['gradient'],
                                     ),
                                     _ExampleFaceCard(
-                                      assetPath: _exampleFaces[1]['asset'],
-                                      gradientColors: _exampleFaces[1]['gradient'],
+                                      assetPath: _exampleFaces[3]['asset'],
+                                      gradientColors:
+                                          _exampleFaces[3]['gradient'],
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 15),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     _ExampleFaceCard(
                                       assetPath: _exampleFaces[2]['asset'],
-                                      gradientColors: _exampleFaces[2]['gradient'],
+                                      gradientColors:
+                                          _exampleFaces[2]['gradient'],
                                     ),
                                     _ExampleFaceCard(
-                                      assetPath: _exampleFaces[3]['asset'],
-                                      gradientColors: _exampleFaces[3]['gradient'],
+                                      assetPath: _exampleFaces[1]['asset'],
+                                      gradientColors:
+                                          _exampleFaces[1]['gradient'],
                                     ),
                                   ],
                                 ),
@@ -165,9 +189,15 @@ class FaceShotPopupState extends State<FaceShotPopup>
                                 height: 1.5,
                                 letterSpacing: 0.02,
                                 foreground: Paint()
-                                  ..shader = const LinearGradient(
-                                    colors: [Color(0xFF363636), Colors.black],
-                                  ).createShader(const Rect.fromLTWH(0, 0, 300, 50)),
+                                  ..shader =
+                                      const LinearGradient(
+                                        colors: [
+                                          Color(0xFF363636),
+                                          Colors.black,
+                                        ],
+                                      ).createShader(
+                                        const Rect.fromLTWH(0, 0, 300, 50),
+                                      ),
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -180,7 +210,10 @@ class FaceShotPopupState extends State<FaceShotPopup>
                                   gradient: const LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
-                                    colors: [AppColors.primaryLight, AppColors.primary],
+                                    colors: [
+                                      AppColors.primaryLight,
+                                      AppColors.primary,
+                                    ],
                                   ),
                                   borderRadius: BorderRadius.circular(35),
                                 ),
@@ -210,7 +243,6 @@ class FaceShotPopupState extends State<FaceShotPopup>
   }
 }
 
-
 class _ExampleFaceCard extends StatelessWidget {
   final String assetPath;
   final List<Color> gradientColors;
@@ -223,17 +255,15 @@ class _ExampleFaceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 144,
-      height: 144,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(35),
-      ),
+      width: 124,
+      height: 124,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(35)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(100),
         child: Image.asset(
           assetPath,
-          width: 144,
-          height: 144,
+          width: 124,
+          height: 124,
           fit: BoxFit.cover,
         ),
       ),

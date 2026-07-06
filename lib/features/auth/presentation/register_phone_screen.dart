@@ -26,7 +26,8 @@ class RegisterPhoneScreen extends StatefulWidget {
 
 class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
   final _phone = TextEditingController(text: '0703 208 4888');
-  static const String _validPhoneNumber = '0703 208 4888'; // The expected phone number
+  static const String _validPhoneNumber =
+      '0703 208 4888'; // The expected phone number
 
   @override
   void dispose() {
@@ -36,7 +37,7 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
 
   void _handleContinue() {
     final enteredNumber = _phone.text.trim();
-    
+
     // Check if the entered number matches the expected number
     if (enteredNumber != _validPhoneNumber) {
       // Show the popup if numbers don't match
@@ -83,7 +84,7 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
                       'Continue with your phone',
                       style: AppTypography.displayMedium.copyWith(
                         fontWeight: FontWeight.w800,
-                        fontSize: 26,
+                        fontSize: 21,
                       ),
                     ),
                   ],
@@ -101,13 +102,19 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
                           child: SizedBox(
                             width: 32,
                             height: 26,
-                            child: SvgPicture.asset(Assets.Nigerian_Flag, width: 40, height: 30),
+                            child: SvgPicture.asset(
+                              Assets.Nigerian_Flag,
+                              width: 40,
+                              height: 30,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 7),
                         Text(
                           'Nigeria',
-                          style: AppTypography.subheading.copyWith(fontSize: 17),
+                          style: AppTypography.subheading.copyWith(
+                            fontSize: 17,
+                          ),
                         ),
                       ],
                     ),
@@ -132,7 +139,10 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
                     child: SizedBox(
                       width: 44,
                       height: 44,
-                      child: SvgPicture.asset(Assets.transfaYou, fit: BoxFit.contain),
+                      child: SvgPicture.asset(
+                        Assets.transfaYou,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -156,7 +166,8 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => context.push(Routes.privacyPolicy),
+                              ..onTap = () =>
+                                  context.push(Routes.privacyPolicy),
                           ),
                         ],
                       ),

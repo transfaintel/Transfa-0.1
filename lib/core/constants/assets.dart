@@ -32,7 +32,6 @@ class Assets {
   static const autoCollect = "$_icon/autoCollect.svg";
   static const contactClosed = "$_icon/contactClosed.svg";
 
-
   // ---------- Tile backgrounds ----------
   static const tilePink = '$_icon/Cover.svg';
   static const tileGreen = '$_icon/Cover (3).svg';
@@ -100,7 +99,7 @@ class Assets {
   static const transactionId = '$_icon/Transaction ID.svg';
   static const download = '$_icon/Download.svg';
   static const paySheet = '$_icon/Pay_Sheet.svg';
-    static const globeGreen = '$_icon/Globe_Green.svg';
+  static const globeGreen = '$_icon/Globe_Green.svg';
 
   // ---------- Lock + keypad ----------
   static const locked = '$_icon/LOCKED.svg';
@@ -109,6 +108,7 @@ class Assets {
   static const keypadSendReceive = '$_icon/Keypad - SEND AND RECEIVE.svg';
   static const delete = '$_icon/DELETE.svg';
   static const useFaceId = '$_icon/Use Face ID.svg';
+  static const notificationCenter = '$_icon/notificationCenter.svg';
 
   // ---------- Actions ----------
   static const copy = '$_icon/Copy.svg';
@@ -130,7 +130,7 @@ class Assets {
   static const photoBubble = '$_icon/Photo Bubble.svg';
   static const settings = '$_icon/Vector.svg';
   static const transfaStartkey = '$_icon/TransfaStartkey.svg';
-  static const menu = '$_icon/Menu.svg';  
+  static const menu = '$_icon/Menu.svg';
 
   // ---------- Bubbles ----------
   static const redBubble = '$_icon/redBubbles.svg';
@@ -141,7 +141,6 @@ class Assets {
   static const greenBubbleIncomplete = '$_icon/greenBubblesIncomplete.svg';
   static const blueBubbleIncomplete = '$_icon/blueBubblesIncomplete.svg';
   static const yellowBubbleIncomplete = '$_icon/yellowBubblesIncomplete.svg';
-
 
   // ---------- Wallet / dashboard ----------
   static const home = '$_icon/Home.svg';
@@ -171,9 +170,13 @@ class Assets {
   static const softwareUpdate = '$_icon/softwareUpdate.svg';
   static const markAsRead = '$_icon/markAsRead.svg';
   static const notifications = '$_icon/notifications.svg';
+  static const sendIcon = '$_icon/send.svg';
+  static const deleteIcon = '$_icon/delete.svg';
 
   // ---------- Photos ----------
   static const magic = '$_img/magic_payma.jpg';
+  static const coperateMan = '$_img/corporateMan.png';
+  static const casualMan = '$_img/casualMan.png';
   static const usdBillHand = '$_img/usd_bill_hand.png';
   static const homeEmoji = '$_img/home_emoji.png';
   static const wallpaper = '$_img/Wallpaper.webp';
@@ -189,8 +192,8 @@ class Assets {
   static const ninSlip = '$_img/nin_slip.png';
   static const memoIcon = '$_img/memo_icon.png';
   static const passportSample = '$_img/Passport 2.png';
-  static const Amadioha= '$_img/Amadioha.png';
-  static const Saphirre= '$_img/Saphirre.png';
-  static const bankOfAmerica= '$_img/boa.png';
+  static const Amadioha = '$_img/Amadioha.png';
+  static const Saphirre = '$_img/Saphirre.png';
+  static const bankOfAmerica = '$_img/boa.png';
   static const notRecognized = '$_icon/notRecognized.svg';
 }
