@@ -85,7 +85,6 @@ class DashboardScreen extends ConsumerWidget {
                 user,
                 wallet.maybeWhen(data: (w) => w.ngnBalance, orElse: () => 0),
               ),
-              onTap: () => context.push(Routes.wallet),
             ),
             const SizedBox(height: 32),
             // App icon grid
@@ -218,7 +217,7 @@ class _BalanceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onAddMoney,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
         child: BackdropFilter(

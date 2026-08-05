@@ -70,16 +70,18 @@ class _OrbitHero extends StatelessWidget {
   Widget build(BuildContext context) {
     // Faded floating brand bubbles around the central "t" mark.
     final orbitIcons = const [
-      _OrbitIcon(asset: Assets.cashDrop, color: Color(0x33007AFF)),
-      _OrbitIcon(asset: Assets.spendCurrency, color: Color(0x3307B826)),
-      _OrbitIcon(asset: Assets.countryFlags, color: Color(0x33FF9F0A)),
-      _OrbitIcon(asset: Assets.verifiedWorldwide, color: Color(0x3300C2FF)),
-      _OrbitIcon(asset: Assets.privacy, color: Color(0x33F41E42)),
-      _OrbitIcon(asset: Assets.transfaWallet, color: Color(0x33CB6BBA)),
+      _OrbitIcon(asset: Assets.faceShot1),
+      _OrbitIcon(asset: Assets.OpenAI),
+      _OrbitIcon(asset: Assets.faceShot3),
+      _OrbitIcon(asset: Assets.tiktok),
+      _OrbitIcon(asset: Assets.heart),
+      _OrbitIcon(asset: Assets.Apple),
+      _OrbitIcon(asset: Assets.faceShot2),
+      _OrbitIcon(asset: Assets.Airplane),
     ];
     return LayoutBuilder(
       builder: (_, c) {
-        final r = min(c.maxWidth, c.maxHeight) * 0.30;
+        final r = min(c.maxWidth, c.maxHeight) * 0.28;
         return Stack(
           alignment: Alignment.center,
           children: [
@@ -89,7 +91,7 @@ class _OrbitHero extends StatelessWidget {
                   r * cos(angle + i * (2 * pi / orbitIcons.length)),
                   r * sin(angle + i * (2 * pi / orbitIcons.length)),
                 ),
-                child: Opacity(opacity: 0.35, child: orbitIcons[i]),
+                child: Opacity(opacity: 1, child: orbitIcons[i]),
               ),
             const TransfaLogo(size: 84),
           ],
@@ -101,18 +103,14 @@ class _OrbitHero extends StatelessWidget {
 
 class _OrbitIcon extends StatelessWidget {
   final String asset;
-  final Color color;
-  const _OrbitIcon({required this.asset, required this.color});
+  const _OrbitIcon({required this.asset});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      width: 60,
+      height: 60,
+
       padding: const EdgeInsets.all(8),
       child: SvgPicture.asset(asset, fit: BoxFit.contain),
     );

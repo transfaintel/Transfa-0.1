@@ -27,20 +27,17 @@ class _EnterCorrectCodePopupState extends State<EnterCorrectCodePopup>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    
+
     // Fade in animation
     _fadeAnimation = Tween<double>(
       begin: 0,
       end: 1,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
+
     _fadeController.forward();
 
-    // Auto close after 3 seconds with fade out
-    Future.delayed(const Duration(seconds: 3), () {
+    // Auto close after 1 seconds with fade out
+    Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         _fadeController.reverse().then((_) {
           if (mounted) {

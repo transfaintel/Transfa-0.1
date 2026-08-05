@@ -48,7 +48,7 @@ class AddMoneyScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _WalletPill(onTap: () => context.go(Routes.wallet)),
+                // _WalletPill(onTap: () => context.go(Routes.wallet)),
               ],
             ),
           ],
@@ -269,7 +269,9 @@ class _ShareWidget extends StatelessWidget {
                     child: const _ActionPill(
                       label: 'CashDrop',
                       svgAsset: Assets.cashDrop,
-                      bg: Color(0xFF1976FF), // Blue gradient like ViewBalancePopup
+                      bg: Color(
+                        0xFF1976FF,
+                      ), // Blue gradient like ViewBalancePopup
                     ),
                   ),
                 ],

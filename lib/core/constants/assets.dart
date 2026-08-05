@@ -95,11 +95,14 @@ class Assets {
   static const searchBubble = '$_icon/Search Bubble (Bright).svg';
   static const cashDropBlue = '$_icon/CashDrop_blue.svg';
   static const receiptBubble = '$_icon/RECEIPT.svg';
+  static const receiptBubbleDark = '$_icon/ReceiptBubbleDark.svg';
   static const union = '$_icon/Union.svg';
   static const transactionId = '$_icon/Transaction ID.svg';
   static const download = '$_icon/Download.svg';
   static const paySheet = '$_icon/Pay_Sheet.svg';
   static const globeGreen = '$_icon/Globe_Green.svg';
+  static const arrowUp = '$_icon/arrowUp.svg';
+  static const arrowDown = '$_icon/arrowDown.svg';
 
   // ---------- Lock + keypad ----------
   static const locked = '$_icon/LOCKED.svg';
@@ -172,6 +175,23 @@ class Assets {
   static const notifications = '$_icon/notifications.svg';
   static const sendIcon = '$_icon/send.svg';
   static const deleteIcon = '$_icon/delete.svg';
+  static const tiktok = '$_icon/TikTok.svg';
+  static const faceShot1 = '$_icon/FaceShot1.svg';
+  static const faceShot2 = '$_icon/FaceShot2.svg';
+  static const faceShot3 = '$_icon/FaceShot3.svg';
+  static const OpenAI = '$_icon/OpenAI.svg';
+  static const heart = '$_icon/Heart.svg';
+  static const Airplane = '$_icon/Airplane.svg';
+  static const Apple = '$_icon/apple.svg';
+  static const secure = '$_icon/Secure.svg';
+  static const phoneRound = '$_icon/Phone_round.svg';
+  static const call = '$_icon/Call.svg';
+  static const privacyHand = '$_icon/PrivacyHand.svg';
+  static const settingsBadge = '$_icon/SettingsBadge.svg';
+  static const cashDropContacts = '$_icon/CashDropContacts.svg';
+  static const toggleOn = '$_icon/toggleOn.svg';
+  static const toggleOff = '$_icon/toggleOff.svg';
+  static const memoGrey = '$_icon/memoGrey.svg';
 
   // ---------- Photos ----------
   static const magic = '$_img/magic_payma.jpg';

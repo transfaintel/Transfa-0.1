@@ -160,7 +160,6 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
     ]),
     _Section('Home & dashboard', [
       _Item('Dashboard (Home)', Routes.dashboard),
-      _Item('Wallet detail (View balance)', Routes.wallet),
       _Item('Wallet widget (For everything you do)', Routes.walletWidget),
       _Item('Add Money', Routes.addMoney),
     ]),
@@ -327,8 +326,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   _convertSheetFromCurrency = _convertSheetToCurrency;
                   _convertSheetToCurrency = temp;
                   final tempAmount = _convertSheetAmount;
-                  _convertSheetAmount = _convertSheetConvertedAmount.toStringAsFixed(2);
-                  _convertSheetConvertedAmount = double.parse(tempAmount.replaceAll(',', ''));
+                  _convertSheetAmount = _convertSheetConvertedAmount
+                      .toStringAsFixed(2);
+                  _convertSheetConvertedAmount = double.parse(
+                    tempAmount.replaceAll(',', ''),
+                  );
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Currency swapped!')),
@@ -351,8 +353,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                         _convertSheetFromCurrency = _convertSheetToCurrency;
                         _convertSheetToCurrency = temp;
                         final tempAmount = _convertSheetAmount;
-                        _convertSheetAmount = _convertSheetConvertedAmount.toStringAsFixed(2);
-                        _convertSheetConvertedAmount = double.parse(tempAmount.replaceAll(',', ''));
+                        _convertSheetAmount = _convertSheetConvertedAmount
+                            .toStringAsFixed(2);
+                        _convertSheetConvertedAmount = double.parse(
+                          tempAmount.replaceAll(',', ''),
+                        );
                       });
                       Navigator.pop(context);
                     },
@@ -403,8 +408,11 @@ class _DevMenuScreenState extends State<DevMenuScreen> {
                   _summaryNotesFromCurrency = _summaryNotesToCurrency;
                   _summaryNotesToCurrency = temp;
                   final tempAmount = _summaryNotesAmount;
-                  _summaryNotesAmount = _summaryNotesConvertedAmount.toStringAsFixed(2);
-                  _summaryNotesConvertedAmount = double.parse(tempAmount.replaceAll(',', ''));
+                  _summaryNotesAmount = _summaryNotesConvertedAmount
+                      .toStringAsFixed(2);
+                  _summaryNotesConvertedAmount = double.parse(
+                    tempAmount.replaceAll(',', ''),
+                  );
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Currency swapped!')),
@@ -730,7 +738,8 @@ class _BottomSheetTestSection extends StatelessWidget {
               // Dollar Account Sheet Item
               _BottomSheetRow(
                 label: 'Dollar Account Sheet (USD)',
-                description: 'Shown for USD transactions with dispute protection',
+                description:
+                    'Shown for USD transactions with dispute protection',
                 onTap: () {
                   showModalBottomSheet(
                     context: context,
@@ -759,7 +768,7 @@ class _BottomSheetTestSection extends StatelessWidget {
                   );
                 },
               ),
-              
+
               const Divider(
                 height: 1,
                 indent: 16,
@@ -810,7 +819,8 @@ class _BottomSheetTestSection extends StatelessWidget {
               // Send Dollars Sheet Item
               _BottomSheetRow(
                 label: 'Send Dollars Sheet (USD)',
-                description: 'International USD transfer with routing and SWIFT',
+                description:
+                    'International USD transfer with routing and SWIFT',
                 onTap: () {
                   showModalBottomSheet(
                     context: context,
@@ -853,7 +863,8 @@ class _BottomSheetTestSection extends StatelessWidget {
               // Summary Notes Sheet Item
               _BottomSheetRow(
                 label: 'Summary Notes Sheet',
-                description: 'Shows detailed transaction summary with exchange rates',
+                description:
+                    'Shows detailed transaction summary with exchange rates',
                 onTap: () {
                   showModalBottomSheet(
                     context: context,

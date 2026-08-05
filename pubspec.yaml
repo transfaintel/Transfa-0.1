@@ -32,6 +32,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: SegoeScript
+      fonts:
+        - asset: assets/fonts/segoesc.ttf
+
   assets:
     - assets/icons/
     - assets/images/

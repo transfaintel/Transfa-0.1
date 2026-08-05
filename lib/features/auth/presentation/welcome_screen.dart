@@ -23,8 +23,10 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1000))..forward();
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  )..forward();
   Timer? _timer;
   bool _isNavigating = false;
   double _dragOffset = 0;
@@ -39,36 +41,43 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     if (_isNavigating) return;
     _isNavigating = true;
     _timer?.cancel();
-    
+
     if (mounted) {
       // Navigate with slide-up transition
-      Navigator.of(context).push(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const DashboardScreen(), // Replace with your actual dashboard widget
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(0.0, 1.0);
-            const end = Offset.zero;
-            const curve = Curves.easeOutCubic;
-            
-            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            var offsetAnimation = animation.drive(tween);
-            
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-          transitionDuration: const Duration(milliseconds: 500),
-        ),
-      ).then((_) {
-        // Reset navigation flag when returning to this screen
-        if (mounted) {
-          setState(() {
-            _isNavigating = false;
-            _dragOffset = 0;
+      Navigator.of(context)
+          .push(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const DashboardScreen(), // Replace with your actual dashboard widget
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(0.0, 1.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeOutCubic;
+
+                    var tween = Tween(
+                      begin: begin,
+                      end: end,
+                    ).chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+
+                    return SlideTransition(
+                      position: offsetAnimation,
+                      child: child,
+                    );
+                  },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+          )
+          .then((_) {
+            // Reset navigation flag when returning to this screen
+            if (mounted) {
+              setState(() {
+                _isNavigating = false;
+                _dragOffset = 0;
+              });
+            }
           });
-        }
-      });
     }
   }
 
@@ -90,7 +99,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
           setState(() {
             // Only allow upward drag (negative delta)
             if (details.delta.dy < 0) {
-              _dragOffset = (_dragOffset + details.delta.dy.abs()).clamp(0, 200);
+              _dragOffset = (_dragOffset + details.delta.dy.abs()).clamp(
+                0,
+                200,
+              );
             }
           });
         },
@@ -117,15 +129,21 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                     child: FadeTransition(
                       opacity: _c,
                       child: ScaleTransition(
-                        scale: Tween(begin: 0.9, end: 1.0)
-                            .animate(CurvedAnimation(parent: _c, curve: Curves.easeOutBack)),
+                        scale: Tween(begin: 0.9, end: 1.0).animate(
+                          CurvedAnimation(
+                            parent: _c,
+                            curve: Curves.easeOutBack,
+                          ),
+                        ),
                         child: ShaderMask(
-                          shaderCallback: (rect) => AppColors.warmHandwritten.createShader(rect),
+                          shaderCallback: (rect) =>
+                              AppColors.warmHandwritten.createShader(rect),
                           child: Text(
                             'Hello\n$firstName',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.caveat(
-                              fontSize: 76,
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontFamily: 'SegoeScript',
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                               height: 1.05,
@@ -138,7 +156,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                 ),
                 Text(
                   'Swipe up to go home',
-                  style: AppTypography.body.copyWith(fontSize: 18, color: AppColors.textPrimary),
+                  style: AppTypography.body.copyWith(
+                    fontSize: 18,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 32),
               ],

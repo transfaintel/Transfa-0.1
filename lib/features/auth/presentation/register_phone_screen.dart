@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,7 +10,7 @@ import '../../../core/router/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../features/auth/presentation/unlock_screens.dart';
-import '../../pop-ups/checkYourNumber_popup.dart'; // Import the popup
+import '../../pop-ups/checkYourNumber_popup.dart';
 
 /// "Welcome Home — Unlock with your phone" for **new users** during the
 /// landing/onboarding flow. Distinct from [WelcomeHomePhoneScreen] (the
@@ -27,7 +28,7 @@ class RegisterPhoneScreen extends StatefulWidget {
 class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
   final _phone = TextEditingController(text: '0703 208 4888');
   static const String _validPhoneNumber =
-      '0703 208 4888'; // The expected phone number
+      '07032084888'; // The expected phone number without spaces
 
   @override
   void dispose() {
@@ -35,8 +36,22 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
     super.dispose();
   }
 
+  String _formatPhoneNumber(String value) {
+    final digits = value.replaceAll(RegExp(r'\s'), '');
+    if (digits.isEmpty) return '';
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length && i < 11; i++) {
+      if (i == 4 || i == 8) {
+        buffer.write(' ');
+      }
+      buffer.write(digits[i]);
+    }
+    return buffer.toString();
+  }
+
   void _handleContinue() {
-    final enteredNumber = _phone.text.trim();
+    final enteredNumber = _phone.text.replaceAll(RegExp(r'\s'), '');
 
     // Check if the entered number matches the expected number
     if (enteredNumber != _validPhoneNumber) {
@@ -83,7 +98,7 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
                     Text(
                       'Continue with your phone',
                       style: AppTypography.displayMedium.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         fontSize: 21,
                       ),
                     ),
@@ -119,18 +134,13 @@ class _RegisterPhoneScreenState extends State<RegisterPhoneScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _PillField(controller: _phone),
+                    _PhoneField(controller: _phone),
                     const SizedBox(height: 18),
-                    _RedLockPill(
-                      label: 'Transfa Passcode',
-                      onTap: _handleContinue, // Use the validation method
-                    ),
+                    _RedLockPill(label: 'Continue', onTap: _handleContinue),
                   ],
                 ),
               ),
               const Spacer(),
-              // 3. Privacy footer — two-people glyph + paragraph + red link.
-              // Anchored to the bottom-center of the screen.
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -214,9 +224,23 @@ class _GlassWrapper extends StatelessWidget {
   }
 }
 
-class _PillField extends StatelessWidget {
+class _PhoneField extends StatelessWidget {
   final TextEditingController controller;
-  const _PillField({required this.controller});
+  const _PhoneField({required this.controller});
+
+  String _formatPhoneNumber(String value) {
+    final digits = value.replaceAll(RegExp(r'\s'), '');
+    if (digits.isEmpty) return '';
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length && i < 11; i++) {
+      if (i == 4 || i == 8) {
+        buffer.write(' ');
+      }
+      buffer.write(digits[i]);
+    }
+    return buffer.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -239,27 +263,39 @@ class _PillField extends StatelessWidget {
           Container(
             width: 30,
             height: 30,
-            decoration: const BoxDecoration(
-              color: AppColors.success,
-              shape: BoxShape.circle,
-            ),
+
             alignment: Alignment.center,
-            child: const Icon(
-              Icons.phone_rounded,
-              color: Colors.white,
-              size: 15,
-            ),
+            child: SvgPicture.asset(Assets.phoneRound, width: 30, height: 30),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: TextField(
-              controller: controller,
-              keyboardType: TextInputType.phone,
-              style: AppTypography.subheading.copyWith(fontSize: 17),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: TextField(
+                controller: controller,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11),
+                  _PhoneInputFormatter(),
+                ],
+                style: AppTypography.subheading.copyWith(fontSize: 17),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                onChanged: (value) {
+                  final formatted = _formatPhoneNumber(value);
+                  if (formatted != value) {
+                    controller.value = TextEditingValue(
+                      text: formatted,
+                      selection: TextSelection.collapsed(
+                        offset: formatted.length,
+                      ),
+                    );
+                  }
+                },
               ),
             ),
           ),
@@ -267,6 +303,24 @@ class _PillField extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _PhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digits = newValue.text.replaceAll(RegExp(r'\s'), '');
+    if (digits.length > 11) {
+      final truncated = digits.substring(0, 11);
+      return TextEditingValue(
+        text: truncated,
+        selection: TextSelection.collapsed(offset: truncated.length),
+      );
+    }
+    return newValue;
   }
 }
 
@@ -288,19 +342,12 @@ class _RedLockPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(40),
         ),
         alignment: Alignment.center,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.lock_rounded, color: Colors.white, size: 22),
-            const SizedBox(width: 10),
-            Text(
-              label,
-              style: AppTypography.subheading.copyWith(
-                color: Colors.white,
-                fontSize: 20,
-              ),
-            ),
-          ],
+        child: Text(
+          label,
+          style: AppTypography.subheading.copyWith(
+            color: Colors.white,
+            fontSize: 17,
+          ),
         ),
       ),
     );

@@ -18,12 +18,16 @@ class RecipientPickerScreen extends ConsumerStatefulWidget {
   const RecipientPickerScreen({super.key});
 
   @override
-  ConsumerState<RecipientPickerScreen> createState() => _RecipientPickerScreenState();
+  ConsumerState<RecipientPickerScreen> createState() =>
+      _RecipientPickerScreenState();
 }
 
 class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
   _PickerMode _mode = _PickerMode.recents;
   final _search = TextEditingController();
+
+  // Track which contact is selected
+  String? _selectedContactName;
 
   // Mock account numbers for contacts - replace with actual data
   static final Map<String, String> _accountNumbers = {
@@ -42,7 +46,7 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
   static final _contacts = [
     _Contact('Amadioha Obi', null, color: Color(0xFFFF375F), red: true),
     _Contact('Dalia Wetzel', Assets.avatarGrace),
-    _Contact('Magic Payma', Assets.magic, selected: true),
+    _Contact('Magic Payma', Assets.magic),
     _Contact('Hugo Menendez', null, color: Color(0xFFD9D9D9)),
     _Contact('Saraphina Gonzalez', null, color: Color(0xFFC9826B)),
   ];
@@ -56,19 +60,72 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
   ];
 
   static final _recents = [
-    _Contact('Magic Payma', Assets.magic, selected: true, subtitle: 'Yesterday', sentUp: true),
-    _Contact('Spotify', null, color: Color(0xFF1ED760), subtitle: '12 minutes ago', sentUp: true, spotify: true),
-    _Contact('Dalia Wetzel', Assets.avatarGrace, subtitle: 'Thursday', sentUp: false),
-    _Contact('Amadioha Obi', null, color: Color(0xFFFF375F), red: true, subtitle: '2 days ago', sentUp: false),
-    _Contact('Sarah Bon', Assets.avatarSarah, subtitle: '5 days ago', sentUp: true),
+    _Contact('Magic Payma', Assets.magic, subtitle: 'Yesterday', sentUp: true),
+    _Contact(
+      'Spotify',
+      null,
+      color: Color(0xFF1ED760),
+      subtitle: '12 minutes ago',
+      sentUp: true,
+      spotify: true,
+    ),
+    _Contact(
+      'Dalia Wetzel',
+      Assets.avatarGrace,
+      subtitle: 'Thursday',
+      sentUp: false,
+    ),
+    _Contact(
+      'Amadioha Obi',
+      null,
+      color: Color(0xFFFF375F),
+      red: true,
+      subtitle: '2 days ago',
+      sentUp: false,
+    ),
+    _Contact(
+      'Sarah Bon',
+      Assets.avatarSarah,
+      subtitle: '5 days ago',
+      sentUp: true,
+    ),
   ];
 
   static final _recentsOlder = [
-    _Contact('Janelle Hickleson', Assets.avatarJanelle, subtitle: '1 week ago', sentUp: false),
-    _Contact('Hugo Menendez', null, color: Color(0xFF6238FB), subtitle: '2 weeks ago', sentUp: true),
-    _Contact('Saraphina Gonzalez', null, color: Color(0xFFC9826B), subtitle: '3 weeks ago', sentUp: true),
-    _Contact('Amadioha Obi', null, color: Color(0xFFFF375F), red: true, subtitle: '1 month ago', sentUp: false),
-    _Contact('Magic Payma', Assets.magic, subtitle: '2 months ago', sentUp: true),
+    _Contact(
+      'Janelle Hickleson',
+      Assets.avatarJanelle,
+      subtitle: '1 week ago',
+      sentUp: false,
+    ),
+    _Contact(
+      'Hugo Menendez',
+      null,
+      color: Color(0xFF6238FB),
+      subtitle: '2 weeks ago',
+      sentUp: true,
+    ),
+    _Contact(
+      'Saraphina Gonzalez',
+      null,
+      color: Color(0xFFC9826B),
+      subtitle: '3 weeks ago',
+      sentUp: true,
+    ),
+    _Contact(
+      'Amadioha Obi',
+      null,
+      color: Color(0xFFFF375F),
+      red: true,
+      subtitle: '1 month ago',
+      sentUp: false,
+    ),
+    _Contact(
+      'Magic Payma',
+      Assets.magic,
+      subtitle: '2 months ago',
+      sentUp: true,
+    ),
   ];
 
   void _pick(_Contact c) {
@@ -78,12 +135,19 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
       'accountNumber': _accountNumbers[c.name] ?? '000 000 0000',
       'image': c.asset ?? Assets.magic,
     };
-    
+
     // Update the transfer draft
-    ref.read(transferDraftProvider.notifier).state =
-        ref.read(transferDraftProvider).copyWith(recipientName: c.name);
-    
+    ref.read(transferDraftProvider.notifier).state = ref
+        .read(transferDraftProvider)
+        .copyWith(recipientName: c.name);
+
     if (mounted) context.pop(result);
+  }
+
+  void _selectContact(String name) {
+    setState(() {
+      _selectedContactName = _selectedContactName == name ? null : name;
+    });
   }
 
   @override
@@ -108,18 +172,20 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
                 _HeaderCard(subtitle: subtitle),
                 const SizedBox(height: 48),
                 if (_mode == _PickerMode.search) ..._searchView(),
-                if (_mode == _PickerMode.recents) ..._sectionView(
-                  icon: const _RecentsCircle(),
-                  label: 'Recents',
-                  items: _recents,
-                  extraItems: _recentsOlder,
-                ),
-                if (_mode == _PickerMode.contacts) ..._sectionView(
-                  icon: const _ContactsCircle(),
-                  label: 'Contacts',
-                  items: _contacts,
-                  extraItems: _contactsMore,
-                ),
+                if (_mode == _PickerMode.recents)
+                  ..._sectionView(
+                    icon: const _RecentsCircle(),
+                    label: 'Recents',
+                    items: _recents,
+                    extraItems: _recentsOlder,
+                  ),
+                if (_mode == _PickerMode.contacts)
+                  ..._sectionView(
+                    icon: const _ContactsCircle(),
+                    label: 'Contacts',
+                    items: _contacts,
+                    extraItems: _contactsMore,
+                  ),
               ],
             ),
             Positioned(
@@ -150,16 +216,46 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
         children: [
           icon,
           const SizedBox(width: 14),
-          Text(label,
-              style: AppTypography.displayMedium
-                  .copyWith(fontWeight: FontWeight.w800, fontSize: 30)),
+          Text(
+            label,
+            style: AppTypography.displayMedium.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 30,
+            ),
+          ),
         ],
       ),
       const SizedBox(height: 14),
-      _ListCard(children: items.map((c) => _ContactRow(contact: c, onTap: () => _pick(c))).toList()),
+      _ListCard(
+        children: items
+            .map(
+              (c) => _ContactRow(
+                contact: c,
+                isSelected: _selectedContactName == c.name,
+                onTap: () {
+                  _selectContact(c.name);
+                  _pick(c);
+                },
+              ),
+            )
+            .toList(),
+      ),
       if (extraItems != null) ...[
         const SizedBox(height: 18),
-        _ListCard(children: extraItems.map((c) => _ContactRow(contact: c, onTap: () => _pick(c))).toList()),
+        _ListCard(
+          children: extraItems
+              .map(
+                (c) => _ContactRow(
+                  contact: c,
+                  isSelected: _selectedContactName == c.name,
+                  onTap: () {
+                    _selectContact(c.name);
+                    _pick(c);
+                  },
+                ),
+              )
+              .toList(),
+        ),
       ],
     ];
   }
@@ -172,20 +268,56 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
       _Contact('Amadioha Obi', null, color: Color(0xFFFF375F), red: true),
     ];
     final others = [
-      _Contact('Magic Payma', Assets.magic, selected: true),
+      _Contact('Magic Payma', Assets.magic),
       _Contact('Sarah Bon', Assets.avatarSarah),
       _Contact('Dalia Wetzel', Assets.avatarGrace),
     ];
     return [
-      Text('Top Result',
-          style: AppTypography.displayMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 20)),
+      Text(
+        'Top Result',
+        style: AppTypography.displayMedium.copyWith(
+          fontWeight: FontWeight.w800,
+          fontSize: 20,
+        ),
+      ),
       const SizedBox(height: 12),
-      _ListCard(children: top.map((c) => _ContactRow(contact: c, onTap: () => _pick(c))).toList()),
+      _ListCard(
+        children: top
+            .map(
+              (c) => _ContactRow(
+                contact: c,
+                isSelected: _selectedContactName == c.name,
+                onTap: () {
+                  _selectContact(c.name);
+                  _pick(c);
+                },
+              ),
+            )
+            .toList(),
+      ),
       const SizedBox(height: 28),
-      Text('Others',
-          style: AppTypography.displayMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 20)),
+      Text(
+        'Others',
+        style: AppTypography.displayMedium.copyWith(
+          fontWeight: FontWeight.w800,
+          fontSize: 20,
+        ),
+      ),
       const SizedBox(height: 12),
-      _ListCard(children: others.map((c) => _ContactRow(contact: c, onTap: () => _pick(c))).toList()),
+      _ListCard(
+        children: others
+            .map(
+              (c) => _ContactRow(
+                contact: c,
+                isSelected: _selectedContactName == c.name,
+                onTap: () {
+                  _selectContact(c.name);
+                  _pick(c);
+                },
+              ),
+            )
+            .toList(),
+      ),
     ];
   }
 }
@@ -195,7 +327,6 @@ class _Contact {
   final String? asset;
   final Color? color;
   final bool red;
-  final bool selected;
   final bool spotify;
   final String? subtitle;
   final bool sentUp;
@@ -204,7 +335,6 @@ class _Contact {
     this.asset, {
     this.color,
     this.red = false,
-    this.selected = false,
     this.spotify = false,
     this.subtitle,
     this.sentUp = true,
@@ -237,13 +367,21 @@ class _HeaderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('New Transfa',
-                    style: AppTypography.displayMedium
-                        .copyWith(fontWeight: FontWeight.w800, fontSize: 28)),
+                Text(
+                  'New Transfa',
+                  style: AppTypography.displayMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 28,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle,
-                    style: AppTypography.body
-                        .copyWith(color: AppColors.textPrimary, fontSize: 17)),
+                Text(
+                  subtitle,
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.textPrimary,
+                    fontSize: 17,
+                  ),
+                ),
               ],
             ),
           ),
@@ -264,10 +402,7 @@ class _ListCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),
         ],
       ),
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -278,21 +413,28 @@ class _ListCard extends StatelessWidget {
 
 class _ContactRow extends StatelessWidget {
   final _Contact contact;
+  final bool isSelected;
   final VoidCallback onTap;
-  const _ContactRow({required this.contact, required this.onTap});
+  const _ContactRow({
+    required this.contact,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final avatar = _avatar();
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(26), // Reduced from 28 to 26
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
-          color: contact.selected ? Colors.black.withValues(alpha: 0.06) : Colors.transparent,
-          borderRadius: BorderRadius.circular(28),
+          color: isSelected
+              ? Colors.black.withValues(alpha: 0.06)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(26), // Reduced from 28 to 26
         ),
         child: Row(
           children: [
@@ -302,8 +444,10 @@ class _ContactRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(contact.name,
-                      style: AppTypography.subheading.copyWith(fontSize: 17)),
+                  Text(
+                    contact.name,
+                    style: AppTypography.subheading.copyWith(fontSize: 17),
+                  ),
                   if (contact.subtitle != null)
                     Row(
                       children: [
@@ -315,9 +459,13 @@ class _ContactRow extends StatelessWidget {
                           color: AppColors.textMuted,
                         ),
                         const SizedBox(width: 4),
-                        Text(contact.subtitle!,
-                            style: AppTypography.caption
-                                .copyWith(color: AppColors.textMuted, fontSize: 16)),
+                        Text(
+                          contact.subtitle!,
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.textMuted,
+                            fontSize: 16,
+                          ),
+                        ),
                       ],
                     ),
                 ],
@@ -332,9 +480,15 @@ class _ContactRow extends StatelessWidget {
   Widget _avatar() {
     if (contact.spotify) {
       return Container(
-        decoration: const BoxDecoration(color: Color(0xFF1ED760), shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1ED760),
+          shape: BoxShape.circle,
+        ),
         padding: const EdgeInsets.all(8),
-        child: SvgPicture.asset('assets/icons/logos_spotify-icon.svg', fit: BoxFit.contain),
+        child: SvgPicture.asset(
+          'assets/icons/logos_spotify-icon.svg',
+          fit: BoxFit.contain,
+        ),
       );
     }
     if (contact.asset != null) {
@@ -410,20 +564,23 @@ class _BottomBar extends StatelessWidget {
       return Row(
         children: [
           _RoundIcon(
-            child: SvgPicture.asset(
-              Assets.contactsDark,
-              width: 35,
-              height: 35,
-            ),
+            child: SvgPicture.asset(Assets.contactsDark, width: 35, height: 35),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _SearchPill(controller: search, onClear: () => search.clear()),
+            child: _SearchPill(
+              controller: search,
+              onClear: () => search.clear(),
+            ),
           ),
           const SizedBox(width: 8),
           _RoundIcon(
             onTap: onClose,
-            child: const Icon(Icons.close_rounded, color: Colors.black, size: 22),
+            child: const Icon(
+              Icons.close_rounded,
+              color: Colors.black,
+              size: 22,
+            ),
           ),
         ],
       );
@@ -432,7 +589,11 @@ class _BottomBar extends StatelessWidget {
       children: [
         _RoundIcon(
           onTap: () => onModeChanged(_PickerMode.search),
-          child: const Icon(Icons.search_rounded, color: Colors.black, size: 22),
+          child: const Icon(
+            Icons.search_rounded,
+            color: Colors.black,
+            size: 22,
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -441,7 +602,7 @@ class _BottomBar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(30), // Reduced from 32 to 30
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.06),
@@ -510,7 +671,7 @@ class _TabButton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
         decoration: BoxDecoration(
           color: active ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(26),
+          borderRadius: BorderRadius.circular(24), // Reduced from 26 to 24
           boxShadow: active
               ? [
                   BoxShadow(
@@ -526,9 +687,14 @@ class _TabButton extends StatelessWidget {
           children: [
             Icon(icon, color: color, size: 22),
             const SizedBox(height: 2),
-            Text(label,
-                style: AppTypography.caption.copyWith(
-                    color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(
+              label,
+              style: AppTypography.caption.copyWith(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
@@ -548,7 +714,7 @@ class _SearchPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(30), // Reduced from 32 to 30
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),

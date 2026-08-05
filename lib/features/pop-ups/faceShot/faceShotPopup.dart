@@ -139,44 +139,25 @@ class FaceShotPopupState extends State<FaceShotPopup>
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    _ExampleFaceCard(
-                                      assetPath: _exampleFaces[0]['asset'],
-                                      gradientColors:
-                                          _exampleFaces[0]['gradient'],
-                                    ),
-                                    _ExampleFaceCard(
-                                      assetPath: _exampleFaces[3]['asset'],
-                                      gradientColors:
-                                          _exampleFaces[3]['gradient'],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 15),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    _ExampleFaceCard(
-                                      assetPath: _exampleFaces[2]['asset'],
-                                      gradientColors:
-                                          _exampleFaces[2]['gradient'],
-                                    ),
-                                    _ExampleFaceCard(
-                                      assetPath: _exampleFaces[1]['asset'],
-                                      gradientColors:
-                                          _exampleFaces[1]['gradient'],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            GridView(
+                              padding: const EdgeInsets.all(16),
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing:
+                                        20, // Equal horizontal spacing
+                                    mainAxisSpacing:
+                                        20, // Equal vertical spacing
+                                    childAspectRatio: 1.0, // Keep it square
+                                  ),
+                              children: _exampleFaces.map((face) {
+                                return _ExampleFaceCard(
+                                  assetPath: face['asset'],
+                                  gradientColors: face['gradient'],
+                                );
+                              }).toList(),
                             ),
                             const SizedBox(height: 20),
                             Text(
@@ -246,24 +227,28 @@ class FaceShotPopupState extends State<FaceShotPopup>
 class _ExampleFaceCard extends StatelessWidget {
   final String assetPath;
   final List<Color> gradientColors;
+  final double size; // Add this
 
   const _ExampleFaceCard({
     required this.assetPath,
     required this.gradientColors,
+    this.size = 124, // Default value
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 124,
-      height: 124,
+      width: size,
+      height: size,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(35)),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(100),
+        borderRadius: BorderRadius.circular(
+          size / 2,
+        ), // Makes it fully circular
         child: Image.asset(
           assetPath,
-          width: 124,
-          height: 124,
+          width: size,
+          height: size,
           fit: BoxFit.cover,
         ),
       ),

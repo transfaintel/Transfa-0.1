@@ -127,7 +127,7 @@ class CurrencyPopupState extends State<CurrencyPopup>
                                         fontSize: 15,
                                         height: 1.5,
                                         letterSpacing: 0.02,
-                                        color: Colors.black54,
+                                        color: Colors.black,
                                       ),
                                     ),
                                   ],
@@ -187,59 +187,36 @@ class _CurrencyOption extends StatelessWidget {
       onTap: () => Navigator.of(context).pop(currency),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        height: 56, // Fixed height for all options
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: const Color(0x1AFCFCFB),
           borderRadius: BorderRadius.circular(35),
         ),
         child: Row(
           children: [
-            label == 'Dollar'
-                ? Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(35),
-                    ),
-                    child: flag,
-                  )
-                : Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(35),
-                      ),
-                      child: flag,
-                    ),
-                  ),
-            const SizedBox(width: 10),
+            // Flag container - consistent size for all
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(35),
+              ),
+              child: Center(child: flag),
+            ),
+            const SizedBox(width: 12),
+            // Label - consistent positioning
             Expanded(
-              child: label == 'Dollar'
-                  ? Text(
-                      label,
-                      style: const TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 17,
-                        letterSpacing: 0.02,
-                        color: Colors.black,
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.fromLTRB(7, 0, 0, 0),
-                      child: Text(
-                        label,
-                        style: const TextStyle(
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 17,
-                          letterSpacing: 0.02,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 17,
+                  letterSpacing: 0.02,
+                  color: Colors.black,
+                ),
+              ),
             ),
           ],
         ),
@@ -254,9 +231,14 @@ class _NigeriaFlag extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: Container(
-        width: 26,
-        height: 20,
-        child: SvgPicture.asset(Assets.Nigerian_Flag, fit: BoxFit.contain),
+        width: 32,
+        height: 24,
+        child: SvgPicture.asset(
+          Assets.Nigerian_Flag,
+          width: 32,
+          height: 24,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }
@@ -268,13 +250,13 @@ class _UsFlag extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: Container(
-        width: 40,
-        height: 40,
+        width: 32,
+        height: 24,
         child: SvgPicture.asset(
           Assets.spendCurrency,
+          width: 32,
+          height: 24,
           fit: BoxFit.contain,
-          height: 40,
-          width: 40,
         ),
       ),
     );
@@ -287,9 +269,14 @@ class _ChinaFlag extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: Container(
-        width: 26,
-        height: 20,
-        child: SvgPicture.asset(Assets.China_Flag, fit: BoxFit.contain),
+        width: 32,
+        height: 24,
+        child: SvgPicture.asset(
+          Assets.China_Flag,
+          width: 32,
+          height: 24,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:transfa/shared/widgets/animated_dotted_loader.dart';
 
@@ -252,7 +253,12 @@ class _UnlockPasscodeScreenState extends State<UnlockPasscodeScreen> {
     return _LockscreenShell(
       header: Column(
         children: [
-          const Icon(Icons.lock_rounded, color: Colors.white, size: 28),
+          SvgPicture.asset(
+            Assets.locked,
+            fit: BoxFit.contain,
+            height: 28,
+            width: 28,
+          ),
           const SizedBox(height: 14),
           Text(
             'Unlock with Your\nTransfa Passcode',
@@ -321,7 +327,7 @@ class _SecurityLockoutState extends State<SecurityLockoutScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.lock_rounded, color: Colors.white, size: 18),
+                SvgPicture.asset(Assets.locked, width: 18, height: 18),
                 const SizedBox(width: 8),
                 Text(
                   'Security lockout after 1 try',
@@ -395,7 +401,12 @@ class _PayPasscodeScreenState extends State<PayPasscodeScreen> {
         padding: const EdgeInsets.fromLTRB(20, 80, 20, 28),
         child: Column(
           children: [
-            const Icon(Icons.lock_rounded, color: Colors.white, size: 28),
+            SvgPicture.asset(
+              Assets.locked,
+              fit: BoxFit.contain,
+              height: 28,
+              width: 28,
+            ),
             const SizedBox(height: 14),
             Text(
               'Enter Your Transfa\nPasscode to Pay',
@@ -675,92 +686,104 @@ class _WelcomeHomePhoneScreenState extends State<WelcomeHomePhoneScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFECECEC),
       body: SafeArea(
-        child: ListView(
+        child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
-          children: [
-            _GlassWrapper(
-              child: Column(
-                children: [
-                  Image.asset(Assets.welcomeHome, width: 72, height: 72),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Welcome Home',
-                    style: AppTypography.subheading.copyWith(
-                      color: const Color(0xFF8E8E93),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 21,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Unlock with your phone',
-                    style: AppTypography.displayMedium.copyWith(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 26,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 22),
-            _GlassWrapper(
-              child: Column(
-                children: [
-                  Row(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                child: _GlassWrapper(
+                  child: Column(
                     children: [
-                      const SizedBox(height: 35),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                        child: SizedBox(
-                          width: 32,
-                          height: 26,
-                          child: SvgPicture.asset(
-                            Assets.Nigerian_Flag,
-                            width: 40,
-                            height: 30,
-                          ),
+                      Image.asset(Assets.welcomeHome, width: 72, height: 72),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Welcome Home',
+                        style: AppTypography.subheading.copyWith(
+                          color: const Color(0xFF8E8E93),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 21,
                         ),
                       ),
-
-                      const SizedBox(width: 7),
+                      const SizedBox(height: 2),
                       Text(
-                        'Nigeria',
-                        style: AppTypography.subheading.copyWith(fontSize: 17),
+                        'Unlock with your phone',
+                        style: AppTypography.displayMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 21,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  _PillField(controller: _phone),
-                  const SizedBox(height: 18),
-                  _RedLockPill(
-                    label: 'Transfa Passcode',
-                    onTap: () => context.push(Routes.unlockPasscode),
+                ),
+              ),
+
+              const SizedBox(height: 22),
+              _GlassWrapper(
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const SizedBox(height: 35),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          child: SizedBox(
+                            width: 32,
+                            height: 26,
+                            child: SvgPicture.asset(
+                              Assets.Nigerian_Flag,
+                              width: 40,
+                              height: 30,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 7),
+                        Text(
+                          'Nigeria',
+                          style: AppTypography.subheading.copyWith(
+                            fontSize: 17,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _PhoneField(controller: _phone),
+                    const SizedBox(height: 18),
+                    _RedLockPill(
+                      label: 'Transfa Passcode',
+                      onTap: () => context.push(Routes.unlockPasscode),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _BottomSquare(
+                    label: 'New\nTransfa',
+                    onTap: () => context.push(Routes.onboarding),
+                    child: SvgPicture.asset(
+                      Assets.logoChromatic,
+                      width: 30,
+                      height: 30,
+                    ),
+                  ),
+                  const SizedBox(width: 18),
+                  _BottomSquare(
+                    label: 'Unlock\nwith Face',
+                    onTap: () => context.push(Routes.faceShotUnlock),
+                    child: SvgPicture.asset(
+                      Assets.faceId,
+                      width: 30,
+                      height: 30,
+                    ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 28),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _BottomSquare(
-                  label: 'New\nTransfa',
-                  onTap: () => context.push(Routes.onboarding),
-                  child: SvgPicture.asset(
-                    Assets.logoChromatic,
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-                const SizedBox(width: 18),
-                _BottomSquare(
-                  label: 'Unlock\nwith Face',
-                  onTap: () => context.push(Routes.faceShotUnlock),
-                  child: SvgPicture.asset(Assets.faceId, width: 30, height: 30),
-                ),
-              ],
-            ),
-          ],
+              const SizedBox(height: 8), // Small bottom padding
+            ],
+          ),
         ),
       ),
     );
@@ -797,9 +820,23 @@ class _GlassWrapper extends StatelessWidget {
   }
 }
 
-class _PillField extends StatelessWidget {
+class _PhoneField extends StatelessWidget {
   final TextEditingController controller;
-  const _PillField({required this.controller});
+  const _PhoneField({required this.controller});
+
+  String _formatPhoneNumber(String value) {
+    final digits = value.replaceAll(RegExp(r'\s'), '');
+    if (digits.isEmpty) return '';
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length && i < 11; i++) {
+      if (i == 4 || i == 8) {
+        buffer.write(' ');
+      }
+      buffer.write(digits[i]);
+    }
+    return buffer.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -822,27 +859,39 @@ class _PillField extends StatelessWidget {
           Container(
             width: 30,
             height: 30,
-            decoration: const BoxDecoration(
-              color: AppColors.success,
-              shape: BoxShape.circle,
-            ),
+
             alignment: Alignment.center,
-            child: const Icon(
-              Icons.phone_rounded,
-              color: Colors.white,
-              size: 15,
-            ),
+            child: SvgPicture.asset(Assets.phoneRound, width: 30, height: 30),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: TextField(
-              controller: controller,
-              keyboardType: TextInputType.phone,
-              style: AppTypography.subheading.copyWith(fontSize: 17),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: TextField(
+                controller: controller,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11),
+                  _PhoneInputFormatter(),
+                ],
+                style: AppTypography.subheading.copyWith(fontSize: 17),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                onChanged: (value) {
+                  final formatted = _formatPhoneNumber(value);
+                  if (formatted != value) {
+                    controller.value = TextEditingValue(
+                      text: formatted,
+                      selection: TextSelection.collapsed(
+                        offset: formatted.length,
+                      ),
+                    );
+                  }
+                },
               ),
             ),
           ),
@@ -850,6 +899,24 @@ class _PillField extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _PhoneInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digits = newValue.text.replaceAll(RegExp(r'\s'), '');
+    if (digits.length > 11) {
+      final truncated = digits.substring(0, 11);
+      return TextEditingValue(
+        text: truncated,
+        selection: TextSelection.collapsed(offset: truncated.length),
+      );
+    }
+    return newValue;
   }
 }
 
@@ -874,13 +941,13 @@ class _RedLockPill extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.lock_rounded, color: Colors.white, size: 22),
+            SvgPicture.asset(Assets.locked, width: 20, height: 20),
             const SizedBox(width: 10),
             Text(
               label,
               style: AppTypography.subheading.copyWith(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 17,
               ),
             ),
           ],
@@ -957,9 +1024,24 @@ class _ForgotPasscodeScreenState extends State<ForgotPasscodeScreen> {
     super.dispose();
   }
 
+  String _formatPhoneNumber(String value) {
+    final digits = value.replaceAll(RegExp(r'\s'), '');
+    if (digits.isEmpty) return '';
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length && i < 11; i++) {
+      if (i == 4 || i == 8) {
+        buffer.write(' ');
+      }
+      buffer.write(digits[i]);
+    }
+    return buffer.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final canContinue = _phone.text.trim().length >= 10;
+    final canContinue = _phone.text.replaceAll(RegExp(r'\s'), '').length >= 10;
+
     return Scaffold(
       backgroundColor: const Color(0xFFECECEC),
       body: SafeArea(
@@ -1035,15 +1117,12 @@ class _ForgotPasscodeScreenState extends State<ForgotPasscodeScreen> {
                         Container(
                           width: 25,
                           height: 25,
-                          decoration: const BoxDecoration(
-                            color: AppColors.success,
-                            shape: BoxShape.circle,
-                          ),
+
                           alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.phone_rounded,
-                            color: Colors.white,
-                            size: 15,
+                          child: SvgPicture.asset(
+                            Assets.phoneRound,
+                            width: 25,
+                            height: 25,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -1051,12 +1130,28 @@ class _ForgotPasscodeScreenState extends State<ForgotPasscodeScreen> {
                           child: TextField(
                             controller: _phone,
                             keyboardType: TextInputType.phone,
-                            onChanged: (_) => setState(() {}),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11),
+                              _PhoneInputFormatter(),
+                            ],
+                            onChanged: (value) {
+                              final formatted = _formatPhoneNumber(value);
+                              if (formatted != value) {
+                                _phone.value = TextEditingValue(
+                                  text: formatted,
+                                  selection: TextSelection.collapsed(
+                                    offset: formatted.length,
+                                  ),
+                                );
+                              }
+                              setState(() {});
+                            },
                             style: AppTypography.subheading.copyWith(
                               fontSize: 20,
                             ),
                             decoration: InputDecoration(
-                              hintText: 'example: 07032084888',
+                              hintText: '0703 208 4888',
                               hintStyle: AppTypography.subheading.copyWith(
                                 color: const Color(0xFFBDBDBD),
                                 fontSize: 18,

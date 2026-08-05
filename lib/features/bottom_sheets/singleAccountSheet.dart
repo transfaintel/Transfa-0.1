@@ -187,7 +187,7 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
         _selectedBankGradientColor2 ?? widget.bankGradientColor2;
 
     return Container(
-      height: (MediaQuery.of(context).size.height * 0.5),
+      height: (MediaQuery.of(context).size.height * 0.7),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),
@@ -507,28 +507,33 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: TextField(
-                                  controller: _memoController,
-                                  onChanged: _onMemoChanged,
-                                  style: const TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    letterSpacing: 0.02,
-                                    color: Colors.black,
+                                child: Padding(
+                                  padding: EdgeInsetsGeometry.symmetric(
+                                    vertical: 15.0,
                                   ),
-                                  decoration: const InputDecoration(
-                                    hintText: 'Memo: what’s the money for?',
-                                    hintStyle: TextStyle(
+                                  child: TextField(
+                                    controller: _memoController,
+                                    onChanged: _onMemoChanged,
+                                    style: const TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
                                       fontSize: 17,
                                       letterSpacing: 0.02,
-                                      color: Color(0xFF8A8A8C),
+                                      color: Colors.black,
                                     ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Memo: what’s the money for?',
+                                      hintStyle: TextStyle(
+                                        fontFamily: 'Roboto',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 17,
+                                        letterSpacing: 0.02,
+                                        color: Color(0xFF8A8A8C),
+                                      ),
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
                                   ),
                                 ),
                               ),

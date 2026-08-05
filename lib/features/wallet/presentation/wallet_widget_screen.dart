@@ -20,16 +20,17 @@ import '../../../shared/widgets/transfa_logo.dart';
 class WalletWidgetScreen extends StatelessWidget {
   const WalletWidgetScreen({super.key});
 
-  void _showComingSoonPopup(BuildContext context, String title, String message) {
+  void _showComingSoonPopup(
+    BuildContext context,
+    String title,
+    String message,
+  ) {
     showDialog(
       context: context,
       barrierDismissible: true,
       barrierColor: Colors.black.withValues(alpha: 0.5),
       useSafeArea: true,
-      builder: (context) => _ComingSoonPopup(
-        title: title,
-        message: message,
-      ),
+      builder: (context) => _ComingSoonPopup(title: title, message: message),
     );
   }
 
@@ -46,7 +47,7 @@ class WalletWidgetScreen extends StatelessWidget {
 
             // 1. Frosted Wallet widget card.
             GestureDetector(
-              onTap: () => context.push(Routes.wallet),
+              // onTap: () => context.push(Routes.wallet),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(32),
                 child: BackdropFilter(
@@ -217,11 +218,7 @@ class _HomePill extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFFFB347),
-              Color(0xFFFF7AA8),
-              Color(0xFFCB6BBA),
-            ],
+            colors: [Color(0xFFFFB347), Color(0xFFFF7AA8), Color(0xFFCB6BBA)],
           ),
           shape: BoxShape.circle,
           boxShadow: [
@@ -276,10 +273,7 @@ class _ComingSoonPopup extends StatefulWidget {
   final String title;
   final String message;
 
-  const _ComingSoonPopup({
-    required this.title,
-    required this.message,
-  });
+  const _ComingSoonPopup({required this.title, required this.message});
 
   @override
   State<_ComingSoonPopup> createState() => _ComingSoonPopupState();
@@ -298,12 +292,14 @@ class _ComingSoonPopupState extends State<_ComingSoonPopup>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
-    _fadeAnimation = Tween<double>(begin: 0, end: 1)
-        .animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
     _slideController.forward();
   }
 
@@ -383,10 +379,11 @@ class _ComingSoonPopupState extends State<_ComingSoonPopup>
                                           Container(
                                             width: 98,
                                             height: 98,
-                                            decoration: BoxDecoration(
-                                              
+                                            decoration: BoxDecoration(),
+                                            child: SvgPicture.asset(
+                                              Assets.easterEgg,
+                                              fit: BoxFit.contain,
                                             ),
-                                            child: SvgPicture.asset( Assets.easterEgg, fit: BoxFit.contain),
                                           ),
                                         ],
                                       ),
@@ -432,12 +429,17 @@ class _ComingSoonPopupState extends State<_ComingSoonPopup>
                                 onTap: _closeWithAnimation,
                                 child: Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
-                                      colors: [Color(0xFFFF4466), Color(0xFFF41E42)],
+                                      colors: [
+                                        Color(0xFFFF4466),
+                                        Color(0xFFF41E42),
+                                      ],
                                     ),
                                     borderRadius: BorderRadius.circular(35),
                                   ),

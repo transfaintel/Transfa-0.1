@@ -200,21 +200,21 @@ class _IdentityVerificationScreenState extends State<IdentityVerificationScreen>
                             child: CameraPreview(_cameraController!),
                           ),
                         )
-                      else if (_isVerifying)
-                        ClipOval(
-                          child: Container(
-                            width: 250,
-                            height: 250,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.7),
-                            ),
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        )
+                      // else if (_isVerifying)
+                      //   ClipOval(
+                      //     child: Container(
+                      //       width: 250,
+                      //       height: 250,
+                      //       decoration: BoxDecoration(
+                      //         color: Colors.black.withValues(alpha: 0.7),
+                      //       ),
+                      //       child: const Center(
+                      //         child: CircularProgressIndicator(
+                      //           color: Colors.white,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   )
                       else if (_capturedFaceImage != null)
                         ClipOval(
                           child: Container(
@@ -228,19 +228,19 @@ class _IdentityVerificationScreenState extends State<IdentityVerificationScreen>
                             ),
                           ),
                         ),
-                      if (_isCapturing)
-                        Container(
-                          width: 220,
-                          height: 220,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              color: Color.fromARGB(255, 236, 235, 236),
-                            ),
-                          ),
-                        ),
+                      // if (_isCapturing)
+                      //   Container(
+                      //     width: 220,
+                      //     height: 220,
+                      //     decoration: const BoxDecoration(
+                      //       shape: BoxShape.circle,
+                      //     ),
+                      //     child: const Center(
+                      //       child: CircularProgressIndicator(
+                      //         color: Color.fromARGB(255, 236, 235, 236),
+                      //       ),
+                      //     ),
+                      //   ),
                     ],
                   ),
                   const SizedBox(height: 36),
@@ -270,28 +270,31 @@ class _IdentityVerificationScreenState extends State<IdentityVerificationScreen>
                       ),
                       const SizedBox(width: 14),
                       Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: AppTypography.body.copyWith(
-                              color: AppColors.textMuted,
-                              fontSize: 15,
-                              height: 1.4,
-                            ),
-                            children: [
-                              const TextSpan(
-                                text:
-                                    'Face Shot will recognize the unique features of your face to verify your identity & keep your Transfa secure. ',
+                        child: GestureDetector(
+                          onTap: () => _showFaceShotPopup(),
+                          child: RichText(
+                            text: TextSpan(
+                              style: AppTypography.body.copyWith(
+                                color: AppColors.textMuted,
+                                fontSize: 15,
+                                height: 1.4,
                               ),
-                              TextSpan(
-                                text: 'See how to take Pro Face Shots…',
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w600,
+                              children: [
+                                const TextSpan(
+                                  text:
+                                      'Face Shot will recognize the unique features of your face to verify your identity & keep your Transfa secure. ',
                                 ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () => _showFaceShotPopup(),
-                              ),
-                            ],
+                                TextSpan(
+                                  text: 'See how to take Pro Face Shots…',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => _showFaceShotPopup(),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

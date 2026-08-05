@@ -4,16 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/constants/assets.dart';
 
-// lib/features/pop-ups/no_internet_popup.dart - Make sure onClose is used
 class NoInternetPopup extends StatefulWidget {
   final VoidCallback? onClose;
-  
+
   const NoInternetPopup({super.key, this.onClose});
 
   @override
   State<NoInternetPopup> createState() => _NoInternetPopupState();
 }
-
 
 class _NoInternetPopupState extends State<NoInternetPopup>
     with SingleTickerProviderStateMixin {
@@ -27,13 +25,13 @@ class _NoInternetPopupState extends State<NoInternetPopup>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
     _animationController.forward();
   }
 
@@ -64,7 +62,7 @@ class _NoInternetPopupState extends State<NoInternetPopup>
         color: Colors.transparent,
         child: Center(
           child: GestureDetector(
-            onTap: () {},
+            onTap: () {}, // Prevents taps from passing through
             child: SlideTransition(
               position: _slideAnimation,
               child: _NoInternetPopupContent(onClose: closeWithAnimation),
@@ -86,12 +84,14 @@ class _NoInternetPopupContent extends StatelessWidget {
     const platform = MethodChannel('app.settings/wifi');
     try {
       await platform.invokeMethod('openWifiSettings');
-      onClose();
+      // Don't close the popup immediately, let user return from settings
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please open Wi-Fi settings from your device settings'),
+            content: Text(
+              'Please open Wi-Fi settings from your device settings',
+            ),
             duration: Duration(seconds: 2),
           ),
         );
@@ -104,12 +104,14 @@ class _NoInternetPopupContent extends StatelessWidget {
     const platform = MethodChannel('app.settings/cellular');
     try {
       await platform.invokeMethod('openCellularSettings');
-      onClose();
+      // Don't close the popup immediately, let user return from settings
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please open Cellular settings from your device settings'),
+            content: Text(
+              'Please open Cellular settings from your device settings',
+            ),
             duration: Duration(seconds: 2),
           ),
         );
@@ -141,10 +143,11 @@ class _NoInternetPopupContent extends StatelessWidget {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                  width: 60,
-                  height: 60,
-                  child: SvgPicture.asset(Assets.networkUnavailable),
-                )),
+                    width: 60,
+                    height: 60,
+                    child: SvgPicture.asset(Assets.networkUnavailable),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 // Storyline Text
                 const Column(
@@ -272,33 +275,4 @@ class _NoInternetPopupContent extends StatelessWidget {
       ),
     );
   }
-}
-
-// Overlay method to show popup without Navigator dependency
-OverlayEntry? _currentOverlayEntry;
-
-void showNoInternetPopupOverlay(BuildContext context, OverlayState overlayState) {
-  // Remove existing overlay if any
-  _currentOverlayEntry?.remove();
-  
-  _currentOverlayEntry = OverlayEntry(
-    builder: (context) => Material(
-      color: Colors.black.withOpacity(0.4),
-      child: Center(
-        child: NoInternetPopup(
-          onClose: () {
-            _currentOverlayEntry?.remove();
-            _currentOverlayEntry = null;
-          },
-        ),
-      ),
-    ),
-  );
-  
-  overlayState.insert(_currentOverlayEntry!);
-}
-
-void hideNoInternetPopupOverlay() {
-  _currentOverlayEntry?.remove();
-  _currentOverlayEntry = null;
 }

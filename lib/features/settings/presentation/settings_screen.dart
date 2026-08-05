@@ -24,7 +24,7 @@ class SettingsScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 80, 30, 20),
+          padding: const EdgeInsets.fromLTRB(20, 80, 20, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -34,25 +34,23 @@ class SettingsScreen extends ConsumerWidget {
                   Container(
                     width: 60,
                     height: 60,
-                    decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF5A5A5A),
-                        Color(0xFF000000),
-                      ],
-                      stops: [0.0, 1.0],
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+
                     alignment: Alignment.center,
-                    child: SvgPicture.asset(Assets.settings, width: 44, height: 44, fit: BoxFit.contain),
+                    child: SvgPicture.asset(
+                      Assets.settingsBadge,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                   const SizedBox(width: 14),
-                  Text('Settings',
-                      style: AppTypography.displayLarge.copyWith(
-                          fontSize: 30, fontWeight: FontWeight.w800)),
+                  Text(
+                    'Settings',
+                    style: AppTypography.displayLarge.copyWith(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 36),
@@ -76,16 +74,24 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     _SettingsRow(
-                      icon: SvgPicture.asset(Assets.privacy, width: 30, height: 30),
+                      icon: SvgPicture.asset(
+                        Assets.privacy,
+                        width: 30,
+                        height: 30,
+                      ),
                       label: 'Privacy',
                       onTap: () => context.push(Routes.privacy),
                     ),
-                    const Divider(color: Color(0xFFEEEEEE), height: 1),
+                    const Divider(color: Color(0x080A0A0A), height: 1),
                     _SettingsRow(
                       icon: _GreenTile(
                         child: SizedBox(
-                          width: 30, height: 30,
-                          child: SvgPicture.asset(Assets.security, fit: BoxFit.contain),
+                          width: 30,
+                          height: 30,
+                          child: SvgPicture.asset(
+                            Assets.security,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                       label: 'Security',
@@ -96,10 +102,13 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
               Center(
-                child: Text('Designed by Magic in Ohafia.',
-                    style: AppTypography.caption.copyWith(
-                        color: AppColors.textMuted.withValues(alpha: 0.7),
-                        fontSize: 15)),
+                child: Text(
+                  'Designed by Magic in Ohafia.',
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textMuted.withValues(alpha: 0.7),
+                    fontSize: 15,
+                  ),
+                ),
               ),
               const Spacer(),
               HomeFab(onTap: () => context.go(Routes.dashboard)),
@@ -139,24 +148,35 @@ class _ProfileRow extends StatelessWidget {
             CircleAvatar(
               radius: 28,
               backgroundColor: Colors.grey.shade300,
-              backgroundImage: const AssetImage(Assets.magic),
+              backgroundImage: const AssetImage(Assets.coperateMan),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name,
-                      style: AppTypography.subheading
-                          .copyWith(fontSize: 20, fontWeight: FontWeight.w700)),
-                  Text('Transfa Account & ID.',
-                      style: AppTypography.body
-                          .copyWith(color: AppColors.textMuted, fontSize: 15)),
+                  Text(
+                    name,
+                    style: AppTypography.subheading.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    'Transfa Account & ID.',
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.textMuted,
+                      fontSize: 15,
+                    ),
+                  ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textMuted, size: 16),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textMuted,
+              size: 16,
+            ),
           ],
         ),
       ),
@@ -168,7 +188,11 @@ class _SettingsRow extends StatelessWidget {
   final Widget icon;
   final String label;
   final VoidCallback onTap;
-  const _SettingsRow({required this.icon, required this.label, required this.onTap});
+  const _SettingsRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -182,11 +206,16 @@ class _SettingsRow extends StatelessWidget {
             icon,
             const SizedBox(width: 16),
             Expanded(
-              child: Text(label,
-                  style: AppTypography.subheading.copyWith(fontSize: 17)),
+              child: Text(
+                label,
+                style: AppTypography.subheading.copyWith(fontSize: 17),
+              ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textMuted, size: 16),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textMuted,
+              size: 16,
+            ),
           ],
         ),
       ),

@@ -36,9 +36,9 @@ class AppColors {
 
   // Soft handwritten welcome gradient (used by "Hello Magic" screen)
   static const LinearGradient warmHandwritten = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFFFB774), Color(0xFFFF8AA1), Color(0xFFCB6BBA)],
+    begin: Alignment.topRight,
+    end: Alignment.bottomLeft,
+    colors: [Color(0xFFFFC30F), Color(0xFF9747FF)],
   );
 
   // Primary CTA gradient

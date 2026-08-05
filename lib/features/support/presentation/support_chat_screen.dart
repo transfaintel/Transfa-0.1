@@ -7,7 +7,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/assets.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../shared/widgets/wallpaper_scaffold.dart';
 import 'memo_chat_screen.dart';
 
 /// "Air Support" — lockscreen-style chat anchored to a specific transaction.
@@ -39,19 +38,20 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WallpaperScaffold(
-      darken: 0.30,
-      blur: false,
+    return Scaffold(
+      backgroundColor: AppColors.background,
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        padding: const EdgeInsets.fromLTRB(20, 50, 20, 12),
         child: Column(
           children: [
-            const SupportChatHeaderCard(
+            // Header card - using same configuration as MemoChatScreen
+            const ChatHeaderCard(
               iconAsset: Assets.appIconSupport,
-              title: 'Air Support',
-              subtitle: 'Get help with this money.',
+              title: 'Transfa Support',
+              subtitle: 'Get the help you need.',
             ),
             const SizedBox(height: 18),
+            // Transaction card with same padding as chat bubbles
             const _NewMoneyCard(),
             const SizedBox(height: 18),
             Expanded(
@@ -85,79 +85,83 @@ class _NewMoneyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.fromLTRB(13, 0, 13, 20),
-    child:  ClipRRect(
-      borderRadius: BorderRadius.circular(45),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 26,
-                    backgroundImage: AssetImage(Assets.magic),
-                    backgroundColor: Colors.grey,
-                  ),
-                  const SizedBox(width: 14),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('New Money',
-                          style: AppTypography.body.copyWith(
-                              color: AppColors.success,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600)),
-                      Text('Magic Payma',
-                          style: AppTypography.displayMedium.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 24)),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 28),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    '₦250,000',
-                    style: AppTypography.displayLarge.copyWith(
-                      color: Colors.white,
-                      fontSize: 34,
-                      fontWeight: FontWeight.w800,
-                      // decoration: TextDecoration.lineThrough,
-                      decorationColor: Colors.white.withValues(alpha: 0.6),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(35),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
+        decoration: BoxDecoration(
+          color: const Color(0x1AFCFCFB),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const CircleAvatar(
+                  radius: 26,
+                  backgroundImage: AssetImage(Assets.magic),
+                  backgroundColor: Colors.grey,
+                ),
+                const SizedBox(width: 14),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'New Money',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.success,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.success,
-                      shape: BoxShape.circle,
+                    Text(
+                      'Magic Payma',
+                      style: AppTypography.displayMedium.copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 24,
+                      ),
                     ),
-                    alignment: Alignment.center,
-                    child: const Icon(Icons.arrow_downward_rounded,
-                        color: Colors.white, size: 22),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 28),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  '₦250,000',
+                  style: AppTypography.displayLarge.copyWith(
+                    color: Colors.black,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w800,
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+                const Spacer(),
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.success,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.arrow_downward_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    ));
+    );
   }
 }
 
@@ -174,13 +178,12 @@ class _ReceiptFab extends StatelessWidget {
       child: Container(
         width: 56,
         height: 56,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.22),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+        child: SvgPicture.asset(
+          Assets.receiptBubbleDark,
+          width: 56,
+          height: 56,
+          fit: BoxFit.contain,
         ),
-        padding: const EdgeInsets.all(14),
-        child: SvgPicture.asset(Assets.receiptBubble, fit: BoxFit.contain),
       ),
     );
   }
@@ -200,37 +203,46 @@ class SupportChatHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(100),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-          
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 56,
-                height: 56,
-                child: Image.asset(iconAsset, fit: BoxFit.contain),
-              ),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              Text(title,
+      borderRadius: BorderRadius.circular(35),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
+        decoration: BoxDecoration(
+          color: const Color(0x1AFCFCFB),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 56,
+              height: 56,
+              child: Image.asset(iconAsset, fit: BoxFit.contain),
+            ),
+            const SizedBox(width: 14),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
                   style: AppTypography.displayMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20)),
-              const SizedBox(height: 2),
-              Text(subtitle,
-                  style: AppTypography.body
-                      .copyWith(color: Colors.white, fontSize: 16)),
-            ])
-            ],
-          ),
+                    color: Colors.black,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 28,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: AppTypography.body.copyWith(
+                    color: Colors.black,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:transfa/core/constants/assets.dart';
 import 'package:transfa/features/auth/presentation/welcome_screen.dart';
 
 import '../../../core/router/routes.dart';
@@ -27,7 +29,7 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
 
   void _tap(String v) async {
     if (_isNavigating) return;
-    
+
     setState(() {
       if (!_confirming) {
         if (_first.length < _length) _first += v;
@@ -45,20 +47,25 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
           // Navigate with a clean transition to welcome
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => const WelcomeScreen(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(0.0, 1.0);
-                const end = Offset.zero;
-                const curve = Curves.easeOutCubic;
-                
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                var offsetAnimation = animation.drive(tween);
-                
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const WelcomeScreen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(0.0, 1.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeOutCubic;
+
+                    var tween = Tween(
+                      begin: begin,
+                      end: end,
+                    ).chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+
+                    return SlideTransition(
+                      position: offsetAnimation,
+                      child: child,
+                    );
+                  },
               transitionDuration: const Duration(milliseconds: 500),
             ),
           );
@@ -104,20 +111,32 @@ class _CreatePinScreenState extends ConsumerState<CreatePinScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            const Icon(Icons.lock_rounded, color: Colors.white, size: 28),
+            SvgPicture.asset(
+              Assets.locked,
+              fit: BoxFit.contain,
+              height: 28,
+              width: 28,
+            ),
             const SizedBox(height: 12),
             Text(
               _confirming
                   ? 'Confirm Your Transfa\nPasscode to Continue'
                   : 'Create Your Transfa\nPasscode to Continue',
               textAlign: TextAlign.center,
-              style: AppTypography.heading
-                  .copyWith(color: Colors.white, fontWeight: FontWeight.w400, fontSize: 22),
+              style: AppTypography.heading.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
+                fontSize: 22,
+              ),
             ),
             const SizedBox(height: 26),
             _Dots(length: _length, filled: filled),
             const SizedBox(height: 50),
-            _Keypad(onTap: _tap, onBack: _back, showBack: filled > 0 || _confirming),
+            _Keypad(
+              onTap: _tap,
+              onBack: _back,
+              showBack: filled > 0 || _confirming,
+            ),
             const Spacer(),
           ],
         ),
@@ -157,7 +176,11 @@ class _Keypad extends StatelessWidget {
   final void Function(String) onTap;
   final VoidCallback onBack;
   final bool showBack;
-  const _Keypad({required this.onTap, required this.onBack, required this.showBack});
+  const _Keypad({
+    required this.onTap,
+    required this.onBack,
+    required this.showBack,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -180,8 +203,11 @@ class _Keypad extends StatelessWidget {
               child: showBack
                   ? IconButton(
                       onPressed: onBack,
-                      icon: const Icon(Icons.backspace_outlined,
-                          color: Colors.white, size: 26),
+                      icon: const Icon(
+                        Icons.backspace_outlined,
+                        color: Colors.white,
+                        size: 26,
+                      ),
                     )
                   : const SizedBox.shrink(),
             ),
@@ -201,7 +227,9 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: keys.map((k) => KeypadButton(digit: k, onTap: () => onTap(k))).toList(),
+      children: keys
+          .map((k) => KeypadButton(digit: k, onTap: () => onTap(k)))
+          .toList(),
     );
   }
 }

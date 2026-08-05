@@ -56,7 +56,7 @@ class Routes {
   // Main
   static const dashboard = '/dashboard';
   static const notifications = '/notifications';
-  static const wallet = '/wallet';
+  // static const wallet = '/wallet';
   static const addMoney = '/add-money';
   static const shareAccount = '/share-account';
   static const cashDrop = '/cashdrop';

@@ -53,7 +53,6 @@ import '../../features/transfers/presentation/transfa_ai_screen.dart';
 import '../../features/transfers/presentation/transfer_confirm_screen.dart';
 import '../../features/transfers/presentation/transfer_details_screen.dart';
 import '../../features/transfers/presentation/transfer_screen.dart';
-import '../../features/wallet/presentation/wallet_screen.dart';
 import '../../features/transfers/presentation/choose_country_screen.dart';
 import 'routes.dart';
 
@@ -85,7 +84,7 @@ GoRoute slideRoute(String path, Widget page) {
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: Routes.splash,
+    initialLocation: Routes.welcomeIntro,
     routes: [
       // Boot / pre-auth
       slideRoute(Routes.splash, const SplashScreen()),
@@ -122,7 +121,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // Main
       slideRoute(Routes.dashboard, const DashboardScreen()),
       slideRoute(Routes.notifications, const NotificationsScreen()),
-      slideRoute(Routes.wallet, const WalletScreen()),
       slideRoute(Routes.addMoney, const AddMoneyScreen()),
       slideRoute(Routes.shareAccount, const ShareAccountScreen()),
       slideRoute(Routes.support, const SupportScreen()),

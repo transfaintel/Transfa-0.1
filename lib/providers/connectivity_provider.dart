@@ -3,9 +3,10 @@ import 'dart:async';
 import 'dart:io';
 
 // Provider for connectivity state
-final connectivityProvider = StateNotifierProvider<ConnectivityNotifier, ConnectivityState>((ref) {
-  return ConnectivityNotifier();
-});
+final connectivityProvider =
+    StateNotifierProvider<ConnectivityNotifier, ConnectivityState>((ref) {
+      return ConnectivityNotifier();
+    });
 
 // Provider to check if popup is showing
 final isNoInternetPopupShowingProvider = StateProvider<bool>((ref) => false);
@@ -19,10 +20,7 @@ class ConnectivityState {
     this.hasShownPopup = false,
   });
 
-  ConnectivityState copyWith({
-    bool? isConnected,
-    bool? hasShownPopup,
-  }) {
+  ConnectivityState copyWith({bool? isConnected, bool? hasShownPopup}) {
     return ConnectivityState(
       isConnected: isConnected ?? this.isConnected,
       hasShownPopup: hasShownPopup ?? this.hasShownPopup,
@@ -42,13 +40,12 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
   void _initConnectivity() {
     if (_isInitialized) return;
     _isInitialized = true;
-    
+
     // Check connectivity every 5 seconds
-    _subscription = Stream.periodic(const Duration(seconds: 5))
-        .listen((_) {
+    _subscription = Stream.periodic(const Duration(seconds: 5)).listen((_) {
       _checkConnectivity();
     });
-    
+
     // Immediate check
     _checkConnectivity();
   }
@@ -56,14 +53,15 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
   Future<void> _checkConnectivity() async {
     try {
       // Simple connectivity check - try to reach a reliable host
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(const Duration(seconds: 3));
-      
+      final result = await InternetAddress.lookup(
+        'google.com',
+      ).timeout(const Duration(seconds: 3));
+
       final isConnected = result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-      
+
       if (state.isConnected != isConnected) {
         state = state.copyWith(isConnected: isConnected);
-        
+
         if (!isConnected) {
           // Reset popup shown flag when connection is lost
           state = state.copyWith(hasShownPopup: false);

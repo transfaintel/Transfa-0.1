@@ -305,7 +305,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
 
     return Container(
-      height: (MediaQuery.of(context).size.height * 0.5),
+      height: (MediaQuery.of(context).size.height * 0.7),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),
@@ -807,23 +807,23 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    WidgetSpan(
-                                      alignment: PlaceholderAlignment.baseline,
-                                      baseline: TextBaseline.alphabetic,
-                                      child: Transform.translate(
-                                        offset: const Offset(0, -8),
-                                        child: Text(
-                                          _getDecimalPart(parsedAmount),
-                                          style: const TextStyle(
-                                            fontFamily: 'Arial Rounded MT Bold',
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                            letterSpacing: 0.02,
-                                            color: Color(0xFF8A8A8C),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    // WidgetSpan(
+                                    //   alignment: PlaceholderAlignment.baseline,
+                                    //   baseline: TextBaseline.alphabetic,
+                                    //   child: Transform.translate(
+                                    //     offset: const Offset(0, -8),
+                                    //     child: Text(
+                                    //       _getDecimalPart(parsedAmount),
+                                    //       style: const TextStyle(
+                                    //         fontFamily: 'Arial Rounded MT Bold',
+                                    //         fontWeight: FontWeight.w600,
+                                    //         fontSize: 16,
+                                    //         letterSpacing: 0.02,
+                                    //         color: Color(0xFF8A8A8C),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -849,30 +849,35 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: TextField(
-                                  controller: _memoController,
-                                  onChanged: _onMemoChanged,
-                                  style: const TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    letterSpacing: 0.02,
-                                    color: Colors.black,
+                                child: Padding(
+                                  padding: EdgeInsetsGeometry.symmetric(
+                                    vertical: 15.0,
                                   ),
-                                  decoration: InputDecoration(
-                                    hintText: widget.memo.isEmpty
-                                        ? 'Memo: what’s the money for?'
-                                        : widget.memo,
-                                    hintStyle: const TextStyle(
+                                  child: TextField(
+                                    controller: _memoController,
+                                    onChanged: _onMemoChanged,
+                                    style: const TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
                                       fontSize: 17,
                                       letterSpacing: 0.02,
-                                      color: Color(0xFF8A8A8C),
+                                      color: Colors.black,
                                     ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
+                                    decoration: InputDecoration(
+                                      hintText: widget.memo.isEmpty
+                                          ? 'Memo: what’s the money for?'
+                                          : widget.memo,
+                                      hintStyle: const TextStyle(
+                                        fontFamily: 'Roboto',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 17,
+                                        letterSpacing: 0.02,
+                                        color: Color(0xFF8A8A8C),
+                                      ),
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -917,38 +922,20 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                           color: Color(0xFF8A8A8C),
                                         ),
                                       ),
-                                      WidgetSpan(
-                                        alignment:
-                                            PlaceholderAlignment.baseline,
-                                        baseline: TextBaseline.alphabetic,
-                                        child: Transform.translate(
-                                          offset: const Offset(0, -5),
-                                          child: Text(
-                                            _getDecimalPart(widget.userBalance),
-                                            style: const TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 11,
-                                              letterSpacing: 0.02,
-                                              color: Color(0xFF8A8A8C),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
                               ),
-                              Container(
-                                width: 26,
-                                height: 26,
-                                alignment: Alignment.center,
-                                child: SvgPicture.asset(
-                                  Assets.menu,
-                                  width: 18,
-                                  height: 18,
-                                ),
-                              ),
+                              // Container(
+                              //   width: 26,
+                              //   height: 26,
+                              //   alignment: Alignment.center,
+                              //   child: SvgPicture.asset(
+                              //     Assets.menu,
+                              //     width: 18,
+                              //     height: 18,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),

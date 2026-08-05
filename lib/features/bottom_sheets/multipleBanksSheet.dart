@@ -104,7 +104,7 @@ class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
         double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
 
     return Container(
-      height: (MediaQuery.of(context).size.height * 0.5),
+      height: (MediaQuery.of(context).size.height * 0.7),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFCFB).withOpacity(0.5),

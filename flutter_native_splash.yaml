@@ -137,7 +137,7 @@ flutter_native_splash:
   #! ANDROID 12+ configuration:
   android_12:
     # background color
-    color: "#F5F5F5"
+    color: "#FCFCFB"
     # color_dark: "#042a49"
 
     # center-logo
@@ -146,11 +146,11 @@ flutter_native_splash:
     # with background: 960×960 px (fit within circle 640px in diameter)
     # without background: 1152×1152 px (fit within circle 768px in diameter)
     # ensure that the most important design elements of your image are placed within a circular area
-    image: assets/icons/transfa_logo.png
+    # image: assets/launcher_icon_foreground.png
     # image_dark: assets/images/logo/logo-splash2.png
 
     # center-logo background color
-    icon_background_color: "#F5F5F5"
+    icon_background_color: "#FCFCFB"
     # icon_background_color_dark: "#eeeeee"
 
     # branding:

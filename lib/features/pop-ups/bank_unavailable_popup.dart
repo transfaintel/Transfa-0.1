@@ -1,9 +1,10 @@
 // lib/features/pop-ups/bank_unavailable_popup.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/constants/assets.dart';
 
-/// Bank Unavailable Popup with slide animations
+/// Bank Unavailable Popup with slide animations (matching Currency Popup style)
 class BankUnavailablePopup extends StatefulWidget {
   final String bankName;
   final VoidCallback? onContinueWithTransfa;
@@ -26,6 +27,8 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
   late final Animation<Offset> _slideAnimation;
   late final Animation<double> _fadeAnimation;
 
+  bool _isTransfaSelected = true;
+
   @override
   void initState() {
     super.initState();
@@ -33,23 +36,19 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
-    
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
     _animationController.forward();
   }
 
@@ -61,16 +60,19 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
 
   Future<void> closeWithAnimation() async {
     if (_animationController.isAnimating) return;
-    
-    // Reverse the animation
+
     await _animationController.reverse();
-    
+
     if (mounted) {
-      // Call onClose callback if provided
       widget.onClose?.call();
-      // Navigate back
       Navigator.of(context).pop();
     }
+  }
+
+  void _toggleTransfa() {
+    setState(() {
+      _isTransfaSelected = !_isTransfaSelected;
+    });
   }
 
   @override
@@ -82,235 +84,216 @@ class _BankUnavailablePopupState extends State<BankUnavailablePopup>
           await closeWithAnimation();
         }
       },
-      child: Material(
-        color: Colors.transparent,
-        child: Center(
-          child: GestureDetector(
-            onTap: () {
-              // Close on tapping outside
-              closeWithAnimation();
-            },
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: GestureDetector(
-                  onTap: () {}, // Prevent closing when tapping inside
-                  child: _BankUnavailableContent(
-                    bankName: widget.bankName,
-                    onContinue: () {
-                      widget.onContinueWithTransfa?.call();
-                      closeWithAnimation();
-                    },
-                    onClose: closeWithAnimation,
+      child: GestureDetector(
+        onTap: closeWithAnimation,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Center(
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  width: 270,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(108, 163, 163, 163),
+                    borderRadius: BorderRadius.circular(45),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(45),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0x20FFFFFF),
+                            borderRadius: BorderRadius.circular(45),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Header Section
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: 60,
+                                        height: 60,
+
+                                        alignment: Alignment.center,
+                                        child: SvgPicture.asset(
+                                          Assets.networkUnavailable,
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 18),
+                                      const Text(
+                                        'Bank Unavailable',
+                                        style: TextStyle(
+                                          fontFamily: 'Arial Rounded MT Bold',
+                                          fontSize: 20,
+                                          letterSpacing: 0.02,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'The money could not be sent because "${widget.bankName}" is unavailable.',
+                                        style: const TextStyle(
+                                          fontFamily: 'Roboto',
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 15,
+                                          height: 1.5,
+                                          letterSpacing: 0.02,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        'Continue with Transfa?',
+                                        style: TextStyle(
+                                          fontFamily: 'Roboto',
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 15,
+                                          height: 1.5,
+                                          letterSpacing: 0.02,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                // Transfa Option with Toggle
+                                GestureDetector(
+                                  onTap: _toggleTransfa,
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x1AFCFCFB),
+                                      borderRadius: BorderRadius.circular(35),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius: BorderRadius.circular(
+                                              35,
+                                            ),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: SvgPicture.asset(
+                                            Assets.transfaLife,
+                                            width: 20,
+                                            height: 20,
+                                            fit: BoxFit.contain,
+                                            colorFilter: const ColorFilter.mode(
+                                              Colors.white,
+                                              BlendMode.srcIn,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Expanded(
+                                          child: Text(
+                                            'Transfa',
+                                            style: TextStyle(
+                                              fontFamily: 'Roboto',
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 17,
+                                              letterSpacing: 0.02,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                        SvgPicture.asset(
+                                          _isTransfaSelected
+                                              ? Assets.checkGreen
+                                              : "",
+                                          width: 26,
+                                          height: 26,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                // Continue Button
+                                GestureDetector(
+                                  onTap: () {
+                                    if (_isTransfaSelected) {
+                                      widget.onContinueWithTransfa?.call();
+                                    }
+                                    closeWithAnimation();
+                                  },
+                                  child: Container(
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Color(0xFFFF4466),
+                                          Color(0xFFF41E42),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(35),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      _isTransfaSelected
+                                          ? 'Continue'
+                                          : 'Cancel',
+                                      style: const TextStyle(
+                                        fontFamily: 'Roboto',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 17,
+                                        height: 1.5,
+                                        letterSpacing: 0.02,
+                                        color: Color(0xFFFCFCFB),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _BankUnavailableContent extends StatelessWidget {
-  final String bankName;
-  final VoidCallback onContinue;
-  final VoidCallback onClose;
-
-  const _BankUnavailableContent({
-    required this.bankName,
-    required this.onContinue,
-    required this.onClose,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 270,
-      height: 440,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFCFCFB).withOpacity(0.5),
-        borderRadius: BorderRadius.circular(45),
-      ),
-      child: Column(
-        children: [
-          // Notification Story Card
-          Container(
-            width: 246,
-            height: 250,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Column(
-              children: [
-                // Network Unavailable Icon
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    child: SvgPicture.asset(Assets.networkUnavailable),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Storyline Text
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Bank Unavailable',
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20,
-                        height: 1.5,
-                        letterSpacing: 0.02,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'The money could not be sent because "$bankName" is unavailable.',
-                      style: const TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 17,
-                        height: 1.5,
-                        letterSpacing: 0.02,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Continue with Transfa?',
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 17,
-                        height: 1.5,
-                        letterSpacing: 0.02,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Options Card
-          Container(
-            width: 246,
-            height: 153,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Column(
-              children: [
-                // Transfa Option Button
-                GestureDetector(
-                  onTap: onContinue,
-                  child: Container(
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFCFCFB).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(35),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        children: [
-                          // Transfa small icon
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(35),
-                            ),
-                            child: Center(
-                              child: SvgPicture.asset(
-                                Assets.transfaLife,
-                                width: 16,
-                                height: 20,
-                                fit: BoxFit.contain,
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.white,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'Transfa',
-                              style: const TextStyle(
-                                fontFamily: 'Roboto',
-                                fontWeight: FontWeight.w400,
-                                fontSize: 16,
-                                height: 1.4,
-                                letterSpacing: 0.02,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: 26,
-                            height: 26,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(35),
-                            ),
-                            child: Container(
-                              width: 16,
-                              height: 16,
-                              child: SvgPicture.asset(Assets.checkGreen),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Continue Button
-                GestureDetector(
-                  onTap: onContinue,
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFFFF4466), Color(0xFFF41E42)],
-                      ),
-                      borderRadius: BorderRadius.circular(35),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 17,
-                          height: 1.5,
-                          letterSpacing: 0.02,
-                          color: Color(0xFFFCFCFB),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -325,15 +308,12 @@ Future<void> showBankUnavailablePopup(
   return showDialog(
     context: context,
     barrierDismissible: false,
-    barrierColor: Colors.black.withOpacity(0.7),
+    barrierColor: Colors.transparent,
     useRootNavigator: true,
     builder: (dialogContext) => BankUnavailablePopup(
       bankName: bankName,
       onContinueWithTransfa: onContinueWithTransfa,
-      onClose: () {
-        // This is called when the animation completes
-        // The pop is handled in closeWithAnimation
-      },
+      onClose: () {},
     ),
   );
 }
