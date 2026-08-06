@@ -24,6 +24,11 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final wallet = ref.watch(walletProvider);
     final user = ref.watch(currentUserProvider) ?? MockData.currentUser;
+    final balance = wallet.maybeWhen(
+      data: (w) => w.ngnBalance,
+      orElse: () => 0,
+    );
+    final showAddMoney = balance < 50000; // Show only if balance < N50k
 
     return WallpaperScaffold(
       darken: 0.35,
@@ -50,8 +55,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 40),
-            // "🏠 Home" title — long-press opens the Dev menu so every
-            // screen in the app is reachable during development.
+            // "🏠 Home" title — long-press opens the Dev menu
             Padding(
               padding: const EdgeInsets.only(left: 24),
               child: GestureDetector(
@@ -76,48 +80,45 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(height: 50),
             _BalanceWidget(
               user: user,
-              balance: wallet.maybeWhen(
-                data: (w) => w.ngnBalance,
-                orElse: () => 0,
-              ),
-              onAddMoney: () => _showViewBalancePopup(
-                context,
-                user,
-                wallet.maybeWhen(data: (w) => w.ngnBalance, orElse: () => 0),
-              ),
+              balance: balance,
+              showAddMoney: showAddMoney,
+              onAddMoney: () => _showViewBalancePopup(context, user, balance),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 32), // Equal spacing
             // App icon grid
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _HomeAppIcon(
                   label: 'Settings',
-                  support: false,
-                  background: const Color(0xFF1A1A1A),
+                  // background: const Color(0xFF1A1A1A),
                   onTap: () => context.push(Routes.settings),
-                  child: SvgPicture.asset(Assets.settings, fit: BoxFit.contain),
+                  iconScale: 1,
+                  child: SvgPicture.asset(
+                    Assets.settingsBadge,
+                    fit: BoxFit.contain,
+                  ),
                 ),
                 _HomeAppIcon(
                   label: 'Support',
-                  support: true,
                   background: const Color(0xFF1976FF),
+                  iconScale: 1,
                   onTap: () => context.push(Routes.memoChat),
                   child: Image.asset(Assets.appIconSupport, fit: BoxFit.cover),
                 ),
                 _HomeAppIcon(
                   label: 'Transfa',
-                  support: false,
                   background: const Color(0xFF1A1A1A),
                   onTap: () => context.push(Routes.amount),
                   child: const TransfaMark(size: 32, white: true),
                 ),
                 _HomeAppIcon(
                   label: 'CashDrop',
+                  iconScale: 1,
                   gradient: const LinearGradient(
                     colors: [Color(0xFF00C2FF), Color(0xFF006EFF)],
                   ),
-                  svgAsset: Assets.cashDrop,
+                  svgAsset: Assets.cashDropHome,
                   onTap: () => _showCashDropPopup(context),
                 ),
               ],
@@ -129,7 +130,7 @@ class DashboardScreen extends ConsumerWidget {
                 _HomeAppIcon(
                   label: 'Wallet',
                   background: const Color(0xFF1A1A1A),
-                  iconScale: 0.7,
+                  iconScale: 1,
                   onTap: () => context.push(Routes.walletWidget),
                   child: SvgPicture.asset(
                     Assets.transfaWallet,
@@ -158,11 +159,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  void _showViewBalancePopup(
-    BuildContext context,
-    dynamic user,
-    double balance,
-  ) {
+  void _showViewBalancePopup(BuildContext context, dynamic user, num balance) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -203,16 +200,25 @@ class DashboardScreen extends ConsumerWidget {
 
 class _BalanceWidget extends StatelessWidget {
   final dynamic user;
-  final double balance;
+  final num balance;
+  final bool showAddMoney;
   final VoidCallback? onAddMoney;
-  final VoidCallback? onTap;
 
   const _BalanceWidget({
     required this.user,
     required this.balance,
+    required this.showAddMoney,
     this.onAddMoney,
-    this.onTap,
   });
+
+  String _formatBalance(num amount) {
+    final formatted = AppFormat.ngn(amount);
+    // Remove cents if present
+    if (formatted.contains('.')) {
+      return formatted.split('.').first;
+    }
+    return formatted;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +231,7 @@ class _BalanceWidget extends StatelessWidget {
           child: Container(
             width: double.infinity,
             height: 190,
-            padding: const EdgeInsets.all(30),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20), // Equal padding
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(45),
@@ -234,70 +240,63 @@ class _BalanceWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: const AssetImage(Assets.magic),
-                  backgroundColor: Colors.grey,
+                // User Photo - same size as service icons (60x60)
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFF00BCF6), Color(0xFF006EFF)],
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.asset(Assets.coperateMan, fit: BoxFit.cover),
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 8), // Space between photo and balance
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '₦${balance.truncate().toString()}',
-                              style: AppTypography.displayLarge.copyWith(
-                                color: Colors.white,
-                                fontSize: 30,
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                            WidgetSpan(
-                              alignment: PlaceholderAlignment.baseline,
-                              baseline: TextBaseline.alphabetic,
-                              child: Transform.translate(
-                                offset: const Offset(0, -12),
-                                child: Text(
-                                  '.${AppFormat.ngn(balance).split('.').last}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white.withValues(alpha: 0.7),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      child: Text(
+                        '${_formatBalance(balance)}',
+                        style: TextStyle(
+                          fontFamily: 'Arial Rounded MT Bold',
+                          fontSize: 30,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: onAddMoney,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.20),
-                          borderRadius: BorderRadius.circular(40),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.40),
+                    if (showAddMoney) // Only show if balance < N50k
+                      GestureDetector(
+                        onTap: onAddMoney,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 12,
                           ),
-                        ),
-                        child: Text(
-                          'Add Money',
-                          style: AppTypography.bodyStrong.copyWith(
-                            color: Colors.white,
-                            fontSize: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.20),
+                            borderRadius: BorderRadius.circular(40),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.40),
+                            ),
+                          ),
+                          child: Text(
+                            'Add Money',
+                            style: AppTypography.bodyStrong.copyWith(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ],
@@ -317,11 +316,9 @@ class _HomeAppIcon extends StatelessWidget {
   final Gradient? gradient;
   final double iconScale;
   final VoidCallback? onTap;
-  final bool? support;
 
   const _HomeAppIcon({
     required this.label,
-    this.support,
     this.child,
     this.svgAsset,
     this.background,
@@ -338,61 +335,33 @@ class _HomeAppIcon extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          support == true
-              ? Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: background,
-                    gradient: gradient,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.18),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: SizedBox(
-                      width: 60,
-                      height: 60,
-                      child:
-                          child ??
-                          (svgAsset != null
-                              ? SvgPicture.asset(svgAsset!, fit: BoxFit.contain)
-                              : const SizedBox.shrink()),
-                    ),
-                  ),
-                )
-              : Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: background,
-                    gradient: gradient,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.18),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: SizedBox(
-                      width: 66 * iconScale,
-                      height: 66 * iconScale,
-                      child:
-                          child ??
-                          (svgAsset != null
-                              ? SvgPicture.asset(svgAsset!, fit: BoxFit.contain)
-                              : const SizedBox.shrink()),
-                    ),
-                  ),
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: background,
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.18),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
                 ),
+              ],
+            ),
+            child: Center(
+              child: SizedBox(
+                width: 66 * iconScale,
+                height: 66 * iconScale,
+                child:
+                    child ??
+                    (svgAsset != null
+                        ? SvgPicture.asset(svgAsset!, fit: BoxFit.contain)
+                        : const SizedBox.shrink()),
+              ),
+            ),
+          ),
           const SizedBox(height: 6),
           Text(
             label,

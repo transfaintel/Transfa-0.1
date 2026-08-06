@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/constants/assets.dart';
 import '../../core/theme/app_typography.dart';
+import './homeFab.dart';
 import 'transfa_logo.dart';
 
 /// Repeating header used on the send/recipient/receipt modal cards:
@@ -203,30 +204,6 @@ class _Tab extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Floating home pill (gradient warm) used as the back-to-home affordance.
-class HomeFab extends StatelessWidget {
-  final VoidCallback onTap;
-  const HomeFab({super.key, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 60,
-        height: 60,
-        alignment: Alignment.center,
-        child: SvgPicture.asset(
-          Assets.sweetHome,
-          width: 60,
-          height: 60,
-          fit: BoxFit.contain,
         ),
       ),
     );

@@ -129,7 +129,7 @@ class TransfaAccountSharePopupState extends State<TransfaAccountSharePopup>
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(160),
                                 child: Image.asset(
-                                  Assets.magic,
+                                  Assets.coperateMan,
                                   fit: BoxFit.cover,
                                 ),
                               ),

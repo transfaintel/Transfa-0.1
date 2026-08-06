@@ -8,8 +8,7 @@ import '../../../core/constants/assets.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../shared/widgets/transfa_modal_header.dart';
-import '../../../shared/widgets/wallpaper_scaffold.dart';
+import '../../../shared/widgets/homeFab.dart';
 
 /// "Memo" — lockscreen-style support chat. Frosted header card with the
 /// green Memo icon + title, alternating bubbles (agent frosted, user

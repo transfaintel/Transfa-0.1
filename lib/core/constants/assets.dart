@@ -103,6 +103,14 @@ class Assets {
   static const globeGreen = '$_icon/Globe_Green.svg';
   static const arrowUp = '$_icon/arrowUp.svg';
   static const arrowDown = '$_icon/arrowDown.svg';
+  static const cashDropRoundedBlue = '$_icon/CashDropRoundedBlue.svg';
+  static const cashDropHome = '$_icon/CashDropHome.svg';
+  static const sharingRoundedRed = '$_icon/SharingRoundedRed.svg';
+  static const copyActive = '$_icon/CopyActive.svg';
+  static const copyInactive = '$_icon/Copied.svg';
+  static const addRed = '$_icon/AddRed.svg';
+  static const recieveWhite = '$_icon/ReceiveWhite.svg';
+  static const SettingsBox = '$_icon/SettingsBox.svg';
 
   // ---------- Lock + keypad ----------
   static const locked = '$_icon/LOCKED.svg';

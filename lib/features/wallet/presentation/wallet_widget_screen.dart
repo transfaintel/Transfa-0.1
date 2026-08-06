@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:transfa/shared/widgets/homeFab.dart';
 
 import '../../../core/constants/assets.dart';
 import '../../../core/router/routes.dart';
@@ -101,7 +102,7 @@ class WalletWidgetScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 44),
+            const SizedBox(height: 40),
 
             // 2. Row of three app-icon tiles: Power · Internet · Reeplay.
             Row(
@@ -115,7 +116,7 @@ class WalletWidgetScreen extends StatelessWidget {
                     'You got 7 Days of Power. Share power when available on Transfa.',
                   ),
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 30),
                 _AppIcon(
                   asset: Assets.internetIcon,
                   label: 'Internet',
@@ -125,7 +126,7 @@ class WalletWidgetScreen extends StatelessWidget {
                     'You got 7 Days of Internet. Share photos when Internet is available on Transfa.',
                   ),
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 30),
                 _AppIcon(
                   asset: Assets.reeplayIcon,
                   label: 'Reeplay',
@@ -143,8 +144,8 @@ class WalletWidgetScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _HomePill(onTap: () => context.go(Routes.dashboard)),
-                _AddPill(onTap: () => context.push(Routes.addMoney)),
+                HomeFab(onTap: () => context.go(Routes.dashboard)),
+                Add(onTap: () => context.go(Routes.addMoney)),
               ],
             ),
           ],
@@ -389,7 +390,7 @@ class _ComingSoonPopupState extends State<_ComingSoonPopup>
                                       ),
                                     ),
                                     const SizedBox(height: 18),
-                                    // Title
+                                    // Title - iOS Settings Header style
                                     Material(
                                       color: Colors.transparent,
                                       child: Text(
@@ -397,14 +398,17 @@ class _ComingSoonPopupState extends State<_ComingSoonPopup>
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
                                           fontFamily: 'Arial Rounded MT Bold',
-                                          fontSize: 30,
+                                          fontSize: 32, // Increased from 30
                                           letterSpacing: 0.02,
                                           color: Colors.black,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    // Message
+                                    const SizedBox(
+                                      height: 10,
+                                    ), // Increased from 8
+                                    // Message - iOS Settings style
                                     Material(
                                       color: Colors.transparent,
                                       child: Text(
@@ -413,7 +417,7 @@ class _ComingSoonPopupState extends State<_ComingSoonPopup>
                                         style: const TextStyle(
                                           fontFamily: 'Roboto',
                                           fontWeight: FontWeight.w400,
-                                          fontSize: 17,
+                                          fontSize: 19, // Increased from 17
                                           height: 1.5,
                                           letterSpacing: 0.02,
                                           color: Colors.black,
@@ -423,14 +427,15 @@ class _ComingSoonPopupState extends State<_ComingSoonPopup>
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 20), // Increased from 12
                               // Remind Me Button
                               GestureDetector(
                                 onTap: _closeWithAnimation,
                                 child: Container(
                                   width: double.infinity,
+                                  height: 56, // Fixed height for consistency
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
+                                    vertical: 14,
                                   ),
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
@@ -448,15 +453,16 @@ class _ComingSoonPopupState extends State<_ComingSoonPopup>
                                     'Remind Me',
                                     style: TextStyle(
                                       fontFamily: 'Roboto',
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 17,
+                                      fontWeight: FontWeight
+                                          .w500, // Increased from w400
+                                      fontSize: 19, // Increased from 17
                                       letterSpacing: 0.02,
                                       color: Color(0xFFFCFCFB),
                                     ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 15),
+                              const SizedBox(height: 16), // Increased from 15
                             ],
                           ),
                         ),

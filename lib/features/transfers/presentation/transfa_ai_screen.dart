@@ -13,6 +13,7 @@ import 'transfer_state.dart';
 import '../../../features/bottom_sheets/pay_bottomsheet.dart';
 import '../../../features/bottom_sheets/sendDollarsSheet.dart';
 import '../../../data/mock_api/currency.dart';
+import '../../../shared/widgets/homeFab.dart';
 
 enum TransfaAiView { today, keypad }
 
@@ -31,9 +32,16 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
   String _routingInfo = 'Routing...';
   String _swiftInfo = 'Routing...';
   String _swiftCode = '009234590';
+  String? _selectedTxName;
 
   void _toggle(TransfaAiView v) {
     if (_view != v) setState(() => _view = v);
+  }
+
+  void _selectTx(String name) {
+    setState(() {
+      _selectedTxName = _selectedTxName == name ? null : name;
+    });
   }
 
   void _tap(String d) => setState(() {
@@ -91,8 +99,8 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
       backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(45),
-          topRight: Radius.circular(45),
+          topLeft: Radius.circular(43), // Reduced from 45 to 43
+          topRight: Radius.circular(43), // Reduced from 45 to 43
         ),
       ),
       builder: (context) => PaySheet(
@@ -116,11 +124,10 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
       backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(45),
-          topRight: Radius.circular(45),
+          topLeft: Radius.circular(43), // Reduced from 45 to 43
+          topRight: Radius.circular(43), // Reduced from 45 to 43
         ),
       ),
-
       builder: (context) => SendDollarsSheet(
         amount: _formatted,
         currency: AmountCurrency.usd,
@@ -180,6 +187,8 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
                 ? _TodayView(
                     key: ValueKey('today_${_currency.code}'),
                     currency: _currency,
+                    selectedTxName: _selectedTxName,
+                    onSelectTx: _selectTx,
                   )
                 : _KeypadView(
                     key: const ValueKey(TransfaAiView.keypad),
@@ -221,7 +230,16 @@ class _TransfaAiScreenState extends ConsumerState<TransfaAiScreen> {
 
 class _TodayView extends StatelessWidget {
   final AmountCurrency currency;
-  const _TodayView({super.key, required this.currency});
+  final String? selectedTxName;
+  final Function(String) onSelectTx;
+
+  const _TodayView({
+    super.key,
+    required this.currency,
+    this.selectedTxName,
+    required this.onSelectTx,
+  });
+
   bool get _isUsd => currency == AmountCurrency.usd;
 
   static const _ngnGroup1 = [
@@ -233,7 +251,6 @@ class _TodayView extends StatelessWidget {
       direction: _Dir.sent,
       whenText: 'Right now',
       amount: '₦25,000,000',
-      selected: true,
     ),
     _Tx(
       avatar: _AvatarKind.spotify,
@@ -340,7 +357,6 @@ class _TodayView extends StatelessWidget {
       direction: _Dir.sent,
       whenText: 'Right now',
       amount: '\$277,500',
-      selected: true,
     ),
     _Tx(
       avatar: _AvatarKind.spotify,
@@ -418,7 +434,11 @@ class _TodayView extends StatelessWidget {
         const _RecentsHeader(),
         const SizedBox(height: 14),
         for (var i = 0; i < groups.length; i++) ...[
-          _TxGroup(items: groups[i]),
+          _TxGroup(
+            items: groups[i],
+            selectedTxName: selectedTxName,
+            onSelectTx: onSelectTx,
+          ),
           SizedBox(height: i < groups.length - 1 ? 22 : 140),
         ],
       ],
@@ -530,7 +550,6 @@ class _Tx {
   final String? whenText;
   final _Status? status;
   final String amount;
-  final bool selected;
   const _Tx({
     required this.avatar,
     required this.name,
@@ -540,19 +559,26 @@ class _Tx {
     this.direction,
     this.whenText,
     this.status,
-    this.selected = false,
   });
 }
 
 class _TxGroup extends StatelessWidget {
   final List<_Tx> items;
-  const _TxGroup({required this.items});
+  final String? selectedTxName;
+  final Function(String) onSelectTx;
+
+  const _TxGroup({
+    required this.items,
+    this.selectedTxName,
+    required this.onSelectTx,
+  });
+
   @override
   Widget build(BuildContext context) => Container(
     margin: const EdgeInsets.symmetric(horizontal: 16),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(26), // Reduced from 28 to 26
       boxShadow: [
         BoxShadow(
           color: Colors.black.withValues(alpha: 0.05),
@@ -565,7 +591,11 @@ class _TxGroup extends StatelessWidget {
     child: Column(
       children: [
         for (var i = 0; i < items.length; i++) ...[
-          _TxRow(tx: items[i]),
+          _TxRow(
+            tx: items[i],
+            isSelected: selectedTxName == items[i].name,
+            onTap: () => onSelectTx(items[i].name),
+          ),
           if (i < items.length - 1)
             const Divider(
               height: 1,
@@ -581,51 +611,62 @@ class _TxGroup extends StatelessWidget {
 
 class _TxRow extends StatelessWidget {
   final _Tx tx;
-  const _TxRow({required this.tx});
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _TxRow({
+    required this.tx,
+    required this.isSelected,
+    required this.onTap,
+  });
+
   @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-    decoration: BoxDecoration(
-      color: tx.selected
-          ? Colors.black.withValues(alpha: 0.06)
-          : Colors.transparent,
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Row(
-      children: [
-        SizedBox(width: 52, height: 52, child: _Avatar(tx: tx)),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                tx.name,
-                style: AppTypography.bodyStrong.copyWith(fontSize: 17),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                tx.meta,
-                style: AppTypography.caption.copyWith(
-                  color: AppColors.textMuted,
-                  fontSize: 14,
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? Colors.black.withValues(alpha: 0.06)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(18), // Reduced from 20 to 18
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: 52, height: 52, child: _Avatar(tx: tx)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tx.name,
+                  style: AppTypography.bodyStrong.copyWith(fontSize: 17),
                 ),
-              ),
-              const SizedBox(height: 2),
-              _SubLine(tx: tx),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  tx.meta,
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textMuted,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                _SubLine(tx: tx),
+              ],
+            ),
           ),
-        ),
-        Text(
-          tx.amount,
-          style: AppTypography.bodyStrong.copyWith(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            decorationColor: Colors.black.withValues(alpha: 0.45),
+          Text(
+            tx.amount,
+            style: AppTypography.bodyStrong.copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              decorationColor: Colors.black.withValues(alpha: 0.45),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
@@ -675,13 +716,13 @@ class _SubLine extends StatelessWidget {
       );
     return Row(
       children: [
-        Icon(
-          tx.direction == _Dir.sent
-              ? Icons.arrow_upward_rounded
-              : Icons.arrow_downward_rounded,
-          size: 14,
-          color: AppColors.textMuted,
+        SvgPicture.asset(
+          tx.direction == _Dir.sent ? Assets.arrowUp : Assets.arrowDown,
+          width: 14,
+          height: 14,
+          fit: BoxFit.contain,
         ),
+
         const SizedBox(width: 4),
         Text(
           tx.whenText ?? '',
