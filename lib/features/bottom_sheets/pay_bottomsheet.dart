@@ -5,14 +5,20 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/assets.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../shared/widgets/transfa_logo.dart';
 import '../../../data/mock_api/currency.dart';
-import '../../features/bottom_sheets/multipleAccountsSheet.dart';
-import '../../features/bottom_sheets/singleAccountSheet.dart';
+import '../../../shared/widgets/transfa_logo.dart';
+import '../../features/transfers/presentation/recipient_picker_screen.dart'; // adjust path if needed
 
 // ============================================================
 // PAY SHEET BOTTOM SHEET
 // ============================================================
+//
+// The "To:" field no longer pushes for a result and fills itself in —
+// it opens the recipient picker, and picking a recipient there jumps
+// straight into SingleAccountSheet / MultipleAccountsSheet, closing
+// this sheet along the way. Everything else here (Bank Center field,
+// Summary, Touch to Confirm) is restored as a standalone fallback UI
+// and is untouched by that flow change.
 
 class PaySheet extends StatefulWidget {
   final String amount;
@@ -43,7 +49,6 @@ class _PaySheetState extends State<PaySheet> {
   Color? _selectedBankGradient2;
   String _selectedRecipientName = '';
   String? _selectedRecipientImage;
-  String _selectedAccountNumberDisplay = '';
 
   // Mock data - replace with actual API calls
   final double _userBalance = 50000000.00;
@@ -54,28 +59,6 @@ class _PaySheetState extends State<PaySheet> {
   final String _defaultAccountNumber = '207 922 3313';
   final String _defaultBankName = 'OPay';
   final String? _defaultRecipientImage = Assets.magic;
-
-  // Mock bank accounts for multiple banks scenario
-  final List<BankAccount> _mockBankAccounts = [
-    const BankAccount(
-      name: 'Transfa',
-      logoAsset: Assets.logoSmallWhite,
-      gradientColor1: Color(0xFF000000),
-      gradientColor2: Color(0xFF000000),
-    ),
-    const BankAccount(
-      name: 'FCMB',
-      logoAsset: Assets.bankfcmbRound,
-      gradientColor1: Color(0xFF5C2684),
-      gradientColor2: Color(0xFF5C2684),
-    ),
-    const BankAccount(
-      name: 'OPay',
-      logoAsset: Assets.bankOpay,
-      gradientColor1: Color(0xFFFFFFFF),
-      gradientColor2: Color(0xFFFFFFFF),
-    ),
-  ];
 
   // Getters for current values
   String get _currentRecipientName => _selectedRecipientName.isNotEmpty
@@ -91,6 +74,43 @@ class _PaySheetState extends State<PaySheet> {
 
   String get _currentRecipientImage =>
       _selectedRecipientImage ?? _defaultRecipientImage!;
+
+  double get _totalAmount {
+    final amount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
+    return amount + _transactionFee;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _memoController.text = widget.memo;
+  }
+
+  @override
+  void dispose() {
+    _memoController.dispose();
+    super.dispose();
+  }
+
+  void _onMemoChanged(String value) {
+    widget.onMemoChanged(value);
+  }
+
+  // Opens the recipient picker. Recipient selection itself now closes
+  // this sheet and opens the next one directly — this method just
+  // hands off the amount/currency/memo the picker needs to carry
+  // forward.
+  void _goToRecipientPicker() {
+    context.push(
+      Routes.recipientPick,
+      extra: RecipientPickerArgs(
+        amount: widget.amount,
+        currency: widget.currency,
+        memo: _memoController.text,
+        onMemoChanged: widget.onMemoChanged,
+      ),
+    );
+  }
 
   // Get the appropriate icon for the account number field
   Widget _getAccountIcon() {
@@ -112,14 +132,12 @@ class _PaySheetState extends State<PaySheet> {
 
   // Helper to get bank initials
   String _getBankInitials(String bankName) {
-    // Handle special cases
     if (bankName.toLowerCase() == 'access bank') return 'AB';
     if (bankName.toLowerCase() == 'first bank') return 'FB';
     if (bankName.toLowerCase() == 'zenith bank') return 'ZB';
     if (bankName.toLowerCase() == 'union bank') return 'UB';
     if (bankName.toLowerCase() == 'stanbic ibtc') return 'SI';
 
-    // For other banks, get first letter or first two letters
     final words = bankName.split(' ');
     if (words.length >= 2) {
       return '${words[0][0]}${words[1][0]}'.toUpperCase();
@@ -168,13 +186,10 @@ class _PaySheetState extends State<PaySheet> {
   // Get the appropriate icon for the bank field
   Widget _getBankIcon() {
     if (_selectedBank.isNotEmpty) {
-      // Check if we have a logo asset
       if (_selectedBankLogo.isNotEmpty) {
-        // Check if the logo is an SVG
         if (_selectedBankLogo.contains('.svg')) {
           return SvgPicture.asset(_selectedBankLogo, width: 22, height: 22);
         } else {
-          // For PNG images - use Image.asset with fit
           return Image.asset(
             _selectedBankLogo,
             width: 22,
@@ -183,7 +198,6 @@ class _PaySheetState extends State<PaySheet> {
           );
         }
       } else {
-        // If no logo asset, show initials with gradient
         final initials = _getBankInitials(_selectedBank);
         final gradients = _getBankGradientsForName(_selectedBank);
         final color1 = gradients.$1 ?? const Color(0xFF07B826);
@@ -230,177 +244,6 @@ class _PaySheetState extends State<PaySheet> {
         width: 12,
         height: 12,
         colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-      ),
-    );
-  }
-
-  // Get bank logo for display - returns the asset path
-  String _getBankLogoAsset(String bankName) {
-    if (_selectedBankLogo.isNotEmpty) return _selectedBankLogo;
-    switch (bankName.toLowerCase()) {
-      case 'opay':
-        return Assets.bankOpay;
-      case 'gtbank':
-        return Assets.bankchase;
-      case 'access bank':
-        return Assets.bankBlack;
-      case 'fcmb':
-        return Assets.bankFcmb;
-      case 'transfa':
-        return Assets.logoSmallWhite;
-      case 'chase':
-        return Assets.bankchase;
-      default:
-        return '';
-    }
-  }
-
-  Color? _getBankGradient1(String bankName) {
-    if (_selectedBankGradient1 != null) return _selectedBankGradient1;
-    switch (bankName.toLowerCase()) {
-      case 'opay':
-        return const Color(0xFFFFFFFF);
-      case 'transfa':
-        return const Color(0xFF000000);
-      case 'fcmb':
-        return const Color(0xFF5C2684);
-      case 'chase':
-        return const Color(0xFFFFFFFF);
-      case 'gtbank':
-        return const Color(0xFFE85A1F);
-      case 'access bank':
-        return const Color(0xFFEF3E33);
-      default:
-        return null;
-    }
-  }
-
-  Color? _getBankGradient2(String bankName) {
-    if (_selectedBankGradient2 != null) return _selectedBankGradient2;
-    switch (bankName.toLowerCase()) {
-      case 'opay':
-        return const Color(0xFFFFFFFF);
-      case 'transfa':
-        return const Color(0xFF000000);
-      case 'fcmb':
-        return const Color(0xFF5C2684);
-      case 'chase':
-        return const Color(0xFFFFFFFF);
-      case 'gtbank':
-        return const Color(0xFFE85A1F);
-      case 'access bank':
-        return const Color(0xFFEF3E33);
-      default:
-        return null;
-    }
-  }
-
-  double get _totalAmount {
-    final amount = double.tryParse(widget.amount.replaceAll(',', '')) ?? 0;
-    return amount + _transactionFee;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _memoController.text = widget.memo;
-  }
-
-  @override
-  void dispose() {
-    _memoController.dispose();
-    super.dispose();
-  }
-
-  void _onMemoChanged(String value) {
-    widget.onMemoChanged(value);
-  }
-
-  void _onTouchToConfirm() {
-    final bool hasMultipleBanks = true;
-    if (hasMultipleBanks) {
-      _showMultipleBanksPopup();
-    } else {
-      _showSingleAccountFoundPopup();
-    }
-  }
-
-  void _showSingleAccountFoundPopup() {
-    Navigator.of(context).pop();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(45),
-          topRight: Radius.circular(45),
-        ),
-      ),
-      builder: (context) => SingleAccountSheet(
-        recipientName: _currentRecipientName,
-        currencySymbol: widget.currency.symbol,
-        amount: widget.amount,
-        memo: widget.memo,
-        accountNumber: _currentAccountNumber,
-        bankName: _currentBankName,
-        recipientImageUrl: _currentRecipientImage,
-        bankLogoAsset: _getBankLogoAsset(_currentBankName),
-        bankGradientColor1: _getBankGradient1(_currentBankName),
-        bankGradientColor2: _getBankGradient2(_currentBankName),
-        onMemoChanged: (newMemo) {
-          widget.onMemoChanged(newMemo);
-          _memoController.text = newMemo;
-        },
-      ),
-    );
-  }
-
-  void _showMultipleBanksPopup() {
-    final banks = [
-      const BankAccount(
-        name: 'Transfa',
-        logoAsset: Assets.logoSmallWhite,
-        gradientColor1: Color(0xFF000000),
-        gradientColor2: Color(0xFF000000),
-      ),
-      const BankAccount(
-        name: 'FCMB',
-        logoAsset: Assets.bankFcmb,
-        gradientColor1: Color(0xFF5C2684),
-        gradientColor2: Color(0xFF5C2684),
-      ),
-      const BankAccount(
-        name: 'OPay',
-        logoAsset: Assets.bankOpay,
-        gradientColor1: Color(0xFFFFFFFF),
-        gradientColor2: Color(0xFFFFFFFF),
-      ),
-    ];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(45),
-          topRight: Radius.circular(45),
-        ),
-      ),
-      builder: (context) => MultipleAccountsSheet(
-        recipientName: _currentRecipientName,
-        currency: widget.currency,
-        amount: widget.amount,
-        memo: widget.memo,
-        recipientImageUrl: _currentRecipientImage,
-        accountNumber: _currentAccountNumber,
-        banks: banks,
-        onMemoChanged: (newMemo) {
-          widget.onMemoChanged(newMemo);
-          _memoController.text = newMemo;
-        },
       ),
     );
   }
@@ -484,22 +327,12 @@ class _PaySheetState extends State<PaySheet> {
                     physics: const BouncingScrollPhysics(),
                     child: Column(
                       children: [
-                        // Account Number Field
+                        // Account Number Field — tapping this now opens
+                        // the recipient picker, which routes straight
+                        // into the next sheet on selection instead of
+                        // returning a result here.
                         GestureDetector(
-                          onTap: () async {
-                            final result = await context
-                                .push<Map<String, dynamic>>(
-                                  Routes.recipientPick,
-                                );
-                            if (result != null && mounted) {
-                              setState(() {
-                                _selectedRecipientName = result['name'] ?? '';
-                                _selectedAccountNumber =
-                                    result['accountNumber'] ?? '';
-                                _selectedRecipientImage = result['image'] ?? '';
-                              });
-                            }
-                          },
+                          onTap: _goToRecipientPicker,
                           child: Container(
                             height: 62,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -508,6 +341,7 @@ class _PaySheetState extends State<PaySheet> {
                               borderRadius: BorderRadius.circular(35),
                             ),
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 const Text(
                                   'To:',
@@ -559,7 +393,10 @@ class _PaySheetState extends State<PaySheet> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Bank Center Field
+                        // Bank Center Field — restored. Kept as a
+                        // standalone picker (ChooseBankScreen) since
+                        // bank choice for the active flow now happens
+                        // inside SingleAccountSheet instead.
                         GestureDetector(
                           onTap: () async {
                             final result = await context
@@ -583,6 +420,7 @@ class _PaySheetState extends State<PaySheet> {
                               borderRadius: BorderRadius.circular(35),
                             ),
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Container(
                                   width: 30,
@@ -688,7 +526,8 @@ class _PaySheetState extends State<PaySheet> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Memo Field
+                        // Memo Field — icon and text share the same
+                        // vertical center via textAlignVertical.
                         Container(
                           height: 62,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -697,6 +536,7 @@ class _PaySheetState extends State<PaySheet> {
                             borderRadius: BorderRadius.circular(35),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
                                 width: 30,
@@ -707,12 +547,13 @@ class _PaySheetState extends State<PaySheet> {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Padding(
-                                  padding: EdgeInsetsGeometry.symmetric(
-                                    vertical: 15.0,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
                                   ),
                                   child: TextField(
                                     controller: _memoController,
                                     onChanged: _onMemoChanged,
+                                    textAlignVertical: TextAlignVertical.center,
                                     style: const TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -721,7 +562,7 @@ class _PaySheetState extends State<PaySheet> {
                                       color: Colors.black,
                                     ),
                                     decoration: const InputDecoration(
-                                      hintText: 'Memo: What\'s the money for?',
+                                      hintText: "Memo: What's the money for?",
                                       hintStyle: TextStyle(
                                         fontFamily: 'Roboto',
                                         fontWeight: FontWeight.w400,
@@ -750,6 +591,7 @@ class _PaySheetState extends State<PaySheet> {
                             borderRadius: BorderRadius.circular(35),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
                                 width: 30,
@@ -867,7 +709,7 @@ class _PaySheetState extends State<PaySheet> {
 
                         // Pay Bubble - Touch to Confirm
                         GestureDetector(
-                          onTap: _onTouchToConfirm,
+                          onTap: _goToRecipientPicker,
                           child: Container(
                             width: double.infinity,
                             height: 150,

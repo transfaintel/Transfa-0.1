@@ -111,6 +111,12 @@ class Assets {
   static const addRed = '$_icon/AddRed.svg';
   static const recieveWhite = '$_icon/ReceiveWhite.svg';
   static const SettingsBox = '$_icon/SettingsBox.svg';
+  static const passcodeBadge = '$_icon/PasscodeBadge.svg';
+  static const chess = '$_icon/Chess.svg';
+  static const contactsRed = '$_icon/contactsRed.svg';
+  static const faceIDRound = '$_icon/FaceIDRound.svg';
+  static const checkRound = '$_icon/CheckRound.svg';
+  static const photoIDRound = '$_icon/PhotoIDRound.svg';
 
   // ---------- Lock + keypad ----------
   static const locked = '$_icon/LOCKED.svg';

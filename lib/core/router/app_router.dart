@@ -143,7 +143,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       slideRoute(Routes.transfaAi, const TransfaAiScreen()),
       slideRoute(Routes.amount, const AmountKeypadScreen()),
       slideRoute(Routes.sendForm, const SendFormScreen()),
-      slideRoute(Routes.recipientPick, const RecipientPickerScreen()),
+      GoRoute(
+        path: Routes.recipientPick,
+        pageBuilder: (context, state) => buildPageWithTransition(
+          RecipientPickerScreen(args: state.extra as RecipientPickerArgs),
+        ),
+      ),
       slideRoute(Routes.recipientProfile, const RecipientProfileScreen()),
       slideRoute(Routes.recipientMultiBank, const RecipientMultiBankScreen()),
       slideRoute(

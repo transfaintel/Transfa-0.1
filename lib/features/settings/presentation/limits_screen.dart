@@ -10,7 +10,7 @@ class LimitsScreen extends StatelessWidget {
   const LimitsScreen({super.key});
 
   static const _plans = [
-    _Plan('Citizen', Assets.group, [
+    _Plan('Citizen', Assets.contactsRed, [
       _Limit('Send', '₦50,000'),
       _Limit('Receive', '₦300,000'),
       _Limit('Max Balance', '₦300,000'),
@@ -20,7 +20,7 @@ class LimitsScreen extends StatelessWidget {
       _Limit('Receive', '₦500,000'),
       _Limit('Max Balance', '₦500,000'),
     ], false),
-    _Plan('Prime', Assets.group, [
+    _Plan('Prime', Assets.chess, [
       _Limit('Send', '₦5,000,000'),
       _Limit('Receive', 'Over ₦1 Billion'),
       _Limit('Max Balance', 'Over ₦1 Trillion'),
@@ -34,16 +34,33 @@ class LimitsScreen extends StatelessWidget {
       child: Stack(
         children: [
           ListView(
-            padding: const EdgeInsets.fromLTRB(20, 60, 20, 120),
+            padding: const EdgeInsets.fromLTRB(
+              0,
+              60,
+              0,
+              120,
+            ), // Removed horizontal padding
             children: [
-              _buildHeader(),
+              // Header with horizontal padding
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildHeader(),
+              ),
               const SizedBox(height: 28),
-              _buildPageNote(),
+              // Page note with horizontal padding
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildPageNote(),
+              ),
               const SizedBox(height: 28),
+              // Horizontal scrolling plan cards - edge to edge
               SizedBox(
                 height: 620,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                  ), // Add padding to the list itself
                   itemCount: _plans.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 16),
                   itemBuilder: (_, i) => _buildPlanCard(_plans[i]),
@@ -103,9 +120,24 @@ class LimitsScreen extends StatelessWidget {
     child: Column(
       children: [
         _buildPlanHeader(plan),
-        const Divider(color: Color(0xFFEEEEEE), height: 1, thickness: 1),
-        ...plan.limits.map((l) => _LimitRow(l)),
-        const Divider(color: Color(0xFFEEEEEE), height: 1, thickness: 1),
+        const Divider(color: Color(0x08000000), height: 1, thickness: 1),
+        ...plan.limits.expand(
+          (l) => [
+            _LimitRow(l),
+            const Divider(color: Color(0x08000000), height: 1, thickness: 1),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Text(
+            'This is the total amount of Nigerian Naira you can Transfa daily.',
+            style: AppTypography.body.copyWith(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+        const Divider(color: Color(0x08000000), height: 1, thickness: 1),
         _buildVerificationOptions(plan),
       ],
     ),
@@ -118,12 +150,7 @@ class LimitsScreen extends StatelessWidget {
         Container(
           width: 50,
           height: 50,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
-            ),
-            borderRadius: BorderRadius.circular(35),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(35)),
           alignment: Alignment.center,
           child: SvgPicture.asset(plan.icon, fit: BoxFit.cover),
         ),
@@ -141,13 +168,8 @@ class LimitsScreen extends StatelessWidget {
           Container(
             width: 26,
             height: 26,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF07B826), Color(0xFF4EE659)],
-              ),
-              borderRadius: BorderRadius.circular(35),
-            ),
-            child: const Icon(Icons.check, color: Colors.white, size: 16),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(35)),
+            child: SvgPicture.asset(Assets.checkRound, fit: BoxFit.cover),
           ),
       ],
     ),
@@ -160,9 +182,9 @@ class LimitsScreen extends StatelessWidget {
           ? [
               _VerificationOption('Home', Assets.sweetHome, false),
               const SizedBox(height: 10),
-              _VerificationOption('Face Shot', Assets.faceId, true),
+              _VerificationOption('Face Shot', Assets.faceIDRound, true),
               const SizedBox(height: 10),
-              // _VerificationOption('Passport Photo', Assets., true),
+              _VerificationOption('Passport Photo', Assets.photoIDRound, true),
             ]
           : [
               _VerificationOption(
@@ -253,13 +275,8 @@ class _VerificationOption extends StatelessWidget {
           Container(
             width: 26,
             height: 26,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF07B826), Color(0xFF4EE659)],
-              ),
-              borderRadius: BorderRadius.circular(35),
-            ),
-            child: const Icon(Icons.check, color: Colors.white, size: 16),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(35)),
+            child: SvgPicture.asset(Assets.checkRound, fit: BoxFit.cover),
           )
         else
           const Icon(

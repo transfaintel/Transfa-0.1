@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -29,6 +30,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
   Timer? _countdownTimer;
   int _remainingSeconds = 60;
   bool _showCountdownCard = true;
+  bool _isVerifying = false; // Loading state for verification
   late final FocusNode _focusNode;
   late final TextEditingController _controller;
 
@@ -73,11 +75,26 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
     }
   }
 
+  /// Opens the keypad reliably even if the focus node already has
+  /// focus (e.g. the user swiped the keyboard away without losing
+  /// focus). `requestFocus()` is a no-op when focus doesn't change,
+  /// so in that case we explicitly ask the platform to show the
+  /// keyboard instead.
+  void _showKeypad() {
+    if (_isVerifying) return;
+    if (_focusNode.hasFocus) {
+      SystemChannels.textInput.invokeMethod('TextInput.show');
+    } else {
+      _focusNode.requestFocus();
+    }
+  }
+
   void _startCountdown() {
     _countdownTimer?.cancel();
     setState(() {
       _remainingSeconds = 60;
       _showCountdownCard = true;
+      _isVerifying = false;
     });
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds <= 1) {
@@ -94,6 +111,9 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
   }
 
   Future<void> _verify() async {
+    // Don't proceed if already verifying or code is not complete
+    if (_isVerifying || _code.length != 6) return;
+
     // Check if code is not equal to "000000"
     if (_code != '000000') {
       // Show the popup
@@ -101,10 +121,28 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
       return;
     }
 
-    // If code is "000000", proceed with verification
-    await ref.read(authRepositoryProvider).verifyOtp(_code);
-    if (!mounted) return;
-    context.push(Routes.addBvn);
+    // Start loading indicator
+    setState(() {
+      _isVerifying = true;
+    });
+
+    try {
+      // If code is "000000", proceed with verification
+      await ref.read(authRepositoryProvider).verifyOtp(_code);
+
+      if (!mounted) return;
+
+      // Navigate on success
+      context.push(Routes.addBvn);
+    } catch (e) {
+      // Handle error if needed
+      if (mounted) {
+        setState(() {
+          _isVerifying = false;
+        });
+        // Optionally show error message
+      }
+    }
   }
 
   void _showEnterCorrectCodePopup() {
@@ -121,6 +159,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
     setState(() {
       _code = '';
       _controller.clear();
+      _isVerifying = false;
     });
   }
 
@@ -131,9 +170,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
       backgroundColor: const Color(0xFFF4F4F4),
       resizeToAvoidBottomInset: true,
       body: GestureDetector(
-        onTap: () {
-          _focusNode.requestFocus();
-        },
+        onTap: _showKeypad,
         behavior: HitTestBehavior.translucent,
         child: SafeArea(
           child: Column(
@@ -184,7 +221,9 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                                         ),
                                         alignment: Alignment.center,
                                         child: SvgPicture.asset(
-                                          Assets.transfaStartkey,
+                                          _showCountdownCard
+                                              ? Assets.transfaStartkey
+                                              : Assets.passcodeBadge,
                                           fit: BoxFit.cover,
                                         ),
                                       ),
@@ -209,9 +248,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                                 ),
                                 const SizedBox(height: 20),
                                 GestureDetector(
-                                  onTap: () {
-                                    _focusNode.requestFocus();
-                                  },
+                                  onTap: _showKeypad,
                                   child: GlassCard(
                                     padding: const EdgeInsets.fromLTRB(
                                       24,
@@ -226,12 +263,16 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              'Enter the Startkey here',
+                                              _isVerifying
+                                                  ? 'Verifying...'
+                                                  : 'Enter the Startkey here',
                                               style: AppTypography.subheading
                                                   .copyWith(fontSize: 19),
                                             ),
                                             const SizedBox(width: 10),
-                                            const AnimatedDottedLoader(),
+                                            // Show loader only during verification
+                                            if (_isVerifying)
+                                              const AnimatedDottedLoader(),
                                           ],
                                         ),
                                         const SizedBox(height: 36),
@@ -252,12 +293,12 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                                 const SizedBox(height: 20),
                               ],
                             ),
-                            // Bottom section - Missing key card
+                            // Bottom section - Combined card
                             if (_showCountdownCard)
                               Padding(
-                                padding: EdgeInsetsGeometry.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: GlassCard(
-                                  padding: EdgeInsets.all(15),
+                                  padding: const EdgeInsets.all(15),
                                   child: Column(
                                     children: [
                                       Container(
@@ -337,21 +378,13 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                                                 width: 20,
                                                 height: 20,
                                                 decoration: BoxDecoration(
-                                                  gradient:
-                                                      const LinearGradient(
-                                                        colors: [
-                                                          Color(0xFFFF7088),
-                                                          Color(0xFFF41E42),
-                                                        ],
-                                                      ),
                                                   borderRadius:
                                                       BorderRadius.circular(35),
                                                 ),
-                                                child: const Center(
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    color: Colors.white,
-                                                    size: 12,
+                                                child: Center(
+                                                  child: SvgPicture.asset(
+                                                    Assets.checks,
+                                                    fit: BoxFit.cover,
                                                   ),
                                                 ),
                                               ),
@@ -378,7 +411,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                               ),
                             if (!_showCountdownCard)
                               Padding(
-                                padding: EdgeInsetsGeometry.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: GlassCard(
                                   padding: const EdgeInsets.fromLTRB(
                                     22,
@@ -397,25 +430,13 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                                       ),
                                       const SizedBox(height: 12),
                                       _ActionRow(
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFFFF7088),
-                                            Color(0xFFF41E42),
-                                          ],
-                                        ),
-                                        icon: Icons.refresh_rounded,
+                                        icon: Assets.memoReady,
                                         label: 'Send New Startkey',
                                         onTap: _resendCode,
                                       ),
                                       const SizedBox(height: 10),
                                       _ActionRow(
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFFFF7088),
-                                            Color(0xFFF41E42),
-                                          ],
-                                        ),
-                                        icon: Icons.close_rounded,
+                                        icon: Assets.checks,
                                         label: 'Cancel',
                                         onTap: () => context.pop(),
                                       ),
@@ -443,6 +464,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                   obscureText: false,
                   showCursor: false,
                   autofocus: true,
+                  enabled: !_isVerifying, // Disable while verifying
                   style: const TextStyle(fontSize: 1),
                   decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -450,7 +472,7 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
                     contentPadding: EdgeInsets.zero,
                   ),
                   onEditingComplete: () {
-                    if (_code.length == 6) {
+                    if (_code.length == 6 && !_isVerifying) {
                       _verify();
                     }
                   },
@@ -467,22 +489,6 @@ class _VerifyStartkeyScreenState extends ConsumerState<VerifyStartkeyScreen> {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
-}
-
-class _GreenDot extends StatelessWidget {
-  const _GreenDot();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.success,
-      ),
-    );
   }
 }
 
@@ -521,12 +527,13 @@ class _KeySlot extends StatelessWidget {
 }
 
 class _ActionRow extends StatelessWidget {
-  final Gradient gradient;
-  final IconData icon;
+  final Gradient gradient = const LinearGradient(
+    colors: [Color(0xFFFF7088), Color(0xFFF41E42)],
+  );
+  final String icon;
   final String label;
   final VoidCallback onTap;
   const _ActionRow({
-    required this.gradient,
     required this.icon,
     required this.label,
     required this.onTap,
@@ -544,19 +551,21 @@ class _ActionRow extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(
-                gradient: gradient,
-                shape: BoxShape.circle,
-              ),
+              decoration: const BoxDecoration(shape: BoxShape.circle),
               alignment: Alignment.center,
-              child: Icon(icon, color: Colors.white, size: 20),
+              child: SvgPicture.asset(
+                icon,
+                width: 20,
+                height: 20,
+                fit: BoxFit.contain,
+              ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 10),
             Text(
               label,
               style: AppTypography.bodyStrong.copyWith(
                 fontSize: 19,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w400,
                 foreground: Paint()
                   ..shader = gradient.createShader(
                     const Rect.fromLTWH(0, 0, 200, 50),

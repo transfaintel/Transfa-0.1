@@ -1081,10 +1081,10 @@ class _SupportMemoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1367,7 +1367,7 @@ class _DayBadge extends StatelessWidget {
       width: 32,
       height: 32,
       decoration: const BoxDecoration(
-        color: Color(0xFFFFE0E6),
+        color: Color.fromARGB(66, 255, 224, 230),
         shape: BoxShape.circle,
       ),
       alignment: Alignment.center,
@@ -1387,7 +1387,7 @@ class _DayBadge extends StatelessWidget {
           Text(
             '10',
             style: AppTypography.subheading.copyWith(
-              color: const Color(0xFFFF375F),
+              color: const Color(0xFF000000),
               fontWeight: FontWeight.w800,
               fontSize: 13,
               height: 1,

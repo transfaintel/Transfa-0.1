@@ -6,16 +6,42 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/assets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../data/mock_api/currency.dart';
 import '../../../shared/widgets/glass_card.dart';
 import '../../../shared/widgets/transfa_logo.dart';
+import '../../bottom_sheets/singleAccountSheet.dart';
+import '../../bottom_sheets/multipleAccountsSheet.dart';
 import 'transfer_state.dart';
 
 enum _PickerMode { search, recents, contacts }
 
+/// Data the picker needs to carry forward once a recipient is chosen,
+/// since selecting a recipient now skips back through PaySheet
+/// entirely and opens the next sheet directly.
+class RecipientPickerArgs {
+  final String amount;
+  final AmountCurrency currency;
+  final String memo;
+  final ValueChanged<String> onMemoChanged;
+
+  const RecipientPickerArgs({
+    required this.amount,
+    required this.currency,
+    required this.memo,
+    required this.onMemoChanged,
+  });
+}
+
 /// "New Transfa" recipient picker. Three modes selected by the bottom
 /// segmented control: search results, Recents tab, Contacts tab.
+///
+/// Picking a recipient here no longer pops a result back to PaySheet.
+/// It closes itself *and* the PaySheet bottom sheet underneath it,
+/// then opens SingleAccountSheet or MultipleAccountsSheet directly —
+/// so the user goes straight from "who" to "confirm the details."
 class RecipientPickerScreen extends ConsumerStatefulWidget {
-  const RecipientPickerScreen({super.key});
+  final RecipientPickerArgs args;
+  const RecipientPickerScreen({super.key, required this.args});
 
   @override
   ConsumerState<RecipientPickerScreen> createState() =>
@@ -25,11 +51,8 @@ class RecipientPickerScreen extends ConsumerStatefulWidget {
 class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
   _PickerMode _mode = _PickerMode.recents;
   final _search = TextEditingController();
-
-  // Track which contact is selected
   String? _selectedContactName;
 
-  // Mock account numbers for contacts - replace with actual data
   static final Map<String, String> _accountNumbers = {
     'Amadioha Obi': '123 456 7890',
     'Dalia Wetzel': '234 567 8901',
@@ -42,6 +65,33 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
     'Tobias Walsh': '890 123 4567',
     'Maya Carter': '901 234 5678',
   };
+
+  // Mock bank list used when a recipient has multiple accounts on file.
+  static const List<BankAccount> _mockBanks = [
+    BankAccount(
+      name: 'Transfa',
+      logoAsset: Assets.logoSmallWhite,
+      gradientColor1: Color(0xFF000000),
+      gradientColor2: Color(0xFF000000),
+    ),
+    BankAccount(
+      name: 'FCMB',
+      logoAsset: Assets.bankfcmbRound,
+      gradientColor1: Color(0xFF5C2684),
+      gradientColor2: Color(0xFF5C2684),
+    ),
+    BankAccount(
+      name: 'OPay',
+      logoAsset: Assets.bankOpay,
+      gradientColor1: Color(0xFFFFFFFF),
+      gradientColor2: Color(0xFFFFFFFF),
+    ),
+  ];
+
+  // Mock flag — every recipient resolves to the multi-bank flow here,
+  // matching the previous PaySheet behavior. Swap in real account-count
+  // data when it's available.
+  static const bool _mockHasMultipleBanks = true;
 
   static final _contacts = [
     _Contact('Amadioha Obi', null, color: Color(0xFFFF375F), red: true),
@@ -129,19 +179,56 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
   ];
 
   void _pick(_Contact c) {
-    // Create a map with the selected recipient data
-    final result = {
-      'name': c.name,
-      'accountNumber': _accountNumbers[c.name] ?? '000 000 0000',
-      'image': c.asset ?? Assets.magic,
-    };
+    final accountNumber = _accountNumbers[c.name] ?? '000 000 0000';
+    final recipientImage = c.asset ?? Assets.magic;
 
-    // Update the transfer draft
     ref.read(transferDraftProvider.notifier).state = ref
         .read(transferDraftProvider)
         .copyWith(recipientName: c.name);
 
-    if (mounted) context.pop(result);
+    // Capture the Navigator before popping — its own context stays
+    // valid even after the routes stacked on it are removed, so we
+    // can safely use it to open the next sheet right after.
+    final navigator = Navigator.of(context);
+    navigator.pop(); // close the recipient picker
+    navigator.pop(); // close the PaySheet bottom sheet underneath it
+    if (!navigator.mounted) return;
+
+    final args = widget.args;
+
+    showModalBottomSheet(
+      context: navigator.context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(45),
+          topRight: Radius.circular(45),
+        ),
+      ),
+      builder: (_) => _mockHasMultipleBanks
+          ? MultipleAccountsSheet(
+              recipientName: c.name,
+              currency: args.currency,
+              amount: args.amount,
+              memo: args.memo,
+              recipientImageUrl: recipientImage,
+              accountNumber: accountNumber,
+              banks: _mockBanks,
+              onMemoChanged: args.onMemoChanged,
+            )
+          : SingleAccountSheet(
+              recipientName: c.name,
+              currencySymbol: args.currency.symbol,
+              amount: args.amount,
+              memo: args.memo,
+              accountNumber: accountNumber,
+              bankName: 'OPay',
+              bankLogoAsset: Assets.bankOpay,
+              recipientImageUrl: recipientImage,
+              onMemoChanged: args.onMemoChanged,
+            ),
+    );
   }
 
   void _selectContact(String name) {
@@ -261,9 +348,6 @@ class _RecipientPickerScreenState extends ConsumerState<RecipientPickerScreen> {
   }
 
   List<Widget> _searchView() {
-    // Static mock results to match the screen design — one Top Result row
-    // (red avatar) and a second card of related matches with Magic Payma
-    // pre-highlighted.
     final top = [
       _Contact('Amadioha Obi', null, color: Color(0xFFFF375F), red: true),
     ];
@@ -426,7 +510,7 @@ class _ContactRow extends StatelessWidget {
     final avatar = _avatar();
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(26), // Reduced from 28 to 26
+      borderRadius: BorderRadius.circular(26),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
@@ -434,7 +518,7 @@ class _ContactRow extends StatelessWidget {
           color: isSelected
               ? Colors.black.withValues(alpha: 0.06)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(26), // Reduced from 28 to 26
+          borderRadius: BorderRadius.circular(26),
         ),
         child: Row(
           children: [
@@ -602,7 +686,7 @@ class _BottomBar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(30), // Reduced from 32 to 30
+              borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.06),
@@ -671,7 +755,7 @@ class _TabButton extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
         decoration: BoxDecoration(
           color: active ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(24), // Reduced from 26 to 24
+          borderRadius: BorderRadius.circular(24),
           boxShadow: active
               ? [
                   BoxShadow(
@@ -714,7 +798,7 @@ class _SearchPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30), // Reduced from 32 to 30
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -724,6 +808,7 @@ class _SearchPill extends StatelessWidget {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Icon(Icons.search_rounded, color: Colors.black54, size: 22),
           const SizedBox(width: 10),
@@ -731,9 +816,11 @@ class _SearchPill extends StatelessWidget {
             child: TextField(
               controller: controller,
               autofocus: true,
+              textAlignVertical: TextAlignVertical.center,
               decoration: const InputDecoration(
                 hintText: '',
                 border: InputBorder.none,
+                isDense: true,
               ),
               style: AppTypography.subheading.copyWith(fontSize: 20),
             ),

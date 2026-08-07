@@ -465,23 +465,23 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    WidgetSpan(
-                                      alignment: PlaceholderAlignment.baseline,
-                                      baseline: TextBaseline.alphabetic,
-                                      child: Transform.translate(
-                                        offset: const Offset(0, -8),
-                                        child: Text(
-                                          _getDecimalPart(parsedAmount),
-                                          style: const TextStyle(
-                                            fontFamily: 'Arial Rounded MT Bold',
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                            letterSpacing: 0.02,
-                                            color: Color(0xFF8A8A8C),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    // WidgetSpan(
+                                    //   alignment: PlaceholderAlignment.baseline,
+                                    //   baseline: TextBaseline.alphabetic,
+                                    //   child: Transform.translate(
+                                    //     offset: const Offset(0, -8),
+                                    //     child: Text(
+                                    //       _getDecimalPart(parsedAmount),
+                                    //       style: const TextStyle(
+                                    //         fontFamily: 'Arial Rounded MT Bold',
+                                    //         fontWeight: FontWeight.w600,
+                                    //         fontSize: 16,
+                                    //         letterSpacing: 0.02,
+                                    //         color: Color(0xFF8A8A8C),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -499,6 +499,7 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                             borderRadius: BorderRadius.circular(35),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               SvgPicture.asset(
                                 Assets.memo,
@@ -514,6 +515,7 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                                   child: TextField(
                                     controller: _memoController,
                                     onChanged: _onMemoChanged,
+                                    textAlignVertical: TextAlignVertical.center,
                                     style: const TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -522,7 +524,7 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                                       color: Colors.black,
                                     ),
                                     decoration: const InputDecoration(
-                                      hintText: 'Memo: what’s the money for?',
+                                      hintText: "Memo: what's the money for?",
                                       hintStyle: TextStyle(
                                         fontFamily: 'Roboto',
                                         fontWeight: FontWeight.w400,
@@ -578,38 +580,38 @@ class _SingleAccountSheetState extends State<SingleAccountSheet> {
                                           color: Color(0xFF8A8A8C),
                                         ),
                                       ),
-                                      WidgetSpan(
-                                        alignment:
-                                            PlaceholderAlignment.baseline,
-                                        baseline: TextBaseline.alphabetic,
-                                        child: Transform.translate(
-                                          offset: const Offset(0, -5),
-                                          child: Text(
-                                            _getDecimalPart(_userBalance),
-                                            style: const TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 11,
-                                              letterSpacing: 0.02,
-                                              color: Color(0xFF8A8A8C),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                      // WidgetSpan(
+                                      //   alignment:
+                                      //       PlaceholderAlignment.baseline,
+                                      //   baseline: TextBaseline.alphabetic,
+                                      //   child: Transform.translate(
+                                      //     offset: const Offset(0, -5),
+                                      //     child: Text(
+                                      //       _getDecimalPart(_userBalance),
+                                      //       style: const TextStyle(
+                                      //         fontFamily: 'Roboto',
+                                      //         fontWeight: FontWeight.w400,
+                                      //         fontSize: 11,
+                                      //         letterSpacing: 0.02,
+                                      //         color: Color(0xFF8A8A8C),
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      // ),
                                     ],
                                   ),
                                 ),
                               ),
-                              Container(
-                                width: 26,
-                                height: 26,
-                                alignment: Alignment.center,
-                                child: SvgPicture.asset(
-                                  Assets.menu,
-                                  width: 18,
-                                  height: 18,
-                                ),
-                              ),
+                              // Container(
+                              //   width: 26,
+                              //   height: 26,
+                              //   alignment: Alignment.center,
+                              //   child: SvgPicture.asset(
+                              //     Assets.menu,
+                              //     width: 18,
+                              //     height: 18,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),

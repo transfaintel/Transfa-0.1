@@ -343,23 +343,23 @@ class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    WidgetSpan(
-                                      alignment: PlaceholderAlignment.baseline,
-                                      baseline: TextBaseline.alphabetic,
-                                      child: Transform.translate(
-                                        offset: const Offset(0, -8),
-                                        child: Text(
-                                          _getDecimalPart(parsedAmount),
-                                          style: const TextStyle(
-                                            fontFamily: 'Arial Rounded MT Bold',
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 16,
-                                            letterSpacing: 0.02,
-                                            color: Color(0xFF8A8A8C),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    // WidgetSpan(
+                                    //   alignment: PlaceholderAlignment.baseline,
+                                    //   baseline: TextBaseline.alphabetic,
+                                    //   child: Transform.translate(
+                                    //     offset: const Offset(0, -8),
+                                    //     child: Text(
+                                    //       _getDecimalPart(parsedAmount),
+                                    //       style: const TextStyle(
+                                    //         fontFamily: 'Arial Rounded MT Bold',
+                                    //         fontWeight: FontWeight.w400,
+                                    //         fontSize: 16,
+                                    //         letterSpacing: 0.02,
+                                    //         color: Color(0xFF8A8A8C),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -377,6 +377,7 @@ class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
                             borderRadius: BorderRadius.circular(35),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               SvgPicture.asset(
                                 Assets.memo,
@@ -385,28 +386,34 @@ class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: TextField(
-                                  controller: _memoController,
-                                  onChanged: _onMemoChanged,
-                                  style: const TextStyle(
-                                    fontFamily: 'Roboto',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 17,
-                                    letterSpacing: 0.02,
-                                    color: Colors.black,
+                                child: Padding(
+                                  padding: EdgeInsetsGeometry.symmetric(
+                                    vertical: 15.0,
                                   ),
-                                  decoration: const InputDecoration(
-                                    hintText: 'Memo: what’s the money for?',
-                                    hintStyle: TextStyle(
+                                  child: TextField(
+                                    controller: _memoController,
+                                    onChanged: _onMemoChanged,
+                                    textAlignVertical: TextAlignVertical.center,
+                                    style: const TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
                                       fontSize: 17,
                                       letterSpacing: 0.02,
-                                      color: Color(0xFF8A8A8C),
+                                      color: Colors.black,
                                     ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
+                                    decoration: const InputDecoration(
+                                      hintText: "Memo: what's the money for?",
+                                      hintStyle: TextStyle(
+                                        fontFamily: 'Roboto',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 17,
+                                        letterSpacing: 0.02,
+                                        color: Color(0xFF8A8A8C),
+                                      ),
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -451,38 +458,38 @@ class _MultipleBanksSheetState extends State<MultipleBanksSheet> {
                                           color: Color(0xFF8A8A8C),
                                         ),
                                       ),
-                                      WidgetSpan(
-                                        alignment:
-                                            PlaceholderAlignment.baseline,
-                                        baseline: TextBaseline.alphabetic,
-                                        child: Transform.translate(
-                                          offset: const Offset(0, -5),
-                                          child: Text(
-                                            _getDecimalPart(_userBalance),
-                                            style: const TextStyle(
-                                              fontFamily: 'Roboto',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 11,
-                                              letterSpacing: 0.02,
-                                              color: Color(0xFF8A8A8C),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                                      // WidgetSpan(
+                                      //   alignment:
+                                      //       PlaceholderAlignment.baseline,
+                                      //   baseline: TextBaseline.alphabetic,
+                                      //   child: Transform.translate(
+                                      //     offset: const Offset(0, -5),
+                                      //     child: Text(
+                                      //       _getDecimalPart(_userBalance),
+                                      //       style: const TextStyle(
+                                      //         fontFamily: 'Roboto',
+                                      //         fontWeight: FontWeight.w400,
+                                      //         fontSize: 11,
+                                      //         letterSpacing: 0.02,
+                                      //         color: Color(0xFF8A8A8C),
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      // ),
                                     ],
                                   ),
                                 ),
                               ),
-                              Container(
-                                width: 26,
-                                height: 26,
-                                alignment: Alignment.center,
-                                child: SvgPicture.asset(
-                                  Assets.menu,
-                                  width: 18,
-                                  height: 18,
-                                ),
-                              ),
+                              // Container(
+                              //   width: 26,
+                              //   height: 26,
+                              //   alignment: Alignment.center,
+                              //   child: SvgPicture.asset(
+                              //     Assets.menu,
+                              //     width: 18,
+                              //     height: 18,
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),

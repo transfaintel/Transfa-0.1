@@ -393,6 +393,8 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       const Text(
                                         'To:',
@@ -437,6 +439,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 30,
@@ -455,30 +458,36 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
-                                      child: TextField(
-                                        controller: _routingController,
-                                        onChanged: _onRoutingInfoChanged,
-                                        style: const TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 17,
-                                          letterSpacing: 0.02,
-                                          color: Color(0xFF8A8A8C),
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: widget.routingNumber.isEmpty
-                                              ? 'Routing Number...'
-                                              : widget.routingNumber,
-                                          hintStyle: const TextStyle(
+                                      child: SizedBox(
+                                        height: 30,
+                                        child: TextField(
+                                          controller: _routingController,
+                                          onChanged: _onRoutingInfoChanged,
+                                          textAlignVertical:
+                                              TextAlignVertical.center,
+                                          style: const TextStyle(
                                             fontFamily: 'Roboto',
                                             fontWeight: FontWeight.w400,
                                             fontSize: 17,
                                             letterSpacing: 0.02,
                                             color: Color(0xFF8A8A8C),
                                           ),
-                                          border: InputBorder.none,
-                                          isDense: true,
-                                          contentPadding: EdgeInsets.zero,
+                                          decoration: InputDecoration(
+                                            hintText:
+                                                widget.routingNumber.isEmpty
+                                                ? 'Routing Number...'
+                                                : widget.routingNumber,
+                                            hintStyle: const TextStyle(
+                                              fontFamily: 'Roboto',
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 17,
+                                              letterSpacing: 0.02,
+                                              color: Color(0xFF8A8A8C),
+                                            ),
+                                            border: InputBorder.none,
+                                            isCollapsed: true,
+                                            contentPadding: EdgeInsets.zero,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -507,6 +516,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 30,
@@ -560,6 +570,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                               borderRadius: BorderRadius.circular(35),
                             ),
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 _buildBankLogo(
                                   _selectedBankLogo,
@@ -610,6 +621,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 30,
@@ -628,30 +640,35 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
-                                      child: TextField(
-                                        controller: _swiftController,
-                                        onChanged: _onSwiftInfoChanged,
-                                        style: const TextStyle(
-                                          fontFamily: 'Roboto',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 17,
-                                          letterSpacing: 0.02,
-                                          color: Color(0xFF8A8A8C),
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: widget.swiftCode.isEmpty
-                                              ? 'Swift Code...'
-                                              : widget.swiftCode,
-                                          hintStyle: const TextStyle(
+                                      child: SizedBox(
+                                        height: 30,
+                                        child: TextField(
+                                          controller: _swiftController,
+                                          onChanged: _onSwiftInfoChanged,
+                                          textAlignVertical:
+                                              TextAlignVertical.center,
+                                          style: const TextStyle(
                                             fontFamily: 'Roboto',
                                             fontWeight: FontWeight.w400,
                                             fontSize: 17,
                                             letterSpacing: 0.02,
                                             color: Color(0xFF8A8A8C),
                                           ),
-                                          border: InputBorder.none,
-                                          isDense: true,
-                                          contentPadding: EdgeInsets.zero,
+                                          decoration: InputDecoration(
+                                            hintText: widget.swiftCode.isEmpty
+                                                ? 'Swift Code...'
+                                                : widget.swiftCode,
+                                            hintStyle: const TextStyle(
+                                              fontFamily: 'Roboto',
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 17,
+                                              letterSpacing: 0.02,
+                                              color: Color(0xFF8A8A8C),
+                                            ),
+                                            border: InputBorder.none,
+                                            isCollapsed: true,
+                                            contentPadding: EdgeInsets.zero,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -680,6 +697,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                               Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 30,
@@ -724,6 +742,8 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Container(
                                         width: 40,
@@ -807,23 +827,6 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                         color: Colors.black,
                                       ),
                                     ),
-                                    // WidgetSpan(
-                                    //   alignment: PlaceholderAlignment.baseline,
-                                    //   baseline: TextBaseline.alphabetic,
-                                    //   child: Transform.translate(
-                                    //     offset: const Offset(0, -8),
-                                    //     child: Text(
-                                    //       _getDecimalPart(parsedAmount),
-                                    //       style: const TextStyle(
-                                    //         fontFamily: 'Arial Rounded MT Bold',
-                                    //         fontWeight: FontWeight.w600,
-                                    //         fontSize: 16,
-                                    //         letterSpacing: 0.02,
-                                    //         color: Color(0xFF8A8A8C),
-                                    //       ),
-                                    //     ),
-                                    //   ),
-                                    // ),
                                   ],
                                 ),
                               ),
@@ -841,6 +844,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                             borderRadius: BorderRadius.circular(35),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               SvgPicture.asset(
                                 Assets.memo,
@@ -849,13 +853,12 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: Padding(
-                                  padding: EdgeInsetsGeometry.symmetric(
-                                    vertical: 15.0,
-                                  ),
+                                child: SizedBox(
+                                  height: 30,
                                   child: TextField(
                                     controller: _memoController,
                                     onChanged: _onMemoChanged,
+                                    textAlignVertical: TextAlignVertical.center,
                                     style: const TextStyle(
                                       fontFamily: 'Roboto',
                                       fontWeight: FontWeight.w400,
@@ -875,7 +878,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                         color: Color(0xFF8A8A8C),
                                       ),
                                       border: InputBorder.none,
-                                      isDense: true,
+                                      isCollapsed: true,
                                       contentPadding: EdgeInsets.zero,
                                     ),
                                   ),
@@ -895,6 +898,7 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                             borderRadius: BorderRadius.circular(35),
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
                                 width: 30,
@@ -926,16 +930,6 @@ class _SendDollarsSheetState extends State<SendDollarsSheet> {
                                   ),
                                 ),
                               ),
-                              // Container(
-                              //   width: 26,
-                              //   height: 26,
-                              //   alignment: Alignment.center,
-                              //   child: SvgPicture.asset(
-                              //     Assets.menu,
-                              //     width: 18,
-                              //     height: 18,
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
